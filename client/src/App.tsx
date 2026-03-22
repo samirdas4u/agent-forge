@@ -5,31 +5,54 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Scenarios from "./pages/Scenarios";
+import SimulationSession from "./pages/SimulationSession";
+import SessionResult from "./pages/SessionResult";
+import Walkthroughs from "./pages/Walkthroughs";
+import WalkthroughPlayer from "./pages/WalkthroughPlayer";
+import Analytics from "./pages/Analytics";
+import SessionReplay from "./pages/SessionReplay";
+import AppLayout from "./components/AppLayout";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={Home} />
+      <Route path="/dashboard">
+        <AppLayout><Dashboard /></AppLayout>
+      </Route>
+      <Route path="/scenarios">
+        <AppLayout><Scenarios /></AppLayout>
+      </Route>
+      <Route path="/simulate/:sessionId">
+        {(params) => <AppLayout fullscreen><SimulationSession sessionId={Number(params.sessionId)} /></AppLayout>}
+      </Route>
+      <Route path="/session/:sessionId/result">
+        {(params) => <AppLayout><SessionResult sessionId={Number(params.sessionId)} /></AppLayout>}
+      </Route>
+      <Route path="/session/:sessionId/replay">
+        {(params) => <AppLayout><SessionReplay sessionId={Number(params.sessionId)} /></AppLayout>}
+      </Route>
+      <Route path="/walkthroughs">
+        <AppLayout><Walkthroughs /></AppLayout>
+      </Route>
+      <Route path="/walkthroughs/:id">
+        {(params) => <AppLayout fullscreen><WalkthroughPlayer walkthroughId={Number(params.id)} /></AppLayout>}
+      </Route>
+      <Route path="/analytics">
+        <AppLayout><Analytics /></AppLayout>
+      </Route>
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
           <Router />
