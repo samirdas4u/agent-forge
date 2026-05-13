@@ -89,13 +89,12 @@ export default function Dashboard() {
                 : "Welcome to Agent Forge. Start your first practice session below."}
             </p>
           </div>
-          <Link href="/simulate">
-            <a
-              className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shrink-0 transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg"
-              style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", boxShadow: "0 4px 16px oklch(0.52 0.26 272 / 0.3)" }}
-            >
-              <Zap size={15} /> New Session
-            </a>
+          <Link
+            href="/simulate"
+            className="hidden md:flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shrink-0 transition-all hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg"
+            style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", boxShadow: "0 4px 16px oklch(0.52 0.26 272 / 0.3)" }}
+          >
+            <Zap size={15} /> New Session
           </Link>
         </div>
 
@@ -128,10 +127,12 @@ export default function Dashboard() {
                 <Clock size={15} style={{ color: "oklch(0.52 0.26 272)" }} />
                 <h2 className="font-bold text-sm text-foreground">Recent Sessions</h2>
               </div>
-              <Link href="/analytics">
-                <a className="text-xs font-semibold flex items-center gap-1 hover:opacity-70 transition-opacity" style={{ color: "oklch(0.52 0.26 272)" }}>
-                  View all <ArrowRight size={12} />
-                </a>
+              <Link
+                href="/analytics"
+                className="text-xs font-semibold flex items-center gap-1 hover:opacity-70 transition-opacity"
+                style={{ color: "oklch(0.52 0.26 272)" }}
+              >
+                View all <ArrowRight size={12} />
               </Link>
             </div>
 
@@ -146,10 +147,12 @@ export default function Dashboard() {
                 </div>
                 <p className="font-semibold text-foreground mb-1">No sessions yet</p>
                 <p className="text-sm text-muted-foreground mb-5">Start your first simulation to see results here.</p>
-                <Link href="/simulate">
-                  <a className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
-                    <Play size={14} /> Start a session
-                  </a>
+                <Link
+                  href="/simulate"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white"
+                  style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
+                >
+                  <Play size={14} /> Start a session
                 </Link>
               </div>
             ) : (
@@ -160,30 +163,32 @@ export default function Dashboard() {
                   const scoreBg = score == null ? null : score >= 80 ? "oklch(0.95 0.07 162)" : score >= 60 ? "oklch(0.95 0.06 272)" : "oklch(0.97 0.06 80)";
                   const scoreLabel = score == null ? "In progress" : score >= 80 ? "Excellent" : score >= 60 ? "Good" : "Fair";
                   return (
-                    <Link key={row.session.id} href={`/session/${row.session.id}/result`}>
-                      <a className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors">
-                        <div className="relative shrink-0">
-                          <ScoreRing score={score ?? 0} size={44} />
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-[10px] font-black text-foreground">{score ?? "—"}</span>
-                          </div>
+                    <Link
+                      key={row.session.id}
+                      href={`/session/${row.session.id}/result`}
+                      className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
+                    >
+                      <div className="relative shrink-0">
+                        <ScoreRing score={score ?? 0} size={44} />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-[10px] font-black text-foreground">{score ?? "—"}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-foreground truncate">{row.scenarioTitle ?? "Practice Session"}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {row.session?.messageCount ?? 0} exchanges · {format(new Date(row.session.startedAt), "MMM d, yyyy")}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span
-                            className="text-xs font-bold px-2.5 py-1 rounded-full"
-                            style={{ background: scoreBg ?? "oklch(0.97 0.006 260)", color: scoreColor ?? "oklch(0.52 0.025 260)" }}
-                          >
-                            {scoreLabel}
-                          </span>
-                          <ArrowRight size={13} className="text-muted-foreground" />
-                        </div>
-                      </a>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{row.scenarioTitle ?? "Practice Session"}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {row.session?.messageCount ?? 0} exchanges · {format(new Date(row.session.startedAt), "MMM d, yyyy")}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          className="text-xs font-bold px-2.5 py-1 rounded-full"
+                          style={{ background: scoreBg ?? "oklch(0.97 0.006 260)", color: scoreColor ?? "oklch(0.52 0.025 260)" }}
+                        >
+                          {scoreLabel}
+                        </span>
+                        <ArrowRight size={13} className="text-muted-foreground" />
+                      </div>
                     </Link>
                   );
                 })}
@@ -202,42 +207,43 @@ export default function Dashboard() {
                 </h2>
               </div>
               <div className="p-4 space-y-2.5">
-                <Link href="/simulate">
-                  <a
-                    className="flex items-center gap-3 p-3.5 rounded-xl text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
-                    style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", boxShadow: "0 4px 16px oklch(0.52 0.26 272 / 0.25)" }}
-                  >
-                    <MessageSquare size={16} />
-                    <div>
-                      <p className="text-sm font-bold">Start Simulation</p>
-                      <p className="text-[11px] opacity-80">Practice a conversation</p>
-                    </div>
-                    <ArrowRight size={14} className="ml-auto opacity-70" />
-                  </a>
+                <Link
+                  href="/simulate"
+                  className="flex items-center gap-3 p-3.5 rounded-xl text-white transition-all hover:opacity-90 hover:-translate-y-0.5"
+                  style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", boxShadow: "0 4px 16px oklch(0.52 0.26 272 / 0.25)" }}
+                >
+                  <MessageSquare size={16} />
+                  <div>
+                    <p className="text-sm font-bold">Start Simulation</p>
+                    <p className="text-[11px] opacity-80">Practice a conversation</p>
+                  </div>
+                  <ArrowRight size={14} className="ml-auto opacity-70" />
                 </Link>
-                <Link href="/walkthroughs">
-                  <a className="flex items-center gap-3 p-3.5 rounded-xl border border-border hover:bg-muted/40 transition-all">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.42 0.20 162 / 0.1)" }}>
-                      <BookOpen size={15} style={{ color: "oklch(0.42 0.20 162)" }} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Tool Walkthrough</p>
-                      <p className="text-[11px] text-muted-foreground">Learn a workflow</p>
-                    </div>
-                    <ArrowRight size={14} className="ml-auto text-muted-foreground" />
-                  </a>
+                <Link
+                  href="/walkthroughs"
+                  className="flex items-center gap-3 p-3.5 rounded-xl border border-border hover:bg-muted/40 transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.42 0.20 162 / 0.1)" }}>
+                    <BookOpen size={15} style={{ color: "oklch(0.42 0.20 162)" }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Tool Walkthrough</p>
+                    <p className="text-[11px] text-muted-foreground">Learn a workflow</p>
+                  </div>
+                  <ArrowRight size={14} className="ml-auto text-muted-foreground" />
                 </Link>
-                <Link href="/analytics">
-                  <a className="flex items-center gap-3 p-3.5 rounded-xl border border-border hover:bg-muted/40 transition-all">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.52 0.18 75 / 0.1)" }}>
-                      <BarChart3 size={15} style={{ color: "oklch(0.52 0.18 75)" }} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">View Analytics</p>
-                      <p className="text-[11px] text-muted-foreground">Track your progress</p>
-                    </div>
-                    <ArrowRight size={14} className="ml-auto text-muted-foreground" />
-                  </a>
+                <Link
+                  href="/analytics"
+                  className="flex items-center gap-3 p-3.5 rounded-xl border border-border hover:bg-muted/40 transition-all"
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.52 0.18 75 / 0.1)" }}>
+                    <BarChart3 size={15} style={{ color: "oklch(0.52 0.18 75)" }} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">View Analytics</p>
+                    <p className="text-[11px] text-muted-foreground">Track your progress</p>
+                  </div>
+                  <ArrowRight size={14} className="ml-auto text-muted-foreground" />
                 </Link>
               </div>
             </div>
@@ -253,17 +259,19 @@ export default function Dashboard() {
                 </div>
                 <div className="p-3 space-y-1">
                   {scenarios.slice(0, 3).map((sc: any) => (
-                    <Link key={sc.id} href={`/simulate/${sc.id}`}>
-                      <a className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/40 transition-colors">
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "oklch(0.52 0.26 272 / 0.08)" }}>
-                          <MessageSquare size={13} style={{ color: "oklch(0.52 0.26 272)" }} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-foreground truncate">{sc.title}</p>
-                          <p className="text-[10px] text-muted-foreground capitalize">{sc.difficulty}</p>
-                        </div>
-                        <ArrowRight size={12} className="text-muted-foreground shrink-0" />
-                      </a>
+                    <Link
+                      key={sc.id}
+                      href={`/simulate/${sc.id}`}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/40 transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "oklch(0.52 0.26 272 / 0.08)" }}>
+                        <MessageSquare size={13} style={{ color: "oklch(0.52 0.26 272)" }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-foreground truncate">{sc.title}</p>
+                        <p className="text-[10px] text-muted-foreground capitalize">{sc.difficulty}</p>
+                      </div>
+                      <ArrowRight size={12} className="text-muted-foreground shrink-0" />
                     </Link>
                   ))}
                 </div>

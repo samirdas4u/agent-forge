@@ -115,13 +115,12 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
-              <Link href="/dashboard">
-                <a
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
-                  style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
-                >
-                  Go to Dashboard <ArrowRight size={14} />
-                </a>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+                style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
+              >
+                Go to Dashboard <ArrowRight size={14} />
               </Link>
             ) : (
               <>
@@ -191,10 +190,11 @@ export default function Home() {
               <Zap size={18} />
               Start practising free
             </a>
-            <Link href="/walkthroughs">
-              <a className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-foreground border border-border hover:bg-muted transition-all">
-                View walkthroughs <ChevronRight size={16} />
-              </a>
+            <Link
+              href="/walkthroughs"
+              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-foreground border border-border hover:bg-muted transition-all"
+            >
+              View walkthroughs <ChevronRight size={16} />
             </Link>
           </div>
 
