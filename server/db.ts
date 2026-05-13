@@ -2,6 +2,10 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
+  contentBlocks,
+  courseEnrollments,
+  courses,
+  lessons,
   messages,
   scenarios,
   sessions,
@@ -335,4 +339,143 @@ export async function getUserAnalytics(userId: number) {
     .limit(10);
 
   return { totalSessions, avgScore, categoryBreakdown, recentSessions };
+}
+
+// ── eLearning Courses ─────────────────────────────────────────────────────────
+
+export async function createCourse(data: {
+  userId: number;
+  title: string;
+  description?: string;
+  sourceType: "pdf" | "docx" | "pptx" | "text" | "url";
+  sourceFileName?: string;
+  slug: string;
+  estimatedMinutes?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const [result] = await db.insert(courses).values(data);
+  return (result as any).insertId as number;
+}
+
+export async function getCourseById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(courses).where(eq(courses.id, id)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getCourseBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const rows = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1);
+  return rows[0] ?? null;
+}
+
+export async function getUserCourses(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(courses).where(eq(courses.userId, userId)).orderBy(desc(courses.createdAt));
+}
+
+export async function updateCourse(id: number, data: Partial<{ title: string; description: string; status: "draft" | "published"; estimatedMinutes: number; slug: string }>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(courses).set(data).where(eq(courses.id, id));
+}
+
+export async function deleteCourse(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  // cascade delete lessons and blocks
+  const lessonRows = await db.select({ id: lessons.id }).from(lessons).where(eq(lessons.courseId, id));
+  for (const l of lessonRows) {
+    await db.delete(contentBlocks).where(eq(contentBlocks.lessonId, l.id));
+  }
+  await db.delete(lessons).where(eq(lessons.courseId, id));
+  await db.delete(courseEnrollments).where(eq(courseEnrollments.courseId, id));
+  await db.delete(courses).where(eq(courses.id, id));
+}
+
+export async function createLesson(data: { courseId: number; title: string; objectives?: string; lessonOrder: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const [result] = await db.insert(lessons).values(data);
+  return (result as any).insertId as number;
+}
+
+export async function getLessonsByCourse(courseId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(lessons).where(eq(lessons.courseId, courseId)).orderBy(lessons.lessonOrder);
+}
+
+export async function updateLesson(id: number, data: Partial<{ title: string; objectives: string; lessonOrder: number }>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(lessons).set(data).where(eq(lessons.id, id));
+}
+
+export async function deleteLesson(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(contentBlocks).where(eq(contentBlocks.lessonId, id));
+  await db.delete(lessons).where(eq(lessons.id, id));
+}
+
+export async function createContentBlock(data: { lessonId: number; blockType: "text" | "key_concept" | "quiz" | "summary" | "callout"; content: unknown; blockOrder: number }) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const [result] = await db.insert(contentBlocks).values({ ...data, content: data.content as any });
+  return (result as any).insertId as number;
+}
+
+export async function getBlocksByLesson(lessonId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(contentBlocks).where(eq(contentBlocks.lessonId, lessonId)).orderBy(contentBlocks.blockOrder);
+}
+
+export async function updateContentBlock(id: number, data: Partial<{ blockType: "text" | "key_concept" | "quiz" | "summary" | "callout"; content: unknown; blockOrder: number }>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(contentBlocks).set({ ...data, content: data.content as any }).where(eq(contentBlocks.id, id));
+}
+
+export async function deleteContentBlock(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.delete(contentBlocks).where(eq(contentBlocks.id, id));
+}
+
+export async function getOrCreateEnrollment(userId: number, courseId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  const existing = await db.select().from(courseEnrollments)
+    .where(and(eq(courseEnrollments.userId, userId), eq(courseEnrollments.courseId, courseId)))
+    .limit(1);
+  if (existing[0]) return existing[0];
+  await db.insert(courseEnrollments).values({ userId, courseId });
+  const fresh = await db.select().from(courseEnrollments)
+    .where(and(eq(courseEnrollments.userId, userId), eq(courseEnrollments.courseId, courseId)))
+    .limit(1);
+  return fresh[0]!;
+}
+
+export async function updateEnrollment(id: number, data: Partial<{ completedLessons: number[]; completedBlocks: number[]; quizScores: Record<string, number>; isCompleted: boolean; completedAt: Date }>) {
+  const db = await getDb();
+  if (!db) throw new Error("DB unavailable");
+  await db.update(courseEnrollments).set(data as any).where(eq(courseEnrollments.id, id));
+}
+
+export async function getCourseFull(courseId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const course = await getCourseById(courseId);
+  if (!course) return null;
+  const lessonRows = await getLessonsByCourse(courseId);
+  const lessonsWithBlocks = await Promise.all(
+    lessonRows.map(async (l) => ({ ...l, blocks: await getBlocksByLesson(l.id) }))
+  );
+  return { ...course, lessons: lessonsWithBlocks };
 }

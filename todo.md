@@ -79,3 +79,36 @@
 - [x] Leaderboard page showing top users by score and sessions
 - [x] Streak badge on dashboard and leaderboard
 - [x] Leaderboard route (/leaderboard) in sidebar nav
+
+## eLearning Authoring Module (Document → Course)
+
+### Database
+- [ ] courses table (id, userId, title, description, status, sourceType, slug, createdAt)
+- [ ] lessons table (id, courseId, title, objectives, order, createdAt)
+- [ ] content_blocks table (id, lessonId, type, content, order, createdAt)
+- [ ] course_enrollments table (id, userId, courseId, progress, completedAt)
+
+### Server
+- [ ] Document upload + text extraction (PDF via pdf-parse, DOCX via mammoth)
+- [ ] AI course generation router (extract → outline → lessons → blocks)
+- [ ] Course CRUD router (create, read, update, delete, publish)
+- [ ] Lesson CRUD + block CRUD routers
+- [ ] Refine with AI router (simplify, add quiz, add example, summarise, rewrite)
+- [ ] SCORM 1.2 ZIP export
+- [ ] SCORM 2004 3rd Ed ZIP export
+- [ ] SCORM 2004 4th Ed ZIP export
+- [ ] Public course slug router (unauthenticated learner access)
+
+### Frontend
+- [ ] Courses library page (/courses)
+- [ ] Course creation page with document upload (/courses/new)
+- [ ] AI processing progress screen
+- [ ] Block-based course editor (/courses/:id/edit)
+- [ ] Refine with AI right panel in editor
+- [ ] Lesson outline sidebar in editor
+- [ ] Content block types: text, key-concept, quiz, summary
+- [ ] SCORM export dialog (choose version, download ZIP)
+- [ ] Public learner view (/learn/:slug)
+- [ ] Lesson player with progress tracking
+- [ ] Quiz block interactive UI
+- [ ] Sidebar nav item for Courses

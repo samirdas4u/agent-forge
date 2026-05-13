@@ -15,6 +15,10 @@ import Analytics from "./pages/Analytics";
 import SessionReplay from "./pages/SessionReplay";
 import Leaderboard from "./pages/Leaderboard";
 import AdminScenarios from "./pages/AdminScenarios";
+import Courses from "./pages/Courses";
+import CourseCreate from "./pages/CourseCreate";
+import CourseEditor from "./pages/CourseEditor";
+import LearnCourse from "./pages/LearnCourse";
 import AppLayout from "./components/AppLayout";
 
 function Router() {
@@ -54,6 +58,18 @@ function Router() {
       </Route>
       <Route path="/admin/scenarios">
         <AdminScenarios />
+      </Route>
+      <Route path="/courses">
+        <Courses />
+      </Route>
+      <Route path="/courses/new">
+        <CourseCreate />
+      </Route>
+      <Route path="/courses/:id/edit">
+        {(params) => <CourseEditor />}
+      </Route>
+      <Route path="/learn/:slug">
+        {(params) => <LearnCourse />}
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { coursesRouter } from "./routers/courses";
 import { invokeLLM } from "./_core/llm";
 import {
   addMessage,
@@ -545,6 +546,9 @@ Return JSON with: {
       return getUserAnalytics(ctx.user.id);
     }),
   }),
+
+  // ── eLearning Courses ─────────────────────────────────────────────────────────
+  courses: coursesRouter,
 });
 
 export type AppRouter = typeof appRouter;

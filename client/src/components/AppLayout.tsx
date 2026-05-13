@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Flame,
+  GraduationCap,
   LayoutGrid,
   Layers,
   LogOut,
@@ -30,6 +31,7 @@ const NAV_SECTIONS = [
       { href: "/dashboard",    label: "Dashboard",       icon: LayoutGrid },
       { href: "/simulate",     label: "Conversation Sim", icon: MessageSquare },
       { href: "/walkthroughs", label: "Walkthroughs",    icon: BookOpen },
+      { href: "/courses",      label: "Courses",         icon: GraduationCap },
     ],
   },
   {

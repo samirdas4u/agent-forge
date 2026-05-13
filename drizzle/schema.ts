@@ -128,3 +128,65 @@ export const walkthroughCompletions = mysqlTable("walkthrough_completions", {
 });
 
 export type WalkthroughCompletion = typeof walkthroughCompletions.$inferSelect;
+
+// eLearning Courses
+export const courses = mysqlTable("courses", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["draft", "published"]).default("draft").notNull(),
+  sourceType: mysqlEnum("sourceType", ["pdf", "docx", "pptx", "text", "url"]).default("text").notNull(),
+  sourceFileName: varchar("sourceFileName", { length: 255 }),
+  slug: varchar("slug", { length: 255 }).unique(),
+  estimatedMinutes: int("estimatedMinutes").default(30),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Course = typeof courses.$inferSelect;
+export type InsertCourse = typeof courses.$inferInsert;
+
+// Lessons within a course
+export const lessons = mysqlTable("lessons", {
+  id: int("id").autoincrement().primaryKey(),
+  courseId: int("courseId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  objectives: text("objectives"),
+  lessonOrder: int("lessonOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Lesson = typeof lessons.$inferSelect;
+export type InsertLesson = typeof lessons.$inferInsert;
+
+// Content blocks within a lesson
+export const contentBlocks = mysqlTable("content_blocks", {
+  id: int("id").autoincrement().primaryKey(),
+  lessonId: int("lessonId").notNull(),
+  blockType: mysqlEnum("blockType", ["text", "key_concept", "quiz", "summary", "callout"]).notNull().default("text"),
+  content: json("content").notNull(), // flexible JSON per block type
+  blockOrder: int("blockOrder").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContentBlock = typeof contentBlocks.$inferSelect;
+export type InsertContentBlock = typeof contentBlocks.$inferInsert;
+
+// Course enrollments / learner progress
+export const courseEnrollments = mysqlTable("course_enrollments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  courseId: int("courseId").notNull(),
+  completedLessons: json("completedLessons").$type<number[]>().default([]),
+  completedBlocks: json("completedBlocks").$type<number[]>().default([]),
+  quizScores: json("quizScores").$type<Record<string, number>>().default({}),
+  isCompleted: boolean("isCompleted").default(false).notNull(),
+  completedAt: timestamp("completedAt"),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
