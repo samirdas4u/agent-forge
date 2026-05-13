@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS sessions (id int AUTO_INCREMENT NOT NULL, userId int NOT NULL, scenarioId int NOT NULL, status enum('active','completed','abandoned') NOT NULL DEFAULT 'active', overallScore float, clarityScore float, empathyScore float, persuasivenessScore float, objectionHandlingScore float, professionalismScore float, feedbackSummary text, strengths json, improvements json, durationSeconds int, startedAt timestamp NOT NULL DEFAULT (now()), completedAt timestamp, CONSTRAINT sessions_id PRIMARY KEY(id))",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute CREATE TABLE IF NOT EXISTS sessions (id int AUTO_INCREMENT NOT NULL, userId int NOT NULL, scenarioId int NOT NULL, status enum('active','completed','abandoned') NOT NULL DEFAULT 'active', overallScore float, clarityScore float, empathyScore float, persuasivenessScore float, objectionHandlingScore float, professionalismScore float, feedbackSummary text, strengths json, improvements json, durationSeconds int, startedAt timestamp NOT NULL DEFAULT (now()), completedAt timestamp, CONSTRAINT sessions_id PRIMARY KEY(id))",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 332
+}

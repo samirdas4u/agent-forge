@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS walkthrough_completions (id int AUTO_INCREMENT NOT NULL, userId int NOT NULL, walkthroughId int NOT NULL, completedSteps json, isCompleted boolean NOT NULL DEFAULT false, score float, completedAt timestamp, startedAt timestamp NOT NULL DEFAULT (now()), CONSTRAINT walkthrough_completions_id PRIMARY KEY(id))",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute CREATE TABLE IF NOT EXISTS walkthrough_completions (id int AUTO_INCREMENT NOT NULL, userId int NOT NULL, walkthroughId int NOT NULL, completedSteps json, isCompleted boolean NOT NULL DEFAULT false, score float, completedAt timestamp, startedAt timestamp NOT NULL DEFAULT (now()), CONSTRAINT walkthrough_completions_id PRIMARY KEY(id))",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 325
+}

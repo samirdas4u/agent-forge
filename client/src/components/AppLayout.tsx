@@ -3,14 +3,14 @@ import { getLoginUrl } from "@/const";
 import {
   BarChart3,
   BookOpen,
+  Brain,
   ChevronLeft,
   ChevronRight,
-  Home,
-  Layers,
+  Flame,
   LayoutGrid,
+  Layers,
   LogOut,
   MessageSquare,
-  Play,
   Shield,
   Trophy,
   Zap,
@@ -25,30 +25,20 @@ interface AppLayoutProps {
 
 const NAV_SECTIONS = [
   {
-    label: "Overview",
+    label: "Main",
     items: [
-      { href: "/", label: "Home", icon: Home, exact: true },
-      { href: "/dashboard", label: "Dashboard", icon: LayoutGrid },
-    ],
-  },
-  {
-    label: "Practice",
-    items: [
-      { href: "/simulate", label: "Conversation Sim", icon: MessageSquare },
-      { href: "/walkthroughs", label: "Tool Walkthroughs", icon: BookOpen },
+      { href: "/dashboard",    label: "Dashboard",       icon: LayoutGrid },
+      { href: "/simulate",     label: "Conversation Sim", icon: MessageSquare },
+      { href: "/walkthroughs", label: "Walkthroughs",    icon: BookOpen },
     ],
   },
   {
     label: "Insights",
     items: [
-      { href: "/analytics", label: "Analytics", icon: BarChart3 },
+      { href: "/analytics",   label: "Analytics",   icon: BarChart3 },
       { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
     ],
   },
-];
-
-const ADMIN_NAV = [
-  { href: "/admin/scenarios", label: "Scenario Builder", icon: Layers },
 ];
 
 export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
@@ -60,12 +50,16 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.51 0.23 264)" }}>
-            <Zap size={16} color="white" className="animate-pulse" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)" }}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
+            <Brain size={22} color="white" />
           </div>
-          <span className="text-sm text-muted-foreground font-medium">Loading Agent Forge...</span>
+          <div className="flex gap-1.5">
+            <span className="typing-dot" />
+            <span className="typing-dot" />
+            <span className="typing-dot" />
+          </div>
         </div>
       </div>
     );
@@ -73,19 +67,19 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)" }}>
         <div className="bg-white border border-border rounded-2xl p-10 shadow-sm max-w-sm w-full mx-4 text-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "oklch(0.51 0.23 264)" }}>
-            <Zap size={24} color="white" />
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
+            <Brain size={24} color="white" />
           </div>
           <h2 className="text-xl font-bold mb-2 text-foreground">Welcome to Agent Forge</h2>
           <p className="text-muted-foreground text-sm mb-7 leading-relaxed">
-            AI-powered practice simulations for communication and tool walkthroughs.
+            AI-powered practice simulations for communication mastery and tool walkthroughs.
           </p>
           <a
             href={getLoginUrl()}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ background: "oklch(0.51 0.23 264)" }}
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+            style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
           >
             Sign in to continue
           </a>
@@ -93,6 +87,9 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
       </div>
     );
   }
+
+  const userInitial = (user?.name || user?.email || "U")[0].toUpperCase();
+  const streakDays = (user as any)?.streakDays ?? 0;
 
   const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
     <aside
@@ -105,30 +102,48 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
     >
       {/* Logo */}
       <div
-        className="flex items-center gap-2.5 px-3 border-b"
-        style={{ borderColor: "var(--sidebar-border)", height: 56, minHeight: 56 }}
+        className="flex items-center gap-2.5 px-3 border-b shrink-0"
+        style={{ borderColor: "var(--sidebar-border)", height: 58, minHeight: 58 }}
       >
         <div
-          className="flex items-center justify-center rounded-lg shrink-0"
-          style={{ width: 32, height: 32, background: "oklch(0.51 0.23 264)" }}
+          className="flex items-center justify-center rounded-xl shrink-0"
+          style={{ width: 34, height: 34, background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
         >
-          <Zap size={15} color="white" />
+          <Brain size={16} color="white" />
         </div>
         {(!collapsed || mobile) && (
-          <span className="font-bold text-sm tracking-tight" style={{ color: "oklch(0.97 0.01 264)" }}>
-            Agent Forge
-          </span>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm leading-none" style={{ color: "oklch(0.95 0.01 260)" }}>
+              Agent Forge
+            </p>
+            <p className="text-[10px] mt-0.5 font-medium" style={{ color: "oklch(0.42 0.02 260)" }}>
+              AI Practice Platform
+            </p>
+          </div>
         )}
         {!mobile && (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="ml-auto rounded-md p-1 transition-colors"
-            style={{ color: "oklch(0.5 0.03 264)" }}
+            className="ml-auto p-1 rounded-md transition-colors"
+            style={{ color: "oklch(0.42 0.02 260)" }}
           >
             {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
           </button>
         )}
       </div>
+
+      {/* Streak banner */}
+      {streakDays > 0 && (!collapsed || mobile) && (
+        <div
+          className="mx-3 mt-3 px-3 py-2 rounded-xl flex items-center gap-2"
+          style={{ background: "oklch(0.72 0.18 75 / 0.1)", border: "1px solid oklch(0.72 0.18 75 / 0.18)" }}
+        >
+          <Flame size={14} style={{ color: "oklch(0.72 0.18 75)" }} />
+          <span className="text-xs font-semibold" style={{ color: "oklch(0.80 0.14 75)" }}>
+            {streakDays} day streak 🔥
+          </span>
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
@@ -137,26 +152,26 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             {(!collapsed || mobile) && (
               <div className="section-label">{section.label}</div>
             )}
-            {section.items.map((item) => {
-              const isActive = item.exact
-                ? location === item.href
-                : location === item.href || location.startsWith(item.href + "/");
-              return (
-                <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
-                  <div
-                    className={`nav-item ${isActive ? "active" : ""}`}
-                    title={collapsed && !mobile ? item.label : undefined}
-                  >
-                    <item.icon size={15} className="shrink-0" />
-                    {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
-                  </div>
-                </Link>
-              );
-            })}
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const isActive = location === item.href || location.startsWith(item.href + "/");
+                return (
+                  <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+                    <div
+                      className={`nav-item ${isActive ? "active" : ""}`}
+                      title={collapsed && !mobile ? item.label : undefined}
+                    >
+                      <item.icon size={15} className="shrink-0" />
+                      {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
+                      {isActive && (!collapsed || mobile) && <ChevronRight size={12} className="ml-auto opacity-50" />}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         ))}
 
-        {/* Admin section */}
         {isAdmin && (
           <div>
             {(!collapsed || mobile) && (
@@ -165,37 +180,39 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
                 Admin
               </div>
             )}
-            {ADMIN_NAV.map((item) => {
-              const isActive = location === item.href || location.startsWith(item.href + "/");
-              return (
-                <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
-                  <div
-                    className={`nav-item ${isActive ? "active" : ""}`}
-                    title={collapsed && !mobile ? item.label : undefined}
-                  >
-                    <item.icon size={15} className="shrink-0" />
-                    {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
-                  </div>
-                </Link>
-              );
-            })}
+            <div className="space-y-0.5">
+              {[{ href: "/admin/scenarios", label: "Scenario Builder", icon: Layers }].map((item) => {
+                const isActive = location === item.href || location.startsWith(item.href + "/");
+                return (
+                  <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+                    <div
+                      className={`nav-item ${isActive ? "active" : ""}`}
+                      title={collapsed && !mobile ? item.label : undefined}
+                    >
+                      <item.icon size={15} className="shrink-0" />
+                      {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* Quick start CTA */}
+        {/* Quick start */}
         {(!collapsed || mobile) && (
           <div>
             <div className="section-label">Quick Start</div>
             <Link href="/simulate" onClick={() => setMobileOpen(false)}>
               <div
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:opacity-90"
                 style={{
-                  background: "oklch(0.51 0.23 264 / 0.15)",
-                  color: "oklch(0.72 0.18 264)",
-                  border: "1px solid oklch(0.51 0.23 264 / 0.25)",
+                  background: "linear-gradient(135deg, oklch(0.52 0.26 272 / 0.18), oklch(0.65 0.22 300 / 0.12))",
+                  color: "oklch(0.78 0.18 272)",
+                  border: "1px solid oklch(0.52 0.26 272 / 0.22)",
                 }}
               >
-                <Play size={13} />
+                <Zap size={13} />
                 Start a Simulation
               </div>
             </Link>
@@ -204,33 +221,32 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
       </nav>
 
       {/* User */}
-      <div className="border-t p-2" style={{ borderColor: "var(--sidebar-border)" }}>
+      <div className="border-t p-2 shrink-0" style={{ borderColor: "var(--sidebar-border)" }}>
         {(!collapsed || mobile) ? (
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg" style={{ background: "oklch(0.225 0.05 264)" }}>
+          <div
+            className="flex items-center gap-2.5 px-2 py-2 rounded-xl"
+            style={{ background: "oklch(0.19 0.035 265)" }}
+          >
             <div
-              className="flex items-center justify-center rounded-full text-xs font-bold shrink-0"
-              style={{ width: 28, height: 28, background: "oklch(0.51 0.23 264)", color: "white" }}
+              className="flex items-center justify-center rounded-lg text-xs font-bold shrink-0"
+              style={{ width: 30, height: 30, background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", color: "white" }}
             >
-              {(user?.name || user?.email || "U")[0].toUpperCase()}
+              {userInitial}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold truncate" style={{ color: "oklch(0.92 0.01 264)" }}>
+              <div className="text-xs font-semibold truncate" style={{ color: "oklch(0.90 0.01 260)" }}>
                 {user?.name || "User"}
               </div>
-              <div className="text-[10px] truncate" style={{ color: "oklch(0.52 0.03 264)" }}>
-                {user?.email || ""}
+              <div className="text-[10px] truncate" style={{ color: "oklch(0.45 0.02 260)" }}>
+                {user?.role === "admin" ? "Admin" : "Learner"}
               </div>
             </div>
-            <button onClick={() => logout()} title="Sign out" className="p-1 rounded transition-opacity hover:opacity-70">
-              <LogOut size={13} style={{ color: "oklch(0.52 0.03 264)" }} />
+            <button onClick={() => logout()} title="Sign out" className="p-1 rounded-lg transition-opacity hover:opacity-70">
+              <LogOut size={13} style={{ color: "oklch(0.45 0.02 260)" }} />
             </button>
           </div>
         ) : (
-          <button
-            onClick={() => logout()}
-            className="nav-item w-full justify-center"
-            title="Sign out"
-          >
+          <button onClick={() => logout()} className="nav-item w-full justify-center" title="Sign out">
             <LogOut size={15} />
           </button>
         )}
@@ -251,29 +267,23 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Desktop sidebar */}
       <div className="hidden md:flex shrink-0">
         <SidebarContent />
       </div>
 
-      {/* Mobile overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
           <div className="absolute left-0 top-0 bottom-0 w-72 z-10">
             <SidebarContent mobile />
           </div>
         </div>
       )}
 
-      {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile topbar */}
         <header className="md:hidden flex items-center gap-3 px-4 h-14 bg-white border-b border-border shrink-0">
-          <button
-            className="p-2 rounded-lg border border-border"
-            onClick={() => setMobileOpen(true)}
-          >
+          <button className="p-2 rounded-lg border border-border" onClick={() => setMobileOpen(true)}>
             <div className="flex flex-col gap-1">
               <div className="w-4 h-0.5 bg-foreground rounded" />
               <div className="w-4 h-0.5 bg-foreground rounded" />
@@ -281,8 +291,8 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             </div>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.51 0.23 264)" }}>
-              <Zap size={13} color="white" />
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
+              <Brain size={13} color="white" />
             </div>
             <span className="font-bold text-sm text-foreground">Agent Forge</span>
           </div>

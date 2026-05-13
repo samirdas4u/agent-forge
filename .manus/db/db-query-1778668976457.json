@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE users ADD COLUMN IF NOT EXISTS streakDays int NOT NULL DEFAULT 0; ALTER TABLE users ADD COLUMN IF NOT EXISTS longestStreak int NOT NULL DEFAULT 0; ALTER TABLE users ADD COLUMN IF NOT EXISTS lastPracticeDate varchar(10); ALTER TABLE users ADD COLUMN IF NOT EXISTS totalSessions int NOT NULL DEFAULT 0; ALTER TABLE users ADD COLUMN IF NOT EXISTS avgScore float;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute ALTER TABLE users ADD COLUMN IF NOT EXISTS streakDays int NOT NULL DEFAULT 0; ALTER TABLE users ADD COLUMN IF NOT EXISTS longestStreak int NOT NULL DEFAULT 0; ALTER TABLE users ADD COLUMN IF NOT EXISTS lastPracticeDate varchar(10); ALTER TABLE users ADD COLUMN IF NOT EXISTS totalSessions int NOT NULL DEFAULT 0; ALTER TABLE users ADD COLUMN IF NOT EXISTS avgScore float;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 275
+}

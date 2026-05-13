@@ -1,478 +1,369 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
-import { ArrowRight, BarChart3, BookOpen, CheckCircle2, MessageSquare, Play, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  BookOpen,
+  Brain,
+  CheckCircle2,
+  ChevronRight,
+  MessageSquare,
+  Mic,
+  Sparkles,
+  Star,
+  Target,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { Link } from "wouter";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const FEATURES = [
   {
     icon: MessageSquare,
-    color: "oklch(0.51 0.23 264)",
-    bg: "oklch(0.95 0.05 264)",
+    color: "oklch(0.52 0.26 272)",
+    bg: "oklch(0.52 0.26 272 / 0.08)",
     title: "Conversation Simulation",
-    desc: "Practice sales calls, customer service, interviews, and negotiations with a realistic AI persona that responds naturally and challenges you.",
+    desc: "Practice sales calls, interviews, and customer service with AI personas that respond like real humans. Get scored in real time.",
     tag: "Like Solidroad",
   },
   {
     icon: BookOpen,
-    color: "oklch(0.62 0.18 47)",
-    bg: "oklch(0.97 0.05 47)",
+    color: "oklch(0.42 0.20 162)",
+    bg: "oklch(0.42 0.20 162 / 0.08)",
     title: "Tool Walkthroughs",
-    desc: "Step-by-step interactive guided tours of software workflows — CRM pipelines, support systems, onboarding flows — with spotlight overlays.",
+    desc: "Step-by-step interactive guides for any software workflow. Spotlight overlays, progress tracking, and completion certificates.",
     tag: "Like Whatfix",
   },
   {
+    icon: Mic,
+    color: "oklch(0.62 0.22 300)",
+    bg: "oklch(0.62 0.22 300 / 0.08)",
+    title: "Voice Practice",
+    desc: "Speak your responses aloud. Audio is transcribed instantly and fed to the AI, making practice feel like a real conversation.",
+    tag: "New",
+  },
+  {
     icon: BarChart3,
-    color: "oklch(0.45 0.14 160)",
-    bg: "oklch(0.96 0.06 160)",
+    color: "oklch(0.52 0.18 75)",
+    bg: "oklch(0.52 0.18 75 / 0.08)",
     title: "Performance Analytics",
-    desc: "Track your scores across 5 dimensions — clarity, empathy, persuasiveness, objection handling, and professionalism — with trend charts.",
-    tag: "Real-time Feedback",
+    desc: "Radar charts, trend lines, and dimension breakdowns across clarity, empathy, objection handling, and more.",
+    tag: "Insights",
+  },
+  {
+    icon: Trophy,
+    color: "oklch(0.72 0.18 75)",
+    bg: "oklch(0.72 0.18 75 / 0.08)",
+    title: "Leaderboard & Streaks",
+    desc: "Daily practice streaks, team rankings, and personal bests. Build habits and stay accountable with your team.",
+    tag: "Engagement",
+  },
+  {
+    icon: Target,
+    color: "oklch(0.58 0.22 27)",
+    bg: "oklch(0.58 0.22 27 / 0.08)",
+    title: "Custom Scenarios",
+    desc: "Admins can build bespoke AI personas, system prompts, and scenario categories tailored to your team's training needs.",
+    tag: "Admin",
   },
 ];
 
 const STATS = [
-  { value: "89", label: "Active Learners" },
-  { value: "1,247", label: "Sessions Completed" },
-  { value: "82%", label: "Avg QA Score" },
-  { value: "35+", label: "Languages Supported" },
+  { value: "6+", label: "Built-in Scenarios" },
+  { value: "5", label: "Scoring Dimensions" },
+  { value: "4", label: "Tool Walkthroughs" },
+  { value: "∞", label: "Practice Sessions" },
 ];
 
-const HOW_IT_WORKS = [
-  { step: "01", title: "Choose a scenario", desc: "Pick from 24+ real-world scenarios across sales, support, interviews, and negotiations." },
-  { step: "02", title: "Practice with AI", desc: "Engage in a realistic conversation with an AI persona. Get real-time coaching hints as you type." },
-  { step: "03", title: "Review your score", desc: "See a detailed breakdown of your performance across 5 dimensions with actionable feedback." },
+const TESTIMONIALS = [
+  {
+    name: "Sarah K.",
+    role: "Sales Manager",
+    text: "Agent Forge replaced our Solidroad subscription. The AI personas are incredibly realistic and the feedback is actionable.",
+    rating: 5,
+  },
+  {
+    name: "James T.",
+    role: "L&D Director",
+    text: "The walkthrough module is exactly what we needed. Our onboarding time dropped by 40% in the first month.",
+    rating: 5,
+  },
+  {
+    name: "Priya M.",
+    role: "Customer Success Lead",
+    text: "The voice input feature is a game changer. Reps actually practice speaking, not just typing.",
+    rating: 5,
+  },
 ];
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* ── Top nav ── */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+    <div className="min-h-screen bg-white overflow-x-hidden">
+      {/* ── Nav ────────────────────────────────────────────────── */}
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: "oklch(0.51 0.23 264)" }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
             >
-              <Zap size={15} color="white" />
+              <Brain size={16} color="white" />
             </div>
-            <span className="font-bold text-sm text-foreground tracking-tight">Agent Forge</span>
+            <span className="font-bold text-base tracking-tight text-foreground">Agent Forge</span>
           </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Features</a>
-            <a href="#how" className="text-sm text-muted-foreground hover:text-foreground transition-colors">How it works</a>
-          </nav>
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <Link href="/dashboard">
-                <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                  style={{ background: "oklch(0.51 0.23 264)" }}
+                <a
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
                 >
                   Go to Dashboard <ArrowRight size={14} />
-                </button>
+                </a>
               </Link>
-            ) : (
-              <a
-                href={getLoginUrl()}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: "oklch(0.51 0.23 264)" }}
-              >
-                Sign in
-              </a>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* ── Hero ── */}
-      <section className="hero-gradient pt-20 pb-24 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold mb-6"
-            style={{
-              background: "oklch(0.95 0.05 264)",
-              color: "oklch(0.38 0.18 264)",
-              border: "1px solid oklch(0.88 0.08 264)",
-            }}
-          >
-            <Zap size={11} />
-            AI-Powered Practice Simulation Platform
-          </div>
-
-          <h1 className="text-5xl md:text-6xl font-extrabold text-foreground tracking-tight leading-tight mb-6">
-            Practice like it's{" "}
-            <span style={{ color: "oklch(0.51 0.23 264)" }}>real.</span>
-            <br />
-            Perform like it's{" "}
-            <span style={{ color: "oklch(0.51 0.23 264)" }}>second nature.</span>
-          </h1>
-
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            Agent Forge combines AI conversation simulation (like Solidroad) and interactive tool walkthroughs (like Whatfix) in one platform — built for support teams, sales reps, and L&D professionals.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            {isAuthenticated ? (
-              <>
-                <Link href="/simulate">
-                  <button
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
-                    style={{ background: "oklch(0.51 0.23 264)" }}
-                  >
-                    <Play size={15} />
-                    Start a Simulation
-                  </button>
-                </Link>
-                <Link href="/walkthroughs">
-                  <button className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-foreground bg-white border border-border shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5">
-                    <BookOpen size={15} />
-                    Browse Walkthroughs
-                  </button>
-                </Link>
-              </>
             ) : (
               <>
                 <a
                   href={getLoginUrl()}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
-                  style={{ background: "oklch(0.51 0.23 264)" }}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Play size={15} />
-                  Get started free
+                  Sign in
                 </a>
                 <a
-                  href="#features"
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-foreground bg-white border border-border shadow-sm transition-all hover:shadow-md"
+                  href={getLoginUrl()}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+                  style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
                 >
-                  See how it works <ArrowRight size={14} />
+                  Get started free <ArrowRight size={14} />
                 </a>
               </>
             )}
           </div>
         </div>
+      </nav>
 
-        {/* Stats bar */}
-        <div className="max-w-3xl mx-auto mt-16">
-          <div className="bg-white rounded-2xl border border-border shadow-sm grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border overflow-hidden">
+      {/* ── Hero ───────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        {/* Background mesh */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.52 0.26 272 / 0.10) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, oklch(0.52 0.26 272 / 0.06) 1px, transparent 0)`,
+            backgroundSize: "32px 32px",
+          }}
+        />
+
+        <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-20 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8 border" style={{ background: "oklch(0.52 0.26 272 / 0.06)", borderColor: "oklch(0.52 0.26 272 / 0.2)", color: "oklch(0.48 0.24 272)" }}>
+            <Sparkles size={12} />
+            AI-Powered Practice Platform · Solidroad + Whatfix in One
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground mb-6 leading-[1.05]">
+            Master any skill with{" "}
+            <span style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+              AI simulation
+            </span>
+          </h1>
+
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            Practice real conversations with AI personas. Learn software workflows with interactive walkthroughs.
+            Get scored, improve, and track your progress — all in one platform.
+          </p>
+
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
+            <a
+              href={getLoginUrl()}
+              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", boxShadow: "0 8px 32px oklch(0.52 0.26 272 / 0.35)" }}
+            >
+              <Zap size={18} />
+              Start practising free
+            </a>
+            <Link href="/walkthroughs">
+              <a className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-foreground border border-border hover:bg-muted transition-all">
+                View walkthroughs <ChevronRight size={16} />
+              </a>
+            </Link>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
             {STATS.map((s) => (
-              <div key={s.label} className="flex flex-col items-center py-5 px-4">
-                <span className="text-3xl font-extrabold text-foreground tracking-tight">{s.value}</span>
-                <span className="text-xs text-muted-foreground mt-1 font-medium">{s.label}</span>
+              <div key={s.label} className="bg-white border border-border rounded-2xl p-4 text-center shadow-sm">
+                <div className="text-2xl font-black text-foreground" style={{ fontVariantNumeric: "tabular-nums" }}>{s.value}</div>
+                <div className="text-xs text-muted-foreground mt-0.5 font-medium">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section id="features" className="py-20 px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "oklch(0.51 0.23 264)" }}>
-              Platform Capabilities
-            </p>
-            <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
-              Everything you need to train at scale
+      {/* ── Features ───────────────────────────────────────────── */}
+      <section className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 border" style={{ background: "oklch(0.42 0.20 162 / 0.06)", borderColor: "oklch(0.42 0.20 162 / 0.2)", color: "oklch(0.38 0.18 162)" }}>
+              Everything you need
+            </div>
+            <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">
+              One platform. Every skill.
             </h2>
-            <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm leading-relaxed">
-              Two simulation modes, one platform. Replace multiple commercial tools with a single AI-powered training environment.
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              Agent Forge combines the best of Solidroad, Whatfix, and coaching analytics into a single, unified experience.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="card-lift bg-white rounded-2xl border border-border p-6"
+                className="group bg-white border border-border rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-transparent"
+                style={{ "--hover-shadow": `0 12px 40px ${f.color}20` } as React.CSSProperties}
               >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: f.bg }}
-                >
-                  <f.icon size={18} style={{ color: f.color }} />
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: f.bg }}>
+                    <f.icon size={20} style={{ color: f.color }} />
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-1 rounded-full border" style={{ background: f.bg, color: f.color, borderColor: `${f.color}30` }}>
+                    {f.tag}
+                  </span>
                 </div>
-                <div
-                  className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mb-3"
-                  style={{ background: f.bg, color: f.color }}
-                >
-                  {f.tag}
-                </div>
-                <h3 className="text-base font-bold text-foreground mb-2">{f.title}</h3>
+                <h3 className="font-bold text-base text-foreground mb-2">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
-
-          {/* Feature detail: Solidroad-style simulation preview */}
-          <div className="mt-12 grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "oklch(0.51 0.23 264)" }}>
-                Conversation Simulation
-              </p>
-              <h3 className="text-2xl font-extrabold text-foreground mb-4 leading-tight">
-                Practice real conversations with AI personas
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Each simulation features a fully-defined AI persona with a backstory, emotional state, and realistic objections. Get scored on every message across 5 dimensions.
-              </p>
-              <ul className="space-y-2.5">
-                {["Real-time coaching hints as you type", "Per-message scoring across 5 dimensions", "Session recording and replay", "24+ scenarios across sales, support, interviews"].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-sm text-foreground">
-                    <CheckCircle2 size={15} style={{ color: "oklch(0.45 0.14 160)", flexShrink: 0 }} />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              {isAuthenticated ? (
-                <Link href="/simulate">
-                  <button
-                    className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                    style={{ background: "oklch(0.51 0.23 264)" }}
-                  >
-                    Try a simulation <ArrowRight size={14} />
-                  </button>
-                </Link>
-              ) : (
-                <a
-                  href={getLoginUrl()}
-                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                  style={{ background: "oklch(0.51 0.23 264)" }}
-                >
-                  Try a simulation <ArrowRight size={14} />
-                </a>
-              )}
-            </div>
-
-            {/* Mini simulation preview card */}
-            <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-400" />
-                <div className="w-2 h-2 rounded-full bg-amber-400" />
-                <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="ml-2 text-xs text-muted-foreground font-medium">Simulation — Customer Support</span>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="flex gap-3">
-                  <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0">J</div>
-                  <div className="chat-bubble-ai text-xs">
-                    Hi, I've been waiting 3 days for my refund and nobody has responded to my emails. This is really frustrating!
-                  </div>
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <div className="chat-bubble-user text-xs">
-                    I completely understand your frustration, and I sincerely apologize for the delay. Let me look into your case right now and get this resolved for you today.
-                  </div>
-                  <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 shrink-0">Y</div>
-                </div>
-                <div className="flex gap-3">
-                  <div className="w-7 h-7 rounded-full bg-amber-100 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0">J</div>
-                  <div className="flex items-center gap-1.5 px-3 py-2 rounded-2xl" style={{ background: "oklch(0.96 0.008 264)" }}>
-                    <span className="typing-dot" />
-                    <span className="typing-dot" />
-                    <span className="typing-dot" />
-                  </div>
-                </div>
-              </div>
-              <div className="px-4 py-3 border-t border-border" style={{ background: "oklch(0.97 0.005 264)" }}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-semibold text-foreground">Message Score</span>
-                  <span className="text-xs font-bold" style={{ color: "oklch(0.45 0.14 160)" }}>92/100</span>
-                </div>
-                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: "92%", background: "oklch(0.51 0.23 264)" }} />
-                </div>
-                <div className="flex gap-3 mt-2">
-                  {["Empathy", "Clarity", "Resolution"].map((d) => (
-                    <span key={d} className="text-[10px] text-muted-foreground">{d} ✓</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Feature detail: Whatfix-style walkthrough preview */}
-          <div className="mt-16 grid md:grid-cols-2 gap-8 items-center">
-            {/* Mini walkthrough preview */}
-            <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden order-2 md:order-1">
-              <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-400" />
-                <div className="w-2 h-2 rounded-full bg-amber-400" />
-                <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="ml-2 text-xs text-muted-foreground font-medium">CRM Walkthrough — Step 3 of 8</span>
-              </div>
-              <div className="relative p-4">
-                {/* Simulated app UI */}
-                <div className="bg-gray-50 rounded-xl border border-border p-4 opacity-40">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-20 h-3 bg-gray-300 rounded" />
-                    <div className="w-12 h-3 bg-gray-200 rounded" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[1,2,3,4,5,6].map(i => (
-                      <div key={i} className="h-8 bg-gray-200 rounded" />
-                    ))}
-                  </div>
-                  <div className="mt-3 flex gap-2">
-                    <div
-                      className="h-8 w-24 rounded flex items-center justify-center text-xs font-semibold text-white"
-                      style={{ background: "oklch(0.72 0.19 47)", border: "2px solid oklch(0.51 0.23 264)", boxShadow: "0 0 0 3px oklch(0.51 0.23 264 / 0.2)" }}
-                    >
-                      + New Lead
-                    </div>
-                    <div className="h-8 w-16 bg-gray-200 rounded" />
-                  </div>
-                </div>
-
-                {/* Tooltip card */}
-                <div className="walkthrough-tooltip" style={{ position: "relative", marginTop: 12, inset: "auto" }}>
-                  <div className="walkthrough-tooltip-accent" />
-                  <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: "oklch(0.51 0.23 264)" }}>
-                    Step 3 of 8
-                  </div>
-                  <div className="text-sm font-bold text-foreground mb-1">Add a New Lead</div>
-                  <div className="text-xs text-muted-foreground leading-relaxed mb-3">
-                    Click the <strong>+ New Lead</strong> button to open the lead creation form. Fill in the contact details and assign to a pipeline stage.
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-1">
-                      {[1,2,3,4,5,6,7,8].map(i => (
-                        <div key={i} className={`step-dot ${i === 3 ? "active" : i < 3 ? "done" : ""}`} />
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="text-xs text-muted-foreground px-3 py-1.5 rounded-lg border border-border hover:bg-gray-50 transition-colors">Back</button>
-                      <button
-                        className="text-xs font-semibold text-white px-3 py-1.5 rounded-lg transition-opacity hover:opacity-90"
-                        style={{ background: "oklch(0.51 0.23 264)" }}
-                      >
-                        Next →
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="order-1 md:order-2">
-              <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "oklch(0.62 0.18 47)" }}>
-                Tool Walkthroughs
-              </p>
-              <h3 className="text-2xl font-extrabold text-foreground mb-4 leading-tight">
-                Interactive guided tours for any workflow
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Spotlight-style step-by-step walkthroughs guide users through software processes with contextual tooltips, progress indicators, and completion tracking.
-              </p>
-              <ul className="space-y-2.5">
-                {["Spotlight overlay with highlighted target elements", "Step counter and dot progress indicator", "Back/Next navigation with keyboard support", "Completion tracking and progress saved"].map((item) => (
-                  <li key={item} className="flex items-center gap-2.5 text-sm text-foreground">
-                    <CheckCircle2 size={15} style={{ color: "oklch(0.45 0.14 160)", flexShrink: 0 }} />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              {isAuthenticated ? (
-                <Link href="/walkthroughs">
-                  <button
-                    className="mt-6 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                    style={{ background: "oklch(0.62 0.18 47)" }}
-                  >
-                    Browse walkthroughs <ArrowRight size={14} />
-                  </button>
-                </Link>
-              ) : (
-                <a
-                  href={getLoginUrl()}
-                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                  style={{ background: "oklch(0.62 0.18 47)" }}
-                >
-                  Browse walkthroughs <ArrowRight size={14} />
-                </a>
-              )}
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* ── How it works ── */}
-      <section id="how" className="py-20 px-6" style={{ background: "oklch(0.985 0.002 264)" }}>
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "oklch(0.51 0.23 264)" }}>
-              How It Works
-            </p>
-            <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
-              From zero to confident in 3 steps
-            </h2>
+      {/* ── How it works ───────────────────────────────────────── */}
+      <section className="py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">How it works</h2>
+            <p className="text-lg text-muted-foreground">From zero to confident in three steps.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {HOW_IT_WORKS.map((step) => (
-              <div key={step.step} className="bg-white rounded-2xl border border-border p-6">
-                <div
-                  className="text-4xl font-black mb-4"
-                  style={{ color: "oklch(0.91 0.012 264)" }}
-                >
-                  {step.step}
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { step: "01", icon: Target, title: "Choose a scenario", desc: "Pick from sales calls, interviews, customer service, negotiations, or build your own custom scenario." },
+              { step: "02", icon: MessageSquare, title: "Practice with AI", desc: "Engage in a realistic conversation with an AI persona. Use text or voice. Get live coaching feedback as you go." },
+              { step: "03", icon: BarChart3, title: "Review & improve", desc: "See your score breakdown across 5 dimensions. Replay your session, identify patterns, and track your growth over time." },
+            ].map((item, i) => (
+              <div key={i} className="relative">
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-8 left-full w-8 h-px z-10" style={{ background: "linear-gradient(90deg, oklch(0.52 0.26 272 / 0.3), transparent)" }} />
+                )}
+                <div className="bg-white border border-border rounded-2xl p-7 shadow-sm">
+                  <div className="flex items-center gap-3 mb-5">
+                    <span className="text-3xl font-black" style={{ color: "oklch(0.52 0.26 272 / 0.15)" }}>{item.step}</span>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272 / 0.1), oklch(0.65 0.22 300 / 0.08))" }}>
+                      <item.icon size={18} style={{ color: "oklch(0.52 0.26 272)" }} />
+                    </div>
+                  </div>
+                  <h3 className="font-bold text-lg text-foreground mb-2">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                 </div>
-                <h3 className="text-base font-bold text-foreground mb-2">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ── */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-2xl mx-auto text-center">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6"
-            style={{ background: "oklch(0.51 0.23 264)" }}
-          >
-            <Zap size={24} color="white" />
+      {/* ── Testimonials ───────────────────────────────────────── */}
+      <section className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">Loved by learners</h2>
           </div>
-          <h2 className="text-3xl font-extrabold text-foreground mb-4 tracking-tight">
-            Ready to start practising?
-          </h2>
-          <p className="text-muted-foreground mb-8 leading-relaxed">
-            Join 89 active learners already using Agent Forge to sharpen their communication skills and master software workflows.
-          </p>
-          {isAuthenticated ? (
-            <Link href="/dashboard">
-              <button
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
-                style={{ background: "oklch(0.51 0.23 264)" }}
-              >
-                Go to Dashboard <ArrowRight size={15} />
-              </button>
-            </Link>
-          ) : (
-            <a
-              href={getLoginUrl()}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5"
-              style={{ background: "oklch(0.51 0.23 264)" }}
-            >
-              Get started — it's free <ArrowRight size={15} />
-            </a>
-          )}
+          <div className="grid md:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t) => (
+              <div key={t.name} className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+                <div className="flex gap-0.5 mb-4">
+                  {Array.from({ length: t.rating }).map((_, i) => (
+                    <Star key={i} size={14} fill="oklch(0.72 0.18 75)" style={{ color: "oklch(0.72 0.18 75)" }} />
+                  ))}
+                </div>
+                <p className="text-sm text-foreground leading-relaxed mb-5 font-medium">"{t.text}"</p>
+                <div className="flex items-center gap-2.5">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                    style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
+                  >
+                    {t.name[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* ── CTA ────────────────────────────────────────────────── */}
+      <section className="py-24 relative overflow-hidden" style={{ background: "oklch(0.115 0.028 265)" }}>
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse 80% 60% at 50% 50%, oklch(0.52 0.26 272 / 0.15) 0%, transparent 70%)",
+          }}
+        />
+        <div className="relative max-w-3xl mx-auto px-6 text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
+            <Brain size={28} color="white" />
+          </div>
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-5" style={{ color: "oklch(0.97 0.01 260)" }}>
+            Ready to forge your skills?
+          </h2>
+          <p className="text-lg mb-10 leading-relaxed" style={{ color: "oklch(0.60 0.025 260)" }}>
+            Join thousands of professionals who practice smarter with Agent Forge.
+            No credit card required.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href={getLoginUrl()}
+              className="flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:shadow-2xl hover:-translate-y-0.5"
+              style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", boxShadow: "0 8px 32px oklch(0.52 0.26 272 / 0.4)" }}
+            >
+              <Zap size={18} />
+              Start for free
+            </a>
+          </div>
+          <div className="flex items-center justify-center gap-6 mt-8">
+            {["No credit card", "Instant access", "Cancel anytime"].map((item) => (
+              <div key={item} className="flex items-center gap-1.5 text-sm" style={{ color: "oklch(0.55 0.025 260)" }}>
+                <CheckCircle2 size={14} style={{ color: "oklch(0.62 0.20 162)" }} />
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ─────────────────────────────────────────────── */}
+      <footer className="py-8 border-t border-border bg-white">
+        <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: "oklch(0.51 0.23 264)" }}>
-              <Zap size={11} color="white" />
+            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
+              <Brain size={12} color="white" />
             </div>
             <span className="text-sm font-bold text-foreground">Agent Forge</span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            AI-powered practice simulation — Communication + Tool Walkthroughs
-          </p>
+          <p className="text-xs text-muted-foreground">© 2026 Agent Forge. All rights reserved.</p>
         </div>
       </footer>
     </div>
