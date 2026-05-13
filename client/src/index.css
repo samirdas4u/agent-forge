@@ -1,9 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap');
 
 @custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   AGENT FORGE — Design System
+   Inspired by Solidroad (conversation simulation) +
+   Whatfix (tool walkthrough) UI/UX patterns
+   ============================================================ */
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -45,102 +51,74 @@
 }
 
 :root {
-  --radius: 0.375rem;
+  --radius: 0.5rem;
 
-  /* Blueprint palette */
-  --background: oklch(0.99 0.002 240);
-  --foreground: oklch(0.1 0.01 240);
+  /* ── Light theme (Solidroad-inspired clean white) ── */
+  --background: oklch(0.985 0.002 264);
+  --foreground: oklch(0.13 0.025 264);
+
   --card: oklch(1.0 0.0 0);
-  --card-foreground: oklch(0.1 0.01 240);
-  --popover: oklch(1.0 0.0 0);
-  --popover-foreground: oklch(0.1 0.01 240);
-  --primary: oklch(0.2 0.02 240);
-  --primary-foreground: oklch(0.99 0.002 240);
-  --secondary: oklch(0.95 0.015 200);
-  --secondary-foreground: oklch(0.25 0.02 240);
-  --muted: oklch(0.96 0.008 240);
-  --muted-foreground: oklch(0.5 0.02 240);
-  --accent: oklch(0.88 0.07 200);
-  --accent-foreground: oklch(0.15 0.05 200);
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.88 0.01 240);
-  --input: oklch(0.92 0.01 240);
-  --ring: oklch(0.55 0.12 200);
+  --card-foreground: oklch(0.13 0.025 264);
 
-  /* Blueprint accent colors */
-  --cyan: oklch(0.72 0.12 200);
-  --cyan-light: oklch(0.92 0.06 200);
-  --pink: oklch(0.78 0.1 350);
-  --pink-light: oklch(0.94 0.04 350);
-  --grid-color: oklch(0.9 0.012 240);
-  --grid-major-color: oklch(0.84 0.018 240);
+  --popover: oklch(1.0 0.0 0);
+  --popover-foreground: oklch(0.13 0.025 264);
+
+  /* Primary — Indigo (Solidroad brand color) */
+  --primary: oklch(0.51 0.23 264);
+  --primary-foreground: oklch(1.0 0.0 0);
+
+  --secondary: oklch(0.96 0.01 264);
+  --secondary-foreground: oklch(0.35 0.08 264);
+
+  --muted: oklch(0.97 0.005 264);
+  --muted-foreground: oklch(0.52 0.03 264);
+
+  /* Accent — Orange/Amber (Whatfix brand color) */
+  --accent: oklch(0.72 0.19 47);
+  --accent-foreground: oklch(0.99 0.0 0);
+
+  --destructive: oklch(0.58 0.22 27);
+  --destructive-foreground: oklch(1.0 0.0 0);
+
+  --border: oklch(0.91 0.012 264);
+  --input: oklch(0.93 0.008 264);
+  --ring: oklch(0.51 0.23 264);
 
   /* Charts */
-  --chart-1: oklch(0.55 0.18 200);
-  --chart-2: oklch(0.65 0.14 350);
-  --chart-3: oklch(0.55 0.16 260);
-  --chart-4: oklch(0.65 0.15 140);
-  --chart-5: oklch(0.65 0.16 60);
+  --chart-1: oklch(0.51 0.23 264);   /* indigo */
+  --chart-2: oklch(0.72 0.19 47);    /* amber */
+  --chart-3: oklch(0.62 0.19 160);   /* emerald */
+  --chart-4: oklch(0.65 0.18 320);   /* violet */
+  --chart-5: oklch(0.58 0.22 27);    /* red */
 
-  /* Sidebar - dark */
-  --sidebar: oklch(0.12 0.015 240);
-  --sidebar-foreground: oklch(0.92 0.01 240);
-  --sidebar-primary: oklch(0.72 0.12 200);
-  --sidebar-primary-foreground: oklch(0.1 0.01 240);
-  --sidebar-accent: oklch(0.22 0.02 240);
-  --sidebar-accent-foreground: oklch(0.92 0.01 240);
-  --sidebar-border: oklch(0.25 0.02 240);
-  --sidebar-ring: oklch(0.55 0.12 200);
-}
-
-/* No dark mode for blueprint theme */
-.dark-unused {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.85 0.005 65);
-  --secondary: oklch(0.24 0.006 286.033);
-  --secondary-foreground: oklch(0.7 0.005 65);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.85 0.005 65);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  /* Sidebar — Whatfix dark navy sidebar */
+  --sidebar: oklch(0.165 0.04 264);
+  --sidebar-foreground: oklch(0.82 0.025 264);
+  --sidebar-primary: oklch(0.51 0.23 264);
+  --sidebar-primary-foreground: oklch(1.0 0.0 0);
+  --sidebar-accent: oklch(0.225 0.05 264);
+  --sidebar-accent-foreground: oklch(0.95 0.01 264);
+  --sidebar-border: oklch(0.245 0.04 264);
+  --sidebar-ring: oklch(0.51 0.23 264);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
+
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv11", "ss01";
+  }
+
   body {
     @apply bg-background text-foreground;
-    font-family: 'Space Grotesk', sans-serif;
   }
-  code, pre, .mono {
-    font-family: 'Space Mono', monospace;
-  }
+
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
   [type="button"]:not(:disabled),
@@ -155,24 +133,11 @@
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
@@ -182,44 +147,105 @@
   }
 
   @media (min-width: 640px) {
-    .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
-      padding-right: 1.5rem;
-    }
+    .container { padding-left: 1.5rem; padding-right: 1.5rem; }
   }
 
   @media (min-width: 1024px) {
-    .container {
-      padding-left: 2rem; /* 32px - desktop padding */
-      padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
-    }
+    .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; }
   }
 }
-/* ── Blueprint grid background ─────────────────────────────── */
-.blueprint-bg {
-  background-color: var(--background);
-  background-image:
-    linear-gradient(var(--grid-color) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px),
-    linear-gradient(var(--grid-major-color) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-major-color) 1px, transparent 1px);
-  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
-  background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+
+/* ── Thin scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(0.82 0.02 264); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(0.65 0.04 264); }
+
+/* ── Sidebar nav item (Whatfix-style) ────────────────────────── */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: oklch(0.72 0.025 264);
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
 }
 
-/* ── Wireframe decorative shapes ────────────────────────────── */
-.wireframe-circle {
-  border: 1.5px solid var(--cyan);
-  border-radius: 50%;
-  opacity: 0.35;
-  pointer-events: none;
+.nav-item:hover {
+  background: oklch(0.225 0.05 264);
+  color: oklch(0.95 0.01 264);
 }
-.wireframe-rect {
-  border: 1.5px solid var(--pink);
-  opacity: 0.3;
-  pointer-events: none;
+
+.nav-item.active {
+  background: oklch(0.225 0.05 264);
+  color: oklch(1.0 0.0 0);
 }
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: oklch(0.51 0.23 264);
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── Chat bubbles (Solidroad-style) ──────────────────────────── */
+.chat-bubble-ai {
+  background: oklch(0.96 0.008 264);
+  color: oklch(0.13 0.025 264);
+  border-radius: 16px 16px 16px 4px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  max-width: 78%;
+}
+
+.chat-bubble-user {
+  background: oklch(0.51 0.23 264);
+  color: white;
+  border-radius: 16px 16px 4px 16px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  max-width: 78%;
+}
+
+/* ── Typing indicator ────────────────────────────────────────── */
+@keyframes bounce-dot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-5px); opacity: 1; }
+}
+.typing-dot { width: 6px; height: 6px; border-radius: 50%; background: oklch(0.65 0.04 264); display: inline-block; }
+.typing-dot:nth-child(1) { animation: bounce-dot 1.2s infinite 0s; }
+.typing-dot:nth-child(2) { animation: bounce-dot 1.2s infinite 0.2s; }
+.typing-dot:nth-child(3) { animation: bounce-dot 1.2s infinite 0.4s; }
+
+/* ── Difficulty badges ───────────────────────────────────────── */
+.badge-beginner     { background: oklch(0.96 0.06 160); color: oklch(0.38 0.12 160); border: 1px solid oklch(0.88 0.08 160); }
+.badge-intermediate { background: oklch(0.97 0.06 80);  color: oklch(0.45 0.14 60);  border: 1px solid oklch(0.9 0.08 80); }
+.badge-advanced     { background: oklch(0.97 0.04 25);  color: oklch(0.5 0.18 25);   border: 1px solid oklch(0.9 0.06 25); }
+
+/* ── Score badge ─────────────────────────────────────────────── */
+.score-badge-poor      { background: oklch(0.97 0.04 25);  color: oklch(0.5 0.18 25); }
+.score-badge-fair      { background: oklch(0.97 0.06 80);  color: oklch(0.45 0.14 60); }
+.score-badge-good      { background: oklch(0.96 0.06 160); color: oklch(0.38 0.12 160); }
+.score-badge-excellent { background: oklch(0.95 0.06 264); color: oklch(0.38 0.18 264); }
+
+/* ── Category chips ──────────────────────────────────────────── */
+.cat-sales            { background: oklch(0.95 0.04 240); color: oklch(0.4 0.18 240); }
+.cat-customer_service { background: oklch(0.95 0.05 300); color: oklch(0.4 0.18 300); }
+.cat-interview        { background: oklch(0.95 0.05 200); color: oklch(0.4 0.15 200); }
+.cat-negotiation      { background: oklch(0.97 0.06 80);  color: oklch(0.45 0.14 60); }
+.cat-presentation     { background: oklch(0.97 0.04 350); color: oklch(0.45 0.14 350); }
 
 /* ── Score ring animation ────────────────────────────────────── */
 @keyframes score-fill {
@@ -228,29 +254,80 @@
 }
 .score-ring { animation: score-fill 1.2s ease-out forwards; }
 
-/* ── Difficulty badges ───────────────────────────────────────── */
-.badge-beginner     { @apply bg-emerald-50 text-emerald-700 border border-emerald-200; }
-.badge-intermediate { @apply bg-amber-50   text-amber-700   border border-amber-200; }
-.badge-advanced     { @apply bg-rose-50    text-rose-700    border border-rose-200; }
-
-/* ── Category chips ──────────────────────────────────────────── */
-.cat-sales            { @apply bg-blue-50   text-blue-700   border border-blue-200; }
-.cat-customer_service { @apply bg-purple-50 text-purple-700 border border-purple-200; }
-.cat-interview        { @apply bg-cyan-50   text-cyan-700   border border-cyan-200; }
-.cat-negotiation      { @apply bg-orange-50 text-orange-700 border border-orange-200; }
-.cat-presentation     { @apply bg-pink-50   text-pink-700   border border-pink-200; }
-
-/* ── Typing indicator ────────────────────────────────────────── */
-@keyframes bounce-dot {
-  0%, 80%, 100% { transform: translateY(0); }
-  40%           { transform: translateY(-5px); }
+/* ── Whatfix spotlight walkthrough ──────────────────────────── */
+.walkthrough-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
 }
-.typing-dot:nth-child(1) { animation: bounce-dot 1.2s infinite 0s; }
-.typing-dot:nth-child(2) { animation: bounce-dot 1.2s infinite 0.2s; }
-.typing-dot:nth-child(3) { animation: bounce-dot 1.2s infinite 0.4s; }
 
-/* ── Thin scrollbar ──────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--muted); }
-::-webkit-scrollbar-thumb { background: oklch(0.75 0.02 240); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: oklch(0.6 0.04 240); }
+.walkthrough-tooltip {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+  border: 1px solid oklch(0.91 0.012 264);
+  position: fixed;
+  z-index: 9999;
+  min-width: 300px;
+  max-width: 380px;
+  padding: 20px 24px 16px;
+  pointer-events: all;
+}
+
+.walkthrough-tooltip-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: oklch(0.51 0.23 264);
+  border-radius: 12px 0 0 12px;
+}
+
+/* ── Step dots (Whatfix progress) ────────────────────────────── */
+.step-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: oklch(0.88 0.012 264);
+  transition: all 0.2s;
+}
+.step-dot.active {
+  width: 20px;
+  border-radius: 4px;
+  background: oklch(0.51 0.23 264);
+}
+.step-dot.done {
+  background: oklch(0.72 0.12 264);
+}
+
+/* ── Card hover lift ─────────────────────────────────────────── */
+.card-lift {
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.card-lift:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* ── Hero gradient ───────────────────────────────────────────── */
+.hero-gradient {
+  background: linear-gradient(135deg,
+    oklch(0.97 0.025 264) 0%,
+    oklch(0.985 0.008 200) 50%,
+    oklch(0.98 0.015 47) 100%);
+}
+
+/* ── Section label ───────────────────────────────────────────── */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(0.62 0.03 264);
+  padding: 8px 12px 4px;
+}
+
+/* ── Stat delta ──────────────────────────────────────────────── */
+.delta-up   { color: oklch(0.45 0.14 160); font-size: 0.75rem; font-weight: 600; }
+.delta-down { color: oklch(0.5 0.18 25);   font-size: 0.75rem; font-weight: 600; }

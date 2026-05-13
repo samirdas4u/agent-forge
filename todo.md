@@ -49,3 +49,15 @@
 - [x] Vitest tests for simulation router
 - [x] Vitest tests for analytics router
 - [x] Vitest tests for walkthrough router
+
+## UI/UX Rebuild (Solidroad + Whatfix inspired)
+- [x] Solidroad-style 3-panel simulation layout (context | chat | scoring)
+- [x] Whatfix-style spotlight walkthrough player with step tooltip
+- [x] Solidroad-style session result with score ring and dimension breakdown
+- [x] Analytics page with recharts (radar, trend, bar, dimension table)
+- [x] Enterprise SaaS dark sidebar navigation (Whatfix-style)
+- [x] Card-lift hover effects and micro-interactions
+- [x] Orange accent for walkthroughs, indigo accent for simulation
+- [x] Fix /simulate route mismatch (added /simulate → Scenarios)
+- [x] TypeScript clean (0 errors)
+- [x] All 8 tests passing

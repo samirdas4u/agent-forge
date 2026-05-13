@@ -19,29 +19,33 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/dashboard">
-        <AppLayout><Dashboard /></AppLayout>
-      </Route>
-      <Route path="/scenarios">
-        <AppLayout><Scenarios /></AppLayout>
+      {/* /simulate (no sessionId) → redirect to scenario selection */}
+      <Route path="/simulate">
+        <Scenarios />
       </Route>
       <Route path="/simulate/:sessionId">
-        {(params) => <AppLayout fullscreen><SimulationSession sessionId={Number(params.sessionId)} /></AppLayout>}
+        {(params) => <SimulationSession sessionId={Number(params.sessionId)} />}
+      </Route>
+      <Route path="/dashboard">
+        <Dashboard />
+      </Route>
+      <Route path="/scenarios">
+        <Scenarios />
       </Route>
       <Route path="/session/:sessionId/result">
-        {(params) => <AppLayout><SessionResult sessionId={Number(params.sessionId)} /></AppLayout>}
+        {(params) => <SessionResult sessionId={Number(params.sessionId)} />}
       </Route>
       <Route path="/session/:sessionId/replay">
         {(params) => <AppLayout><SessionReplay sessionId={Number(params.sessionId)} /></AppLayout>}
       </Route>
       <Route path="/walkthroughs">
-        <AppLayout><Walkthroughs /></AppLayout>
+        <Walkthroughs />
       </Route>
       <Route path="/walkthroughs/:id">
-        {(params) => <AppLayout fullscreen><WalkthroughPlayer walkthroughId={Number(params.id)} /></AppLayout>}
+        {(params) => <WalkthroughPlayer walkthroughId={Number(params.id)} />}
       </Route>
       <Route path="/analytics">
-        <AppLayout><Analytics /></AppLayout>
+        <Analytics />
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
