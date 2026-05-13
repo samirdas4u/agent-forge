@@ -6,10 +6,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  Layers,
   LayoutGrid,
   LogOut,
   MessageSquare,
   Play,
+  Shield,
+  Trophy,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
@@ -39,12 +42,18 @@ const NAV_SECTIONS = [
     label: "Insights",
     items: [
       { href: "/analytics", label: "Analytics", icon: BarChart3 },
+      { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
     ],
   },
 ];
 
+const ADMIN_NAV = [
+  { href: "/admin/scenarios", label: "Scenario Builder", icon: Layers },
+];
+
 export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
   const { user, loading, isAuthenticated, logout } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [location] = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -146,6 +155,32 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             })}
           </div>
         ))}
+
+        {/* Admin section */}
+        {isAdmin && (
+          <div>
+            {(!collapsed || mobile) && (
+              <div className="section-label flex items-center gap-1">
+                <Shield size={9} style={{ color: "oklch(0.62 0.18 47)" }} />
+                Admin
+              </div>
+            )}
+            {ADMIN_NAV.map((item) => {
+              const isActive = location === item.href || location.startsWith(item.href + "/");
+              return (
+                <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
+                  <div
+                    className={`nav-item ${isActive ? "active" : ""}`}
+                    title={collapsed && !mobile ? item.label : undefined}
+                  >
+                    <item.icon size={15} className="shrink-0" />
+                    {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {/* Quick start CTA */}
         {(!collapsed || mobile) && (

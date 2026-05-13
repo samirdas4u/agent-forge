@@ -198,6 +198,101 @@ export async function getUserWalkthroughCompletions(userId: number) {
     .where(eq(walkthroughCompletions.userId, userId));
 }
 
+// ── Streak & leaderboard ─────────────────────────────────────
+export async function updateUserStreak(userId: number) {
+  const db = await getDb();
+  if (!db) return;
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const userRow = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  const user = userRow[0];
+  if (!user) return;
+
+  const last = user.lastPracticeDate;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+  let newStreak = user.streakDays ?? 0;
+  if (last === today) {
+    // Already practiced today — no change
+  } else if (last === yesterday) {
+    newStreak += 1;
+  } else {
+    newStreak = 1; // Streak broken
+  }
+
+  const newLongest = Math.max(newStreak, user.longestStreak ?? 0);
+  const newTotal = (user.totalSessions ?? 0) + 1;
+
+  // Recalculate avgScore from all completed sessions
+  const completedSessions = await db
+    .select({ overallScore: sessions.overallScore })
+    .from(sessions)
+    .where(and(eq(sessions.userId, userId), eq(sessions.status, "completed")));
+  const scores = completedSessions.map(s => s.overallScore ?? 0).filter(s => s > 0);
+  const newAvg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+
+  await db.update(users).set({
+    streakDays: newStreak,
+    longestStreak: newLongest,
+    lastPracticeDate: today,
+    totalSessions: newTotal,
+    avgScore: newAvg,
+  }).where(eq(users.id, userId));
+}
+
+export async function getLeaderboard(limit = 20) {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      streakDays: users.streakDays,
+      longestStreak: users.longestStreak,
+      totalSessions: users.totalSessions,
+      avgScore: users.avgScore,
+    })
+    .from(users)
+    .where(sql`${users.totalSessions} > 0`)
+    .orderBy(desc(users.avgScore), desc(users.totalSessions))
+    .limit(limit);
+}
+
+export async function getUserStreak(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db
+    .select({
+      streakDays: users.streakDays,
+      longestStreak: users.longestStreak,
+      lastPracticeDate: users.lastPracticeDate,
+      totalSessions: users.totalSessions,
+      avgScore: users.avgScore,
+    })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  return result[0] ?? null;
+}
+
+// ── Scenario admin CRUD ───────────────────────────────────────
+export async function updateScenario(id: number, data: Partial<typeof scenarios.$inferInsert>) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(scenarios).set(data).where(eq(scenarios.id, id));
+}
+
+export async function deleteScenario(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(scenarios).set({ isActive: false }).where(eq(scenarios.id, id));
+}
+
+export async function getAllScenarios() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(scenarios).orderBy(scenarios.category, scenarios.difficulty);
+}
+
 // ── Analytics ────────────────────────────────────────────────
 export async function getUserAnalytics(userId: number) {
   const db = await getDb();

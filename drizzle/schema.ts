@@ -17,6 +17,12 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  // Streak tracking
+  streakDays: int("streakDays").default(0).notNull(),
+  longestStreak: int("longestStreak").default(0).notNull(),
+  lastPracticeDate: varchar("lastPracticeDate", { length: 10 }), // YYYY-MM-DD
+  totalSessions: int("totalSessions").default(0).notNull(),
+  avgScore: float("avgScore"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),

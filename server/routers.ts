@@ -1,12 +1,15 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import {
   addMessage,
   createScenario,
   createSession,
+  deleteScenario,
+  getAllScenarios,
+  getLeaderboard,
   getOrCreateWalkthroughCompletion,
   getScenarioById,
   getScenarios,
@@ -14,12 +17,17 @@ import {
   getSessionMessages,
   getUserAnalytics,
   getUserSessions,
+  getUserStreak,
   getUserWalkthroughCompletions,
   getWalkthroughById,
   getWalkthroughs,
+  updateScenario,
   updateSession,
+  updateUserStreak,
   updateWalkthroughCompletion,
 } from "./db";
+import { transcribeAudio } from "./_core/voiceTranscription";
+import { storagePut } from "./storage";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
@@ -293,6 +301,19 @@ Return JSON with: { score: number (0-100), feedback: string (1-2 sentences), dim
         return { aiContent, feedback };
       }),
 
+    transcribeVoice: protectedProcedure
+      .input(z.object({ audioBase64: z.string(), mimeType: z.string().default("audio/webm") }))
+      .mutation(async ({ input, ctx }) => {
+        // Decode base64 audio and upload to S3
+        const buffer = Buffer.from(input.audioBase64, "base64");
+        const fileKey = `voice/${ctx.user.id}/${Date.now()}.webm`;
+        const { url } = await storagePut(fileKey, buffer, input.mimeType);
+        // Transcribe via Whisper
+        const result = await transcribeAudio({ audioUrl: url, language: "en" });
+        if ("error" in result) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.error });
+        return { text: result.text };
+      }),
+
     complete: protectedProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ input, ctx }) => {
@@ -380,6 +401,9 @@ Return JSON with: {
           improvements: evaluation.improvements ?? [],
         });
 
+        // Update streak and leaderboard stats
+        await updateUserStreak(ctx.user.id);
+
         return { success: true, evaluation };
       }),
 
@@ -450,7 +474,72 @@ Return JSON with: {
     }),
   }),
 
-  // ── Analytics ──────────────────────────────────────────────
+  // ── Admin ────────────────────────────────────────────────────────
+  admin: router({
+    listScenarios: adminProcedure.query(async () => {
+      return getAllScenarios();
+    }),
+
+    createScenario: adminProcedure
+      .input(z.object({
+        title: z.string().min(3),
+        description: z.string().optional(),
+        category: z.enum(["sales", "customer_service", "interview", "negotiation", "presentation"]),
+        difficulty: z.enum(["beginner", "intermediate", "advanced"]),
+        systemPrompt: z.string().min(20),
+        aiPersona: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+        estimatedMinutes: z.number().min(1).max(60).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await createScenario({
+          ...input,
+          tags: input.tags ?? [],
+          estimatedMinutes: input.estimatedMinutes ?? 10,
+          isActive: true,
+        });
+        return { success: true };
+      }),
+
+    updateScenario: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().min(3).optional(),
+        description: z.string().optional(),
+        category: z.enum(["sales", "customer_service", "interview", "negotiation", "presentation"]).optional(),
+        difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+        systemPrompt: z.string().min(20).optional(),
+        aiPersona: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+        estimatedMinutes: z.number().min(1).max(60).optional(),
+        isActive: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await updateScenario(id, data);
+        return { success: true };
+      }),
+
+    deleteScenario: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteScenario(input.id);
+        return { success: true };
+      }),
+  }),
+
+  // ── Leaderboard & Streaks ────────────────────────────────────────
+  leaderboard: router({
+    list: protectedProcedure.query(async () => {
+      return getLeaderboard(20);
+    }),
+
+    myStreak: protectedProcedure.query(async ({ ctx }) => {
+      return getUserStreak(ctx.user.id);
+    }),
+  }),
+
+  // ── Analytics ────────────────────────────────────────────────────────
   analytics: router({
     dashboard: protectedProcedure.query(async ({ ctx }) => {
       return getUserAnalytics(ctx.user.id);

@@ -13,6 +13,8 @@ import Walkthroughs from "./pages/Walkthroughs";
 import WalkthroughPlayer from "./pages/WalkthroughPlayer";
 import Analytics from "./pages/Analytics";
 import SessionReplay from "./pages/SessionReplay";
+import Leaderboard from "./pages/Leaderboard";
+import AdminScenarios from "./pages/AdminScenarios";
 import AppLayout from "./components/AppLayout";
 
 function Router() {
@@ -46,6 +48,12 @@ function Router() {
       </Route>
       <Route path="/analytics">
         <Analytics />
+      </Route>
+      <Route path="/leaderboard">
+        <Leaderboard />
+      </Route>
+      <Route path="/admin/scenarios">
+        <AdminScenarios />
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

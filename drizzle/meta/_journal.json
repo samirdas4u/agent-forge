@@ -15,6 +15,13 @@
       "when": 1774193960185,
       "tag": "0001_lazy_brother_voodoo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1778668213906,
+      "tag": "0002_curved_wolfpack",
+      "breakpoints": true
     }
   ]
 }

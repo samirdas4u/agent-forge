@@ -33,7 +33,7 @@
 ## Scenario Management
 - [x] Scenario browser with difficulty filters
 - [x] Scenario detail page
-- [ ] Custom scenario creation (admin)
+  - [x] Custom scenario creation (admin)
 
 ## Session Recording & Replay
 - [x] Session recording storage
@@ -61,3 +61,21 @@
 - [x] Fix /simulate route mismatch (added /simulate → Scenarios)
 - [x] TypeScript clean (0 errors)
 - [x] All 8 tests passing
+
+## Voice Input (Feature Sprint 2)
+- [x] Microphone recording button in simulator chat input
+- [x] Audio upload to S3 and transcription via Whisper API
+- [x] Visual recording indicator (waveform / timer)
+- [x] Transcribed text auto-fills input before sending
+
+## Custom Scenario Builder (Feature Sprint 2)
+- [x] Admin-only scenario creation form (title, category, difficulty, persona, system prompt, tags)
+- [x] Admin scenario list with edit / delete
+- [x] Admin panel route (/admin/scenarios) gated by role=admin
+- [x] Admin nav item in sidebar for admin users
+
+## Team Leaderboard & Streaks (Feature Sprint 2)
+- [x] Daily streak tracking per user (streak_days, last_practice_date)
+- [x] Leaderboard page showing top users by score and sessions
+- [x] Streak badge on dashboard and leaderboard
+- [x] Leaderboard route (/leaderboard) in sidebar nav

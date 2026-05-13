@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import {
   AlertCircle, CheckCircle2, ChevronRight, Clock,
-  Lightbulb, MessageSquare, Send, Sparkles, X, Zap
+  Lightbulb, MessageSquare, Mic, MicOff, Send, Sparkles, X, Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -76,6 +76,13 @@ export default function SimulationSession({ sessionId }: Props) {
   const [latestFeedback, setLatestFeedback] = useState<FeedbackData | null>(null);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [sessionTime, setSessionTime] = useState(0);
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -105,6 +112,60 @@ export default function SimulationSession({ sessionId }: Props) {
   const abandonSession = trpc.sessions.abandon.useMutation({
     onSuccess: () => navigate("/simulate"),
   });
+
+  const transcribeVoice = trpc.sessions.transcribeVoice.useMutation({
+    onSuccess: (result) => {
+      setIsTranscribing(false);
+      if (result.text) {
+        setInput((prev) => (prev ? prev + " " + result.text : result.text));
+        toast.success("Voice transcribed — review and send!");
+      }
+    },
+    onError: () => {
+      setIsTranscribing(false);
+      toast.error("Transcription failed. Please try again.");
+    },
+  });
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        // Check size (16MB limit)
+        if (blob.size > 16 * 1024 * 1024) {
+          toast.error("Recording too long. Please keep it under 2 minutes.");
+          return;
+        }
+        setIsTranscribing(true);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(",")[1];
+          transcribeVoice.mutate({ audioBase64: base64, mimeType: "audio/webm" });
+        };
+        reader.readAsDataURL(blob);
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => setRecordingTime((t) => t + 1), 1000);
+    } catch {
+      toast.error("Microphone access denied. Please allow microphone access.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -384,20 +445,57 @@ export default function SimulationSession({ sessionId }: Props) {
           {/* Input */}
           {isActive ? (
             <div className="shrink-0 bg-white border-t border-border p-3">
+              {/* Recording indicator */}
+              {isRecording && (
+                <div
+                  className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
+                  style={{ background: "oklch(0.97 0.04 25)", border: "1px solid oklch(0.9 0.06 25)" }}
+                >
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span style={{ color: "oklch(0.5 0.18 25)" }}>Recording… {Math.floor(recordingTime / 60).toString().padStart(2, "0")}:{(recordingTime % 60).toString().padStart(2, "0")}</span>
+                  <span className="ml-auto text-muted-foreground font-normal">Click mic to stop</span>
+                </div>
+              )}
+              {isTranscribing && (
+                <div
+                  className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
+                  style={{ background: "oklch(0.95 0.05 264 / 0.5)", border: "1px solid oklch(0.88 0.08 264)" }}
+                >
+                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "oklch(0.51 0.23 264)" }} />
+                  <span style={{ color: "oklch(0.38 0.18 264)" }}>Transcribing your voice…</span>
+                </div>
+              )}
               <div className="flex items-end gap-2">
                 <textarea
                   ref={textareaRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type your response… (Enter to send, Shift+Enter for new line)"
+                  placeholder={isRecording ? "Recording… click mic to stop" : "Type your response or use the mic…"}
                   rows={2}
                   className="flex-1 resize-none px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
-                  disabled={sendMessage.isPending}
+                  disabled={sendMessage.isPending || isRecording || isTranscribing}
                 />
+                {/* Mic button */}
+                <button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isTranscribing || sendMessage.isPending}
+                  title={isRecording ? "Stop recording" : "Record voice"}
+                  className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-40"
+                  style={{
+                    background: isRecording ? "oklch(0.58 0.22 27)" : "oklch(0.95 0.03 264)",
+                    border: isRecording ? "2px solid oklch(0.58 0.22 27)" : "1px solid oklch(0.88 0.06 264)",
+                  }}
+                >
+                  {isRecording
+                    ? <MicOff size={15} color="white" />
+                    : <Mic size={15} style={{ color: "oklch(0.51 0.23 264)" }} />
+                  }
+                </button>
+                {/* Send button */}
                 <button
                   onClick={handleSend}
-                  disabled={!input.trim() || sendMessage.isPending}
+                  disabled={!input.trim() || sendMessage.isPending || isRecording || isTranscribing}
                   className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-40"
                   style={{ background: "oklch(0.51 0.23 264)" }}
                 >
@@ -405,7 +503,7 @@ export default function SimulationSession({ sessionId }: Props) {
                 </button>
               </div>
               <div className="flex justify-between mt-1.5 px-0.5">
-                <span className="text-[10px] text-muted-foreground">Enter to send · Shift+Enter for new line</span>
+                <span className="text-[10px] text-muted-foreground">Enter to send · Shift+Enter for new line · Mic to speak</span>
                 {userMessageCount >= 3 && (
                   <button
                     onClick={() => setShowEndConfirm(true)}
