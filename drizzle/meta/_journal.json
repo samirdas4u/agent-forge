@@ -29,6 +29,13 @@
       "when": 1778683484920,
       "tag": "0003_cloudy_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1778826815627,
+      "tag": "0004_low_rumiko_fujikawa",
+      "breakpoints": true
     }
   ]
 }

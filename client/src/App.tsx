@@ -20,6 +20,12 @@ import CourseCreate from "./pages/CourseCreate";
 import CourseEditor from "./pages/CourseEditor";
 import LearnCourse from "./pages/LearnCourse";
 import AppLayout from "./components/AppLayout";
+import SandboxHub from "./pages/sandbox/SandboxHub";
+import FeatureFlags from "./pages/sandbox/FeatureFlags";
+import AITester from "./pages/sandbox/AITester";
+import TestRunner from "./pages/sandbox/TestRunner";
+import PersonaLab from "./pages/sandbox/PersonaLab";
+import EventLog from "./pages/sandbox/EventLog";
 
 function Router() {
   return (
@@ -70,6 +76,25 @@ function Router() {
       </Route>
       <Route path="/learn/:slug">
         {(params) => <LearnCourse />}
+      </Route>
+      {/* Product Sandbox routes */}
+      <Route path="/sandbox">
+        <SandboxHub />
+      </Route>
+      <Route path="/sandbox/flags">
+        <FeatureFlags />
+      </Route>
+      <Route path="/sandbox/ai-tester">
+        <AITester />
+      </Route>
+      <Route path="/sandbox/test-runner">
+        <TestRunner />
+      </Route>
+      <Route path="/sandbox/personas">
+        <PersonaLab />
+      </Route>
+      <Route path="/sandbox/events">
+        <EventLog />
       </Route>
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { coursesRouter } from "./routers/courses";
+import { sandboxRouter } from "./routers/sandbox";
 import { invokeLLM } from "./_core/llm";
 import {
   addMessage,
@@ -549,6 +550,7 @@ Return JSON with: {
 
   // ── eLearning Courses ─────────────────────────────────────────────────────────
   courses: coursesRouter,
+  sandbox: sandboxRouter,
 });
 
 export type AppRouter = typeof appRouter;

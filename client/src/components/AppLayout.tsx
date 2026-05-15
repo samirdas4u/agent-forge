@@ -1,67 +1,73 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { cn } from "@/lib/utils";
 import {
   BarChart3,
   BookOpen,
-  Brain,
-  ChevronLeft,
+  Bot,
   ChevronRight,
+  Cpu,
+  FlaskConical,
   Flame,
   GraduationCap,
-  LayoutGrid,
+  LayoutDashboard,
   Layers,
   LogOut,
   MessageSquare,
+  Microscope,
+  ScrollText,
+  Settings,
   Shield,
+  Sparkles,
+  Terminal,
   Trophy,
+  Users,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 
 interface AppLayoutProps {
   children: React.ReactNode;
   fullscreen?: boolean;
 }
 
-const NAV_SECTIONS = [
-  {
-    label: "Main",
-    items: [
-      { href: "/dashboard",    label: "Dashboard",       icon: LayoutGrid },
-      { href: "/simulate",     label: "Conversation Sim", icon: MessageSquare },
-      { href: "/walkthroughs", label: "Walkthroughs",    icon: BookOpen },
-      { href: "/courses",      label: "Courses",         icon: GraduationCap },
-    ],
-  },
-  {
-    label: "Insights",
-    items: [
-      { href: "/analytics",   label: "Analytics",   icon: BarChart3 },
-      { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
-    ],
-  },
+const TRAINING_NAV = [
+  { href: "/dashboard",    label: "Dashboard",       icon: LayoutDashboard },
+  { href: "/simulate",     label: "Simulate",        icon: MessageSquare },
+  { href: "/walkthroughs", label: "Walkthroughs",    icon: Layers },
+  { href: "/courses",      label: "Courses",         icon: BookOpen },
+  { href: "/analytics",    label: "Analytics",       icon: BarChart3 },
+  { href: "/leaderboard",  label: "Leaderboard",     icon: Trophy },
+];
+
+const SANDBOX_NAV = [
+  { href: "/sandbox",           label: "Sandbox Hub",   icon: Cpu },
+  { href: "/sandbox/flags",     label: "Feature Flags", icon: Zap },
+  { href: "/sandbox/ai-tester", label: "AI Tester",     icon: Microscope },
+  { href: "/sandbox/tests",     label: "Test Runner",   icon: Terminal },
+  { href: "/sandbox/personas",  label: "Persona Lab",   icon: Bot },
+  { href: "/sandbox/events",    label: "Event Log",     icon: ScrollText },
 ];
 
 export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
   const { user, loading, isAuthenticated, logout } = useAuth();
-  const isAdmin = user?.role === "admin";
   const [location] = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<"training" | "sandbox">(() =>
+    location.startsWith("/sandbox") ? "sandbox" : "training"
+  );
+
+  const { data: myStats } = trpc.leaderboard.myStreak.useQuery(undefined, { enabled: isAuthenticated });
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)" }}>
+      <div className="min-h-screen bg-[#0d0f14] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
-            <Brain size={22} color="white" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center animate-pulse">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
-          <div className="flex gap-1.5">
-            <span className="typing-dot" />
-            <span className="typing-dot" />
-            <span className="typing-dot" />
-          </div>
+          <p className="text-xs text-slate-500 font-mono tracking-wider">LOADING AGENT FORGE</p>
         </div>
       </div>
     );
@@ -69,20 +75,20 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--background)" }}>
-        <div className="bg-white border border-border rounded-2xl p-10 shadow-sm max-w-sm w-full mx-4 text-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
-            <Brain size={24} color="white" />
+      <div className="min-h-screen bg-[#0d0f14] flex items-center justify-center px-4">
+        <div className="w-full max-w-sm text-center">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-500/25">
+            <Sparkles className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-xl font-bold mb-2 text-foreground">Welcome to Agent Forge</h2>
-          <p className="text-muted-foreground text-sm mb-7 leading-relaxed">
-            AI-powered practice simulations for communication mastery and tool walkthroughs.
+          <h1 className="text-3xl font-bold text-white mb-2">Agent Forge</h1>
+          <p className="text-slate-400 mb-8 text-sm leading-relaxed">
+            AI-powered practice simulation and engineering sandbox for world-class teams.
           </p>
           <a
             href={getLoginUrl()}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
-            style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-violet-500/25"
           >
+            <Sparkles className="w-4 h-4" />
             Sign in to continue
           </a>
         </div>
@@ -90,220 +96,175 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
     );
   }
 
-  const userInitial = (user?.name || user?.email || "U")[0].toUpperCase();
-  const streakDays = (user as any)?.streakDays ?? 0;
+  const isActive = (href: string) =>
+    href === "/sandbox"
+      ? location === "/sandbox"
+      : location === href || location.startsWith(href + "/");
 
-  const SidebarContent = ({ mobile = false }: { mobile?: boolean }) => (
-    <aside
-      className="flex flex-col h-full transition-all duration-200"
-      style={{
-        width: mobile ? "100%" : collapsed ? 64 : 240,
-        background: "var(--sidebar)",
-        borderRight: "1px solid var(--sidebar-border)",
-      }}
-    >
+  const navItems = activeSection === "training" ? TRAINING_NAV : SANDBOX_NAV;
+  const accentClass = activeSection === "training"
+    ? "bg-violet-500/10 text-violet-200 border-l-2 border-violet-400"
+    : "bg-emerald-500/10 text-emerald-200 border-l-2 border-emerald-400";
+
+  const sidebar = (
+    <aside className="w-60 flex-shrink-0 flex flex-col h-full bg-[#111318] border-r border-white/[0.06]">
       {/* Logo */}
-      <div
-        className="flex items-center gap-2.5 px-3 border-b shrink-0"
-        style={{ borderColor: "var(--sidebar-border)", height: 58, minHeight: 58 }}
-      >
-        <div
-          className="flex items-center justify-center rounded-xl shrink-0"
-          style={{ width: 34, height: 34, background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
-        >
-          <Brain size={16} color="white" />
-        </div>
-        {(!collapsed || mobile) && (
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm leading-none" style={{ color: "oklch(0.95 0.01 260)" }}>
-              Agent Forge
-            </p>
-            <p className="text-[10px] mt-0.5 font-medium" style={{ color: "oklch(0.42 0.02 260)" }}>
-              AI Practice Platform
-            </p>
+      <div className="px-4 py-4 border-b border-white/[0.06]">
+        <Link href="/dashboard" className="flex items-center gap-3 group">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-md shadow-violet-500/20">
+            <Sparkles className="w-4 h-4 text-white" />
           </div>
-        )}
-        {!mobile && (
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="ml-auto p-1 rounded-md transition-colors"
-            style={{ color: "oklch(0.42 0.02 260)" }}
-          >
-            {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
-          </button>
-        )}
+          <div>
+            <div className="text-sm font-bold text-white tracking-tight">Agent Forge</div>
+            <div className="text-[10px] text-slate-600 font-mono">AI Practice Platform</div>
+          </div>
+        </Link>
       </div>
 
-      {/* Streak banner */}
-      {streakDays > 0 && (!collapsed || mobile) && (
-        <div
-          className="mx-3 mt-3 px-3 py-2 rounded-xl flex items-center gap-2"
-          style={{ background: "oklch(0.72 0.18 75 / 0.1)", border: "1px solid oklch(0.72 0.18 75 / 0.18)" }}
-        >
-          <Flame size={14} style={{ color: "oklch(0.72 0.18 75)" }} />
-          <span className="text-xs font-semibold" style={{ color: "oklch(0.80 0.14 75)" }}>
-            {streakDays} day streak 🔥
-          </span>
+      {/* Pillar Switcher */}
+      <div className="px-3 pt-3 pb-2 border-b border-white/[0.06]">
+        <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-[#0d0f14]">
+          <button
+            onClick={() => setActiveSection("training")}
+            className={cn(
+              "flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all",
+              activeSection === "training"
+                ? "bg-violet-500/15 text-violet-300 shadow-sm"
+                : "text-slate-500 hover:text-slate-300"
+            )}
+          >
+            <GraduationCap className="w-3.5 h-3.5" />
+            Training
+          </button>
+          <button
+            onClick={() => setActiveSection("sandbox")}
+            className={cn(
+              "flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-semibold transition-all",
+              activeSection === "sandbox"
+                ? "bg-emerald-500/15 text-emerald-300 shadow-sm"
+                : "text-slate-500 hover:text-slate-300"
+            )}
+          >
+            <FlaskConical className="w-3.5 h-3.5" />
+            Sandbox
+          </button>
         </div>
-      )}
+      </div>
 
-      {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-        {NAV_SECTIONS.map((section) => (
-          <div key={section.label}>
-            {(!collapsed || mobile) && (
-              <div className="section-label">{section.label}</div>
-            )}
-            <div className="space-y-0.5">
-              {section.items.map((item) => {
-                const isActive = location === item.href || location.startsWith(item.href + "/");
-                return (
-                  <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
-                    <div
-                      className={`nav-item ${isActive ? "active" : ""}`}
-                      title={collapsed && !mobile ? item.label : undefined}
-                    >
-                      <item.icon size={15} className="shrink-0" />
-                      {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
-                      {isActive && (!collapsed || mobile) && <ChevronRight size={12} className="ml-auto opacity-50" />}
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      {/* Section header */}
+      <div className="px-4 pt-4 pb-1">
+        <div className={cn(
+          "flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest",
+          activeSection === "training" ? "text-violet-500" : "text-emerald-500"
+        )}>
+          {activeSection === "training"
+            ? <><GraduationCap className="w-3 h-3" /> Training</>
+            : <><FlaskConical className="w-3 h-3" /> Product Sandbox</>
+          }
+        </div>
+      </div>
 
-        {isAdmin && (
-          <div>
-            {(!collapsed || mobile) && (
-              <div className="section-label flex items-center gap-1">
-                <Shield size={9} style={{ color: "oklch(0.62 0.18 47)" }} />
-                Admin
-              </div>
-            )}
-            <div className="space-y-0.5">
-              {[{ href: "/admin/scenarios", label: "Scenario Builder", icon: Layers }].map((item) => {
-                const isActive = location === item.href || location.startsWith(item.href + "/");
-                return (
-                  <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}>
-                    <div
-                      className={`nav-item ${isActive ? "active" : ""}`}
-                      title={collapsed && !mobile ? item.label : undefined}
-                    >
-                      <item.icon size={15} className="shrink-0" />
-                      {(!collapsed || mobile) && <span className="truncate">{item.label}</span>}
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Quick start */}
-        {(!collapsed || mobile) && (
-          <div>
-            <div className="section-label">Quick Start</div>
-            <Link href="/simulate" onClick={() => setMobileOpen(false)}>
-              <div
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer hover:opacity-90"
-                style={{
-                  background: "linear-gradient(135deg, oklch(0.52 0.26 272 / 0.18), oklch(0.65 0.22 300 / 0.12))",
-                  color: "oklch(0.78 0.18 272)",
-                  border: "1px solid oklch(0.52 0.26 272 / 0.22)",
-                }}
-              >
-                <Zap size={13} />
-                Start a Simulation
-              </div>
+      {/* Nav items */}
+      <nav className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5">
+        {navItems.map(item => {
+          const active = isActive(item.href);
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all group",
+                active
+                  ? cn(accentClass, "pl-[10px]")
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]"
+              )}
+            >
+              <Icon className="w-4 h-4 flex-shrink-0" />
+              <span className="flex-1 truncate">{item.label}</span>
+              {active && <ChevronRight className="w-3 h-3 opacity-40" />}
             </Link>
-          </div>
+          );
+        })}
+
+        {/* Admin section */}
+        {user?.role === "admin" && activeSection === "training" && (
+          <>
+            <div className="pt-4 pb-1 px-3">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-orange-600">
+                <Shield className="w-3 h-3" /> Admin
+              </div>
+            </div>
+            {[
+              { href: "/admin/scenarios", label: "Scenario Builder", icon: Settings },
+              { href: "/admin/users",     label: "User Management",  icon: Users },
+            ].map(item => {
+              const active = isActive(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    active
+                      ? "bg-orange-500/10 text-orange-200 border-l-2 border-orange-400 pl-[10px]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]"
+                  )}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="flex-1 truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </>
         )}
       </nav>
 
-      {/* User */}
-      <div className="border-t p-2 shrink-0" style={{ borderColor: "var(--sidebar-border)" }}>
-        {(!collapsed || mobile) ? (
-          <div
-            className="flex items-center gap-2.5 px-2 py-2 rounded-xl"
-            style={{ background: "oklch(0.19 0.035 265)" }}
-          >
-            <div
-              className="flex items-center justify-center rounded-lg text-xs font-bold shrink-0"
-              style={{ width: 30, height: 30, background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", color: "white" }}
-            >
-              {userInitial}
+      {/* Streak + User */}
+      <div className="border-t border-white/[0.06] p-3 space-y-2">
+        {myStats && myStats.streakDays > 0 && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+            <Flame className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
+            <div>
+              <div className="text-xs font-bold text-orange-300">{myStats.streakDays} day streak</div>
+              <div className="text-[10px] text-orange-600">Keep it up!</div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold truncate" style={{ color: "oklch(0.90 0.01 260)" }}>
-                {user?.name || "User"}
-              </div>
-              <div className="text-[10px] truncate" style={{ color: "oklch(0.45 0.02 260)" }}>
-                {user?.role === "admin" ? "Admin" : "Learner"}
-              </div>
-            </div>
-            <button onClick={() => logout()} title="Sign out" className="p-1 rounded-lg transition-opacity hover:opacity-70">
-              <LogOut size={13} style={{ color: "oklch(0.45 0.02 260)" }} />
-            </button>
           </div>
-        ) : (
-          <button onClick={() => logout()} className="nav-item w-full justify-center" title="Sign out">
-            <LogOut size={15} />
-          </button>
         )}
+        <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/[0.04] transition-colors group cursor-default">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 text-xs font-bold text-white">
+            {(user?.name ?? "U")[0].toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-semibold text-slate-200 truncate">{user?.name ?? "User"}</div>
+            <div className="text-[10px] text-slate-500 capitalize">{user?.role}</div>
+          </div>
+          <button
+            onClick={() => logout()}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-500 hover:text-red-400"
+            title="Sign out"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </aside>
   );
 
   if (fullscreen) {
     return (
-      <div className="flex h-screen overflow-hidden">
-        <div className="hidden md:flex shrink-0">
-          <SidebarContent />
-        </div>
+      <div className="flex h-screen overflow-hidden bg-[#0d0f14]">
+        <div className="hidden md:flex shrink-0">{sidebar}</div>
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <div className="hidden md:flex shrink-0">
-        <SidebarContent />
-      </div>
-
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-72 z-10">
-            <SidebarContent mobile />
-          </div>
-        </div>
-      )}
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile topbar */}
-        <header className="md:hidden flex items-center gap-3 px-4 h-14 bg-white border-b border-border shrink-0">
-          <button className="p-2 rounded-lg border border-border" onClick={() => setMobileOpen(true)}>
-            <div className="flex flex-col gap-1">
-              <div className="w-4 h-0.5 bg-foreground rounded" />
-              <div className="w-4 h-0.5 bg-foreground rounded" />
-              <div className="w-3 h-0.5 bg-foreground rounded" />
-            </div>
-          </button>
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}>
-              <Brain size={13} color="white" />
-            </div>
-            <span className="font-bold text-sm text-foreground">Agent Forge</span>
-          </div>
-        </header>
-
-        <main className="flex-1 overflow-y-auto bg-background">
-          {children}
-        </main>
-      </div>
+    <div className="flex h-screen overflow-hidden bg-[#0d0f14]">
+      <div className="hidden md:flex shrink-0">{sidebar}</div>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }

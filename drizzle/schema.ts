@@ -190,3 +190,103 @@ export const courseEnrollments = mysqlTable("course_enrollments", {
 });
 
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
+
+// ─── Product Sandbox ─────────────────────────────────────────────────────────
+
+// Sandbox instances — isolated test environments for engineers
+export const sandboxInstances = mysqlTable("sandbox_instances", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  status: mysqlEnum("status", ["active", "paused", "archived"]).default("active").notNull(),
+  shareToken: varchar("shareToken", { length: 64 }).unique(),
+  snapshotData: json("snapshotData").$type<Record<string, unknown>>(),
+  baseTemplate: mysqlEnum("baseTemplate", ["blank", "sales", "customer_service", "onboarding"]).default("blank").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SandboxInstance = typeof sandboxInstances.$inferSelect;
+export type InsertSandboxInstance = typeof sandboxInstances.$inferInsert;
+
+// Feature flags per sandbox
+export const featureFlags = mysqlTable("feature_flags", {
+  id: int("id").autoincrement().primaryKey(),
+  sandboxId: int("sandboxId").notNull(),
+  flagKey: varchar("flagKey", { length: 100 }).notNull(),
+  description: text("description"),
+  enabled: boolean("enabled").default(false).notNull(),
+  rolloutPct: int("rolloutPct").default(0).notNull(), // 0-100
+  targeting: json("targeting").$type<{ userIds?: number[]; roles?: string[] }>().default({}),
+  killSwitch: boolean("killSwitch").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FeatureFlag = typeof featureFlags.$inferSelect;
+export type InsertFeatureFlag = typeof featureFlags.$inferInsert;
+
+// Synthetic test runs
+export const testRuns = mysqlTable("test_runs", {
+  id: int("id").autoincrement().primaryKey(),
+  sandboxId: int("sandboxId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  script: json("script").$type<TestScript>().notNull(),
+  status: mysqlEnum("status", ["pending", "running", "passed", "failed", "error"]).default("pending").notNull(),
+  results: json("results").$type<TestResult[]>().default([]),
+  durationMs: int("durationMs"),
+  passCount: int("passCount").default(0),
+  failCount: int("failCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type TestScript = {
+  turns: Array<{ userMessage: string; assertions: Array<{ type: "contains" | "score_gte" | "score_lte" | "not_contains"; value: string | number }> }>;
+};
+export type TestResult = {
+  turnIndex: number;
+  userMessage: string;
+  aiResponse: string;
+  score: number;
+  assertions: Array<{ type: string; value: string | number; passed: boolean; actual: string | number }>;
+  latencyMs: number;
+  tokenUsage: { prompt: number; completion: number; total: number };
+};
+
+export type TestRun = typeof testRuns.$inferSelect;
+export type InsertTestRun = typeof testRuns.$inferInsert;
+
+// AI Personas (for Persona Lab)
+export const personas = mysqlTable("personas", {
+  id: int("id").autoincrement().primaryKey(),
+  sandboxId: int("sandboxId"),
+  ownerId: int("ownerId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 255 }),
+  tone: mysqlEnum("tone", ["professional", "friendly", "aggressive", "skeptical", "neutral", "enthusiastic"]).default("professional").notNull(),
+  systemPrompt: text("systemPrompt").notNull(),
+  temperature: float("temperature").default(0.7).notNull(),
+  isPublished: boolean("isPublished").default(false).notNull(),
+  version: int("version").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Persona = typeof personas.$inferSelect;
+export type InsertPersona = typeof personas.$inferInsert;
+
+// Sandbox event log
+export const sandboxEvents = mysqlTable("sandbox_events", {
+  id: int("id").autoincrement().primaryKey(),
+  sandboxId: int("sandboxId").notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(),
+  payload: json("payload").$type<Record<string, unknown>>().default({}),
+  userId: int("userId"),
+  severity: mysqlEnum("severity", ["info", "warning", "error", "debug"]).default("info").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type SandboxEvent = typeof sandboxEvents.$inferSelect;
+export type InsertSandboxEvent = typeof sandboxEvents.$inferInsert;

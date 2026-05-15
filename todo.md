@@ -112,3 +112,44 @@
 - [ ] Lesson player with progress tracking
 - [ ] Quiz block interactive UI
 - [ ] Sidebar nav item for Courses
+
+## Product Sandbox — Engineering Control Plane
+
+### Navigation Redesign
+- [ ] Dual-pillar top nav: Training | Product Sandbox
+- [ ] Training section: Dashboard, Simulate, Walkthroughs, Courses, Analytics, Leaderboard
+- [ ] Product Sandbox section: Sandbox Hub, Feature Flags, AI Tester, Test Runner, Persona Lab, Event Log
+- [ ] Role-gated: Product Sandbox visible only to engineer/admin roles
+
+### Database Schema
+- [ ] sandbox_instances table
+- [ ] feature_flags table
+- [ ] test_runs table
+- [ ] personas table
+- [ ] sandbox_events table
+
+### Sandbox Hub
+- [ ] Sandbox instance list with status badges
+- [ ] Create / clone / snapshot / reset / archive sandbox
+- [ ] Shareable preview URL per sandbox
+
+### Feature Flag Console
+- [ ] Flag list with toggle, rollout %, targeting rules
+- [ ] Kill switch and activity history
+
+### AI Behaviour Tester
+- [ ] Debug mode with raw LLM prompt, token usage, latency
+- [ ] Per-message scoring breakdown and confidence scores
+- [ ] Side-by-side persona comparison
+
+### Synthetic Test Runner
+- [ ] Script editor for test conversations
+- [ ] Pass/fail assertion results and test history
+
+### Persona Lab
+- [ ] Create/edit/publish AI personas with live preview chat
+- [ ] Version history per persona
+
+### Event Log & Replay
+- [ ] Full event stream per sandbox with filters
+- [ ] Step-by-step replay and CSV/JSON export
