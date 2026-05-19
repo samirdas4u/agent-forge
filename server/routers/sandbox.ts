@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure, router } from "../_core/trpc";
+import { publicProcedure, router } from "../_core/trpc";
 import { getDb } from "../db";
 import { sandboxInstances, featureFlags, testRuns, personas, sandboxEvents } from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
@@ -17,24 +17,24 @@ async function logEvent(sandboxId: number, eventType: string, payload: Record<st
 export const sandboxRouter = router({
   // ─── Sandbox Instances ───────────────────────────────────────────────────────
   instances: router({
-    list: protectedProcedure.query(async ({ ctx }) => {
+    list: publicProcedure.query(async ({ ctx }) => {
       const db = await getDb();
       if (!db) return [];
       return db.select().from(sandboxInstances)
-        .where(eq(sandboxInstances.ownerId, ctx.user.id))
+        .where(eq(sandboxInstances.ownerId, (ctx.user?.id ?? 0)))
         .orderBy(desc(sandboxInstances.updatedAt));
     }),
 
-    get: protectedProcedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
+    get: publicProcedure.input(z.object({ id: z.number() })).query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return null;
       const rows = await db.select().from(sandboxInstances)
-        .where(and(eq(sandboxInstances.id, input.id), eq(sandboxInstances.ownerId, ctx.user.id)))
+        .where(and(eq(sandboxInstances.id, input.id), eq(sandboxInstances.ownerId, (ctx.user?.id ?? 0))))
         .limit(1);
       return rows[0] ?? null;
     }),
 
-    getByToken: protectedProcedure.input(z.object({ token: z.string() })).query(async ({ input }) => {
+    getByToken: publicProcedure.input(z.object({ token: z.string() })).query(async ({ input }) => {
       const db = await getDb();
       if (!db) return null;
       const rows = await db.select().from(sandboxInstances)
@@ -43,7 +43,7 @@ export const sandboxRouter = router({
       return rows[0] ?? null;
     }),
 
-    create: protectedProcedure.input(z.object({
+    create: publicProcedure.input(z.object({
       name: z.string().min(1).max(255),
       description: z.string().optional(),
       baseTemplate: z.enum(["blank", "sales", "customer_service", "onboarding"]).default("blank"),
@@ -52,7 +52,7 @@ export const sandboxRouter = router({
       if (!db) throw new Error("DB unavailable");
       const shareToken = nanoid(32);
       const [result] = await db.insert(sandboxInstances).values({
-        ownerId: ctx.user.id,
+        ownerId: (ctx.user?.id ?? 0),
         name: input.name,
         description: input.description,
         baseTemplate: input.baseTemplate,
@@ -60,11 +60,11 @@ export const sandboxRouter = router({
         status: "active",
       });
       const id = (result as any).insertId;
-      await logEvent(id, "sandbox.created", { name: input.name, template: input.baseTemplate }, ctx.user.id);
+      await logEvent(id, "sandbox.created", { name: input.name, template: input.baseTemplate }, (ctx.user?.id ?? 0));
       return { id, shareToken };
     }),
 
-    update: protectedProcedure.input(z.object({
+    update: publicProcedure.input(z.object({
       id: z.number(),
       name: z.string().min(1).max(255).optional(),
       description: z.string().optional(),
@@ -73,22 +73,22 @@ export const sandboxRouter = router({
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       const { id, ...updates } = input;
-      await db.update(sandboxInstances).set(updates).where(and(eq(sandboxInstances.id, id), eq(sandboxInstances.ownerId, ctx.user.id)));
-      await logEvent(id, "sandbox.updated", updates as Record<string, unknown>, ctx.user.id);
+      await db.update(sandboxInstances).set(updates).where(and(eq(sandboxInstances.id, id), eq(sandboxInstances.ownerId, (ctx.user?.id ?? 0))));
+      await logEvent(id, "sandbox.updated", updates as Record<string, unknown>, (ctx.user?.id ?? 0));
       return { success: true };
     }),
 
-    clone: protectedProcedure.input(z.object({ id: z.number(), newName: z.string().min(1) })).mutation(async ({ ctx, input }) => {
+    clone: publicProcedure.input(z.object({ id: z.number(), newName: z.string().min(1) })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       const rows = await db.select().from(sandboxInstances)
-        .where(and(eq(sandboxInstances.id, input.id), eq(sandboxInstances.ownerId, ctx.user.id)))
+        .where(and(eq(sandboxInstances.id, input.id), eq(sandboxInstances.ownerId, (ctx.user?.id ?? 0))))
         .limit(1);
       if (!rows[0]) throw new Error("Sandbox not found");
       const source = rows[0];
       const shareToken = nanoid(32);
       const [result] = await db.insert(sandboxInstances).values({
-        ownerId: ctx.user.id,
+        ownerId: (ctx.user?.id ?? 0),
         name: input.newName,
         description: `Cloned from: ${source.name}`,
         baseTemplate: source.baseTemplate,
@@ -102,44 +102,44 @@ export const sandboxRouter = router({
       for (const flag of flags) {
         await db.insert(featureFlags).values({ ...flag, id: undefined as any, sandboxId: newId } as any);
       }
-      await logEvent(newId, "sandbox.cloned", { sourceId: input.id, sourceName: source.name }, ctx.user.id);
+      await logEvent(newId, "sandbox.cloned", { sourceId: input.id, sourceName: source.name }, (ctx.user?.id ?? 0));
       return { id: newId, shareToken };
     }),
 
-    snapshot: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+    snapshot: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       const flags = await db.select().from(featureFlags).where(eq(featureFlags.sandboxId, input.id));
       const runs = await db.select().from(testRuns).where(eq(testRuns.sandboxId, input.id));
       const snapshotData = { flags, runs, snapshotAt: new Date().toISOString() };
       await db.update(sandboxInstances).set({ snapshotData }).where(eq(sandboxInstances.id, input.id));
-      await logEvent(input.id, "sandbox.snapshot", { flagCount: flags.length, runCount: runs.length }, ctx.user.id);
+      await logEvent(input.id, "sandbox.snapshot", { flagCount: flags.length, runCount: runs.length }, (ctx.user?.id ?? 0));
       return { success: true, snapshotAt: snapshotData.snapshotAt };
     }),
 
-    reset: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+    reset: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       // Delete all flags and test runs for this sandbox
       await db.delete(featureFlags).where(eq(featureFlags.sandboxId, input.id));
       await db.delete(testRuns).where(eq(testRuns.sandboxId, input.id));
       await db.delete(sandboxEvents).where(eq(sandboxEvents.sandboxId, input.id));
-      await logEvent(input.id, "sandbox.reset", {}, ctx.user.id, "warning");
+      await logEvent(input.id, "sandbox.reset", {}, (ctx.user?.id ?? 0), "warning");
       return { success: true };
     }),
 
-    regenerateToken: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+    regenerateToken: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       const shareToken = nanoid(32);
-      await db.update(sandboxInstances).set({ shareToken }).where(and(eq(sandboxInstances.id, input.id), eq(sandboxInstances.ownerId, ctx.user.id)));
+      await db.update(sandboxInstances).set({ shareToken }).where(and(eq(sandboxInstances.id, input.id), eq(sandboxInstances.ownerId, (ctx.user?.id ?? 0))));
       return { shareToken };
     }),
   }),
 
   // ─── Feature Flags ───────────────────────────────────────────────────────────
   flags: router({
-    list: protectedProcedure.input(z.object({ sandboxId: z.number() })).query(async ({ input }) => {
+    list: publicProcedure.input(z.object({ sandboxId: z.number() })).query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
       return db.select().from(featureFlags)
@@ -147,7 +147,7 @@ export const sandboxRouter = router({
         .orderBy(desc(featureFlags.createdAt));
     }),
 
-    create: protectedProcedure.input(z.object({
+    create: publicProcedure.input(z.object({
       sandboxId: z.number(),
       flagKey: z.string().min(1).max(100).regex(/^[a-z0-9_-]+$/, "Use lowercase letters, numbers, hyphens, underscores"),
       description: z.string().optional(),
@@ -158,11 +158,11 @@ export const sandboxRouter = router({
       if (!db) throw new Error("DB unavailable");
       const [result] = await db.insert(featureFlags).values(input);
       const id = (result as any).insertId;
-      await logEvent(input.sandboxId, "flag.created", { flagKey: input.flagKey }, ctx.user.id);
+      await logEvent(input.sandboxId, "flag.created", { flagKey: input.flagKey }, (ctx.user?.id ?? 0));
       return { id };
     }),
 
-    update: protectedProcedure.input(z.object({
+    update: publicProcedure.input(z.object({
       id: z.number(),
       sandboxId: z.number(),
       enabled: z.boolean().optional(),
@@ -175,23 +175,23 @@ export const sandboxRouter = router({
       const { id, sandboxId, ...updates } = input;
       await db.update(featureFlags).set(updates).where(eq(featureFlags.id, id));
       const flag = await db.select().from(featureFlags).where(eq(featureFlags.id, id)).limit(1);
-      await logEvent(sandboxId, "flag.updated", { flagKey: flag[0]?.flagKey, ...updates }, ctx.user.id);
+      await logEvent(sandboxId, "flag.updated", { flagKey: flag[0]?.flagKey, ...updates }, (ctx.user?.id ?? 0));
       return { success: true };
     }),
 
-    delete: protectedProcedure.input(z.object({ id: z.number(), sandboxId: z.number() })).mutation(async ({ ctx, input }) => {
+    delete: publicProcedure.input(z.object({ id: z.number(), sandboxId: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       const flag = await db.select().from(featureFlags).where(eq(featureFlags.id, input.id)).limit(1);
       await db.delete(featureFlags).where(eq(featureFlags.id, input.id));
-      await logEvent(input.sandboxId, "flag.deleted", { flagKey: flag[0]?.flagKey }, ctx.user.id, "warning");
+      await logEvent(input.sandboxId, "flag.deleted", { flagKey: flag[0]?.flagKey }, (ctx.user?.id ?? 0), "warning");
       return { success: true };
     }),
   }),
 
   // ─── Test Runner ─────────────────────────────────────────────────────────────
   tests: router({
-    list: protectedProcedure.input(z.object({ sandboxId: z.number() })).query(async ({ input }) => {
+    list: publicProcedure.input(z.object({ sandboxId: z.number() })).query(async ({ input }) => {
       const db = await getDb();
       if (!db) return [];
       return db.select().from(testRuns)
@@ -199,7 +199,7 @@ export const sandboxRouter = router({
         .orderBy(desc(testRuns.createdAt));
     }),
 
-    create: protectedProcedure.input(z.object({
+    create: publicProcedure.input(z.object({
       sandboxId: z.number(),
       name: z.string().min(1),
       script: z.object({
@@ -221,11 +221,11 @@ export const sandboxRouter = router({
         status: "pending",
       });
       const id = (result as any).insertId;
-      await logEvent(input.sandboxId, "test.created", { name: input.name, turns: input.script.turns.length }, ctx.user.id);
+      await logEvent(input.sandboxId, "test.created", { name: input.name, turns: input.script.turns.length }, (ctx.user?.id ?? 0));
       return { id };
     }),
 
-    run: protectedProcedure.input(z.object({ id: z.number(), sandboxId: z.number() })).mutation(async ({ ctx, input }) => {
+    run: publicProcedure.input(z.object({ id: z.number(), sandboxId: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       const rows = await db.select().from(testRuns).where(eq(testRuns.id, input.id)).limit(1);
@@ -294,16 +294,16 @@ export const sandboxRouter = router({
         const durationMs = Date.now() - startTime;
         const finalStatus = failCount === 0 ? "passed" : "failed";
         await db.update(testRuns).set({ status: finalStatus, results, passCount, failCount, durationMs, completedAt: new Date() }).where(eq(testRuns.id, input.id));
-        await logEvent(input.sandboxId, "test.completed", { name: run.name, status: finalStatus, passCount, failCount }, ctx.user.id, failCount > 0 ? "warning" : "info");
+        await logEvent(input.sandboxId, "test.completed", { name: run.name, status: finalStatus, passCount, failCount }, (ctx.user?.id ?? 0), failCount > 0 ? "warning" : "info");
         return { status: finalStatus, passCount, failCount, durationMs, results };
       } catch (err) {
         await db.update(testRuns).set({ status: "error" }).where(eq(testRuns.id, input.id));
-        await logEvent(input.sandboxId, "test.error", { name: run.name, error: String(err) }, ctx.user.id, "error");
+        await logEvent(input.sandboxId, "test.error", { name: run.name, error: String(err) }, (ctx.user?.id ?? 0), "error");
         throw err;
       }
     }),
 
-    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+    delete: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       await db.delete(testRuns).where(eq(testRuns.id, input.id));
@@ -313,20 +313,20 @@ export const sandboxRouter = router({
 
   // ─── Persona Lab ─────────────────────────────────────────────────────────────
   personas: router({
-    list: protectedProcedure.input(z.object({ sandboxId: z.number().optional() })).query(async ({ ctx, input }) => {
+    list: publicProcedure.input(z.object({ sandboxId: z.number().optional() })).query(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) return [];
       if (input.sandboxId) {
         return db.select().from(personas)
-          .where(and(eq(personas.ownerId, ctx.user.id), eq(personas.sandboxId, input.sandboxId)))
+          .where(and(eq(personas.ownerId, (ctx.user?.id ?? 0)), eq(personas.sandboxId, input.sandboxId)))
           .orderBy(desc(personas.updatedAt));
       }
       return db.select().from(personas)
-        .where(eq(personas.ownerId, ctx.user.id))
+        .where(eq(personas.ownerId, (ctx.user?.id ?? 0)))
         .orderBy(desc(personas.updatedAt));
     }),
 
-    create: protectedProcedure.input(z.object({
+    create: publicProcedure.input(z.object({
       sandboxId: z.number().optional(),
       name: z.string().min(1).max(255),
       role: z.string().optional(),
@@ -336,13 +336,13 @@ export const sandboxRouter = router({
     })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
-      const [result] = await db.insert(personas).values({ ...input, ownerId: ctx.user.id });
+      const [result] = await db.insert(personas).values({ ...input, ownerId: (ctx.user?.id ?? 0) });
       const id = (result as any).insertId;
-      if (input.sandboxId) await logEvent(input.sandboxId, "persona.created", { name: input.name }, ctx.user.id);
+      if (input.sandboxId) await logEvent(input.sandboxId, "persona.created", { name: input.name }, (ctx.user?.id ?? 0));
       return { id };
     }),
 
-    update: protectedProcedure.input(z.object({
+    update: publicProcedure.input(z.object({
       id: z.number(),
       name: z.string().optional(),
       role: z.string().optional(),
@@ -358,7 +358,7 @@ export const sandboxRouter = router({
       return { success: true };
     }),
 
-    preview: protectedProcedure.input(z.object({
+    preview: publicProcedure.input(z.object({
       personaId: z.number(),
       message: z.string(),
       history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })).default([]),
@@ -386,7 +386,7 @@ export const sandboxRouter = router({
       };
     }),
 
-    delete: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
+    delete: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       await db.delete(personas).where(eq(personas.id, input.id));
@@ -396,7 +396,7 @@ export const sandboxRouter = router({
 
   // ─── AI Behaviour Tester ─────────────────────────────────────────────────────
   aiTester: router({
-    run: protectedProcedure.input(z.object({
+    run: publicProcedure.input(z.object({
       sandboxId: z.number(),
       systemPrompt: z.string(),
       userMessage: z.string(),
@@ -448,7 +448,7 @@ export const sandboxRouter = router({
         scores = JSON.parse(typeof scoreRaw === "string" ? scoreRaw : "{}");
       } catch {}
 
-      await logEvent(input.sandboxId, "ai_tester.run", { latencyMs, overall: scores.overall }, ctx.user.id, "debug");
+      await logEvent(input.sandboxId, "ai_tester.run", { latencyMs, overall: scores.overall }, (ctx.user?.id ?? 0), "debug");
 
       return {
         response: content,
@@ -463,7 +463,7 @@ export const sandboxRouter = router({
 
   // ─── Event Log ───────────────────────────────────────────────────────────────
   events: router({
-    list: protectedProcedure.input(z.object({
+    list: publicProcedure.input(z.object({
       sandboxId: z.number(),
       limit: z.number().min(1).max(200).default(50),
       severity: z.enum(["info", "warning", "error", "debug"]).optional(),
@@ -478,7 +478,7 @@ export const sandboxRouter = router({
         .limit(input.limit);
     }),
 
-    clear: protectedProcedure.input(z.object({ sandboxId: z.number() })).mutation(async ({ input }) => {
+    clear: publicProcedure.input(z.object({ sandboxId: z.number() })).mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("DB unavailable");
       await db.delete(sandboxEvents).where(eq(sandboxEvents.sandboxId, input.sandboxId));

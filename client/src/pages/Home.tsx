@@ -1,4 +1,3 @@
-import { getLoginUrl } from "@/const";
 import {
   AlertTriangle,
   ArrowRight,
@@ -169,13 +168,13 @@ export default function Home() {
             ) : (
               <>
                 <a
-                  href={getLoginUrl()}
+                  href="/dashboard"
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Sign in
                 </a>
                 <a
-                  href={getLoginUrl()}
+                  href="/dashboard"
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
                 >
@@ -234,7 +233,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
             <a
-              href={getLoginUrl()}
+              href="/dashboard"
               className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5"
               style={{
                 background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))",
@@ -388,7 +387,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <a
-                  href={getLoginUrl()}
+                  href="/dashboard"
                   className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90"
                   style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
                 >
@@ -650,7 +649,7 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href={getLoginUrl()}
+              href="/dashboard"
               className="flex items-center gap-2 px-8 py-4 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:shadow-2xl hover:-translate-y-0.5"
               style={{
                 background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))",

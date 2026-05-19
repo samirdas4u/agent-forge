@@ -71,9 +71,11 @@ describe("sessions.create", () => {
     expect(result.sessionId).toBe(42);
   });
 
-  it("throws UNAUTHORIZED for unauthenticated user", async () => {
+  it("creates a session for unauthenticated user (platform is fully public)", async () => {
     const caller = appRouter.createCaller(createCtx());
-    await expect(caller.sessions.create({ scenarioId: 1 })).rejects.toThrow();
+    // Platform is fully public — no login required, sessions use userId=0 for guests
+    const result = await caller.sessions.create({ scenarioId: 1 });
+    expect(result.sessionId).toBeDefined();
   });
 });
 

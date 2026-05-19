@@ -42,8 +42,8 @@ function StreakBadge({ days }: { days: number }) {
 
 export default function Leaderboard() {
   const { user, isAuthenticated } = useAuth();
-  const { data: leaderboard, isLoading } = trpc.leaderboard.list.useQuery(undefined, { enabled: isAuthenticated });
-  const { data: myStreak } = trpc.leaderboard.myStreak.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: leaderboard, isLoading } = trpc.leaderboard.list.useQuery(undefined, { enabled: true });
+  const { data: myStreak } = trpc.leaderboard.myStreak.useQuery(undefined, { enabled: true });
 
   const myRank = leaderboard?.findIndex((u) => u.id === user?.id);
   const today = new Date().toISOString().slice(0, 10);

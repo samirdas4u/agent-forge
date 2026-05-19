@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, router } from "../_core/trpc";
 import { invokeLLM } from "../_core/llm";
 import {
   createContentBlock,
@@ -517,17 +517,17 @@ async function buildScormZip(
 
 export const coursesRouter = router({
   // List user's courses
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return getUserCourses(ctx.user.id);
+  list: publicProcedure.query(async ({ ctx }) => {
+    return getUserCourses((ctx.user?.id ?? 0));
   }),
 
   // Get full course with lessons and blocks
-  get: protectedProcedure
+  get: publicProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const course = await getCourseFull(input.id);
       if (!course) throw new TRPCError({ code: "NOT_FOUND" });
-      if (course.userId !== ctx.user.id && ctx.user.role !== "admin") {
+      if (course.userId !== (ctx.user?.id ?? 0) && ctx.user?.role !== "admin") {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
       return course;
@@ -544,7 +544,7 @@ export const coursesRouter = router({
     }),
 
   // Create course from uploaded text
-  createFromText: protectedProcedure
+  createFromText: publicProcedure
     .input(
       z.object({
         title: z.string().min(1),
@@ -557,7 +557,7 @@ export const coursesRouter = router({
       const slug = slugify(input.title);
       const generated = await generateCourseFromText(input.rawText, input.title);
       const courseId = await createCourse({
-        userId: ctx.user.id,
+        userId: (ctx.user?.id ?? 0),
         title: input.title,
         description: generated.description,
         sourceType: input.sourceType,
@@ -589,7 +589,7 @@ export const coursesRouter = router({
     }),
 
   // Update course metadata
-  update: protectedProcedure
+  update: publicProcedure
     .input(
       z.object({
         id: z.number(),
@@ -602,7 +602,7 @@ export const coursesRouter = router({
     .mutation(async ({ ctx, input }) => {
       const course = await getCourseById(input.id);
       if (!course) throw new TRPCError({ code: "NOT_FOUND" });
-      if (course.userId !== ctx.user.id && ctx.user.role !== "admin")
+      if (course.userId !== (ctx.user?.id ?? 0) && ctx.user?.role !== "admin")
         throw new TRPCError({ code: "FORBIDDEN" });
       const { id, ...data } = input;
       await updateCourse(id, data as any);
@@ -610,19 +610,19 @@ export const coursesRouter = router({
     }),
 
   // Delete course
-  delete: protectedProcedure
+  delete: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const course = await getCourseById(input.id);
       if (!course) throw new TRPCError({ code: "NOT_FOUND" });
-      if (course.userId !== ctx.user.id && ctx.user.role !== "admin")
+      if (course.userId !== (ctx.user?.id ?? 0) && ctx.user?.role !== "admin")
         throw new TRPCError({ code: "FORBIDDEN" });
       await deleteCourse(input.id);
       return { success: true };
     }),
 
   // Update a lesson
-  updateLesson: protectedProcedure
+  updateLesson: publicProcedure
     .input(z.object({ id: z.number(), title: z.string().optional(), objectives: z.string().optional() }))
     .mutation(async ({ input }) => {
       const { id, ...data } = input;
@@ -631,7 +631,7 @@ export const coursesRouter = router({
     }),
 
   // Update a content block
-  updateBlock: protectedProcedure
+  updateBlock: publicProcedure
     .input(z.object({ id: z.number(), content: z.unknown() }))
     .mutation(async ({ input }) => {
       await updateContentBlock(input.id, { content: input.content });
@@ -639,7 +639,7 @@ export const coursesRouter = router({
     }),
 
   // Add a block to a lesson
-  addBlock: protectedProcedure
+  addBlock: publicProcedure
     .input(
       z.object({
         lessonId: z.number(),
@@ -654,7 +654,7 @@ export const coursesRouter = router({
     }),
 
   // Delete a block
-  deleteBlock: protectedProcedure
+  deleteBlock: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ input }) => {
       await deleteContentBlock(input.id);
@@ -662,7 +662,7 @@ export const coursesRouter = router({
     }),
 
   // Refine a block with AI
-  refineBlock: protectedProcedure
+  refineBlock: publicProcedure
     .input(
       z.object({
         blockId: z.number(),
@@ -718,7 +718,7 @@ export const coursesRouter = router({
     }),
 
   // Export as SCORM ZIP (returns base64)
-  exportScorm: protectedProcedure
+  exportScorm: publicProcedure
     .input(
       z.object({
         courseId: z.number(),
@@ -728,7 +728,7 @@ export const coursesRouter = router({
     .mutation(async ({ ctx, input }) => {
       const course = await getCourseFull(input.courseId);
       if (!course) throw new TRPCError({ code: "NOT_FOUND" });
-      if (course.userId !== ctx.user.id && ctx.user.role !== "admin")
+      if (course.userId !== (ctx.user?.id ?? 0) && ctx.user?.role !== "admin")
         throw new TRPCError({ code: "FORBIDDEN" });
       const zipBuffer = await buildScormZip(course, input.version);
       return {
@@ -738,14 +738,14 @@ export const coursesRouter = router({
     }),
 
   // Enroll and track progress
-  enroll: protectedProcedure
+  enroll: publicProcedure
     .input(z.object({ courseId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const enrollment = await getOrCreateEnrollment(ctx.user.id, input.courseId);
+      const enrollment = await getOrCreateEnrollment((ctx.user?.id ?? 0), input.courseId);
       return enrollment;
     }),
 
-  updateProgress: protectedProcedure
+  updateProgress: publicProcedure
     .input(
       z.object({
         enrollmentId: z.number(),

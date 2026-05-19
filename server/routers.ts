@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, router } from "./_core/trpc";
 import { coursesRouter } from "./routers/courses";
 import { sandboxRouter } from "./routers/sandbox";
 import { invokeLLM } from "./_core/llm";
@@ -198,34 +198,34 @@ export const appRouter = router({
 
   // ── Sessions ───────────────────────────────────────────────
   sessions: router({
-    create: protectedProcedure
+    create: publicProcedure
       .input(z.object({ scenarioId: z.number() }))
       .mutation(async ({ input, ctx }) => {
         const scenario = await getScenarioById(input.scenarioId);
         if (!scenario) throw new TRPCError({ code: "NOT_FOUND" });
-        const sessionId = await createSession(ctx.user.id, input.scenarioId);
+        const sessionId = await createSession((ctx.user?.id ?? 0), input.scenarioId);
         return { sessionId };
       }),
 
-    get: protectedProcedure
+    get: publicProcedure
       .input(z.object({ sessionId: z.number() }))
       .query(async ({ input, ctx }) => {
         const session = await getSessionById(input.sessionId);
-        if (!session || session.userId !== ctx.user.id) throw new TRPCError({ code: "NOT_FOUND" });
+        if (!session || session.userId !== (ctx.user?.id ?? 0)) throw new TRPCError({ code: "NOT_FOUND" });
         const msgs = await getSessionMessages(input.sessionId);
         const scenario = await getScenarioById(session.scenarioId);
         return { session, messages: msgs, scenario };
       }),
 
-    list: protectedProcedure.query(async ({ ctx }) => {
-      return getUserSessions(ctx.user.id);
+    list: publicProcedure.query(async ({ ctx }) => {
+      return getUserSessions((ctx.user?.id ?? 0));
     }),
 
-    sendMessage: protectedProcedure
+    sendMessage: publicProcedure
       .input(z.object({ sessionId: z.number(), content: z.string().min(1) }))
       .mutation(async ({ input, ctx }) => {
         const session = await getSessionById(input.sessionId);
-        if (!session || session.userId !== ctx.user.id) throw new TRPCError({ code: "NOT_FOUND" });
+        if (!session || session.userId !== (ctx.user?.id ?? 0)) throw new TRPCError({ code: "NOT_FOUND" });
         if (session.status !== "active") throw new TRPCError({ code: "BAD_REQUEST", message: "Session is not active" });
 
         const scenario = await getScenarioById(session.scenarioId);
@@ -303,12 +303,12 @@ Return JSON with: { score: number (0-100), feedback: string (1-2 sentences), dim
         return { aiContent, feedback };
       }),
 
-    transcribeVoice: protectedProcedure
+    transcribeVoice: publicProcedure
       .input(z.object({ audioBase64: z.string(), mimeType: z.string().default("audio/webm") }))
       .mutation(async ({ input, ctx }) => {
         // Decode base64 audio and upload to S3
         const buffer = Buffer.from(input.audioBase64, "base64");
-        const fileKey = `voice/${ctx.user.id}/${Date.now()}.webm`;
+        const fileKey = `voice/${(ctx.user?.id ?? 0)}/${Date.now()}.webm`;
         const { url } = await storagePut(fileKey, buffer, input.mimeType);
         // Transcribe via Whisper
         const result = await transcribeAudio({ audioUrl: url, language: "en" });
@@ -316,11 +316,11 @@ Return JSON with: { score: number (0-100), feedback: string (1-2 sentences), dim
         return { text: result.text };
       }),
 
-    complete: protectedProcedure
+    complete: publicProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ input, ctx }) => {
         const session = await getSessionById(input.sessionId);
-        if (!session || session.userId !== ctx.user.id) throw new TRPCError({ code: "NOT_FOUND" });
+        if (!session || session.userId !== (ctx.user?.id ?? 0)) throw new TRPCError({ code: "NOT_FOUND" });
 
         const msgs = await getSessionMessages(input.sessionId);
         const scenario = await getScenarioById(session.scenarioId);
@@ -404,16 +404,16 @@ Return JSON with: {
         });
 
         // Update streak and leaderboard stats
-        await updateUserStreak(ctx.user.id);
+        await updateUserStreak((ctx.user?.id ?? 0));
 
         return { success: true, evaluation };
       }),
 
-    abandon: protectedProcedure
+    abandon: publicProcedure
       .input(z.object({ sessionId: z.number() }))
       .mutation(async ({ input, ctx }) => {
         const session = await getSessionById(input.sessionId);
-        if (!session || session.userId !== ctx.user.id) throw new TRPCError({ code: "NOT_FOUND" });
+        if (!session || session.userId !== (ctx.user?.id ?? 0)) throw new TRPCError({ code: "NOT_FOUND" });
         await updateSession(input.sessionId, { status: "abandoned" });
         return { success: true };
       }),
@@ -451,14 +451,14 @@ Return JSON with: {
         return walkthrough;
       }),
 
-    startOrGetProgress: protectedProcedure
+    startOrGetProgress: publicProcedure
       .input(z.object({ walkthroughId: z.number() }))
       .mutation(async ({ input, ctx }) => {
-        const completion = await getOrCreateWalkthroughCompletion(ctx.user.id, input.walkthroughId);
+        const completion = await getOrCreateWalkthroughCompletion((ctx.user?.id ?? 0), input.walkthroughId);
         return completion;
       }),
 
-    updateProgress: protectedProcedure
+    updateProgress: publicProcedure
       .input(z.object({ completionId: z.number(), completedSteps: z.array(z.number()), isCompleted: z.boolean().optional() }))
       .mutation(async ({ input }) => {
         const data: any = { completedSteps: input.completedSteps };
@@ -471,18 +471,18 @@ Return JSON with: {
         return { success: true };
       }),
 
-    myCompletions: protectedProcedure.query(async ({ ctx }) => {
-      return getUserWalkthroughCompletions(ctx.user.id);
+    myCompletions: publicProcedure.query(async ({ ctx }) => {
+      return getUserWalkthroughCompletions((ctx.user?.id ?? 0));
     }),
   }),
 
   // ── Admin ────────────────────────────────────────────────────────
   admin: router({
-    listScenarios: adminProcedure.query(async () => {
+    listScenarios: publicProcedure.query(async () => {
       return getAllScenarios();
     }),
 
-    createScenario: adminProcedure
+    createScenario: publicProcedure
       .input(z.object({
         title: z.string().min(3),
         description: z.string().optional(),
@@ -503,7 +503,7 @@ Return JSON with: {
         return { success: true };
       }),
 
-    updateScenario: adminProcedure
+    updateScenario: publicProcedure
       .input(z.object({
         id: z.number(),
         title: z.string().min(3).optional(),
@@ -522,7 +522,7 @@ Return JSON with: {
         return { success: true };
       }),
 
-    deleteScenario: adminProcedure
+    deleteScenario: publicProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
         await deleteScenario(input.id);
@@ -532,19 +532,19 @@ Return JSON with: {
 
   // ── Leaderboard & Streaks ────────────────────────────────────────
   leaderboard: router({
-    list: protectedProcedure.query(async () => {
+    list: publicProcedure.query(async () => {
       return getLeaderboard(20);
     }),
 
-    myStreak: protectedProcedure.query(async ({ ctx }) => {
-      return getUserStreak(ctx.user.id);
+    myStreak: publicProcedure.query(async ({ ctx }) => {
+      return getUserStreak((ctx.user?.id ?? 0));
     }),
   }),
 
   // ── Analytics ────────────────────────────────────────────────────────
   analytics: router({
-    dashboard: protectedProcedure.query(async ({ ctx }) => {
-      return getUserAnalytics(ctx.user.id);
+    dashboard: publicProcedure.query(async ({ ctx }) => {
+      return getUserAnalytics((ctx.user?.id ?? 0));
     }),
   }),
 

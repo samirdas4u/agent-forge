@@ -58,7 +58,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
     location.startsWith("/sandbox") ? "sandbox" : "training"
   );
 
-  const { data: myStats } = trpc.leaderboard.myStreak.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: myStats } = trpc.leaderboard.myStreak.useQuery(undefined, { enabled: true });
 
   if (loading) {
     return (
@@ -68,29 +68,6 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <p className="text-xs text-slate-500 font-mono tracking-wider">LOADING AGENT FORGE</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-[#0d0f14] flex items-center justify-center px-4">
-        <div className="w-full max-w-sm text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-500/25">
-            <Sparkles className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Agent Forge</h1>
-          <p className="text-slate-400 mb-8 text-sm leading-relaxed">
-            AI-powered practice simulation and engineering sandbox for world-class teams.
-          </p>
-          <a
-            href={getLoginUrl()}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-indigo-600 text-white font-semibold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-violet-500/25"
-          >
-            <Sparkles className="w-4 h-4" />
-            Sign in to continue
-          </a>
         </div>
       </div>
     );
@@ -188,7 +165,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
         })}
 
         {/* Admin section */}
-        {user?.role === "admin" && activeSection === "training" && (
+        {activeSection === "training" && (
           <>
             <div className="pt-4 pb-1 px-3">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-orange-600">
@@ -234,19 +211,21 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
         )}
         <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-white/[0.04] transition-colors group cursor-default">
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 text-xs font-bold text-white">
-            {(user?.name ?? "U")[0].toUpperCase()}
+            {user ? (user.name ?? "U")[0].toUpperCase() : "G"}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold text-slate-200 truncate">{user?.name ?? "User"}</div>
-            <div className="text-[10px] text-slate-500 capitalize">{user?.role}</div>
+            <div className="text-xs font-semibold text-slate-200 truncate">{user?.name ?? "Guest"}</div>
+            <div className="text-[10px] text-slate-500 capitalize">{user ? user.role : "visitor"}</div>
           </div>
-          <button
-            onClick={() => logout()}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-500 hover:text-red-400"
-            title="Sign out"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-          </button>
+          {user && (
+            <button
+              onClick={() => logout()}
+              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-500 hover:text-red-400"
+              title="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </aside>

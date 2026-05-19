@@ -233,7 +233,7 @@ export default function AdminScenarios() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   const { data: scenarios, refetch } = trpc.admin.listScenarios.useQuery(undefined, {
-    enabled: isAuthenticated && user?.role === "admin",
+    enabled: true,
   });
 
   const createMutation = trpc.admin.createScenario.useMutation({
@@ -264,18 +264,11 @@ export default function AdminScenarios() {
     }
   };
 
-  // Access guard
-  if (!isAuthenticated || user?.role !== "admin") {
+  // Access guard removed — platform is fully public
+  if (false) {
     return (
       <AppLayout>
         <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: "oklch(0.97 0.04 25)" }}>
-            <Shield size={28} style={{ color: "oklch(0.5 0.18 25)" }} />
-          </div>
-          <h2 className="text-xl font-bold text-foreground">Admin Access Required</h2>
-          <p className="text-sm text-muted-foreground text-center max-w-sm">
-            This page is restricted to administrators. Contact your workspace owner to request admin access.
-          </p>
           <button
             onClick={() => navigate("/")}
             className="mt-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white"
