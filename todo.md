@@ -161,3 +161,22 @@
 - [x] Copyright line: © 2026 Samir Das — with link to samirdas.co.uk
 - [x] Add "Built by Samir Das" credit panel in sidebar (AppLayout.tsx) visible on all inner pages
 - [x] Sidebar credit includes: name link → samirdas.co.uk, LinkedIn, YouTube, Mentoring Club quick links
+
+## Mobile Responsiveness (v10.0)
+- [ ] AppLayout: hamburger menu button on mobile, slide-out drawer sidebar
+- [ ] Home.tsx: responsive hero, nav, feature grid, comparison table, footer
+- [ ] Dashboard: responsive KPI cards and activity feed
+- [ ] Scenarios: responsive card grid
+- [ ] SimulationSession: stack 3-panel layout vertically on mobile
+- [ ] Walkthroughs: responsive card grid
+- [ ] Analytics: responsive charts and tables
+- [ ] Leaderboard: responsive table/list
+- [ ] Courses / CourseEditor / LearnCourse: responsive layouts
+- [ ] Sandbox pages: responsive tables and panels
+- [ ] AdminScenarios: responsive form and list
+
+## Mobile Responsiveness (v10)
+- [x] AppLayout mobile hamburger menu + slide-out drawer
+- [x] Home.tsx landing page fully responsive (nav, hero, sections, footer)
+- [x] Dashboard, Scenarios, Analytics, Leaderboard responsive
+- [x] SimulationSession, Sandbox pages (EventLog, SandboxHub) responsive

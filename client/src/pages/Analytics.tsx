@@ -79,14 +79,14 @@ export default function Analytics() {
     <AppLayout>
       <div className="flex-1 overflow-y-auto">
         {/* Header */}
-        <div className="bg-white border-b border-border px-6 py-5 sticky top-0 z-10">
+        <div className="bg-white border-b border-border px-4 sm:px-6 py-4 sm:py-5 sticky top-0 z-10">
           <div className="max-w-6xl mx-auto">
             <h1 className="text-xl font-bold text-foreground">Performance Analytics</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Detailed breakdown of your practice performance over time.</p>
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-6 py-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
           {!hasData ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "oklch(0.95 0.05 264)" }}>
@@ -103,7 +103,7 @@ export default function Analytics() {
           ) : (
             <div className="space-y-6">
               {/* KPI row */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {[
                   { label: "Sessions Completed", value: analytics?.totalSessions ?? 0, icon: MessageSquare, color: INDIGO, bg: "oklch(0.95 0.05 264)" },
                   { label: "Average Score", value: `${avgScore}/100`, icon: BarChart3, color: GREEN, bg: "oklch(0.96 0.06 160)" },
@@ -121,7 +121,7 @@ export default function Analytics() {
               </div>
 
               {/* Score trend + Radar */}
-              <div className="grid lg:grid-cols-2 gap-6">
+              <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Score trend */}
                 <div className="bg-white rounded-2xl border border-border p-5">
                   <div className="mb-4">
@@ -203,14 +203,14 @@ export default function Analytics() {
                       : 0;
                     const color = avg >= 80 ? GREEN : avg >= 60 ? ORANGE : "oklch(0.58 0.22 27)";
                     return (
-                      <div key={key} className="flex items-center gap-4 px-5 py-3.5">
-                        <div className="w-32 text-xs font-semibold text-foreground shrink-0">{label}</div>
+                      <div key={key} className="flex items-center gap-2 sm:gap-4 px-4 sm:px-5 py-3 sm:py-3.5">
+                        <div className="w-24 sm:w-32 text-xs font-semibold text-foreground shrink-0">{label}</div>
                         <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div className="h-full rounded-full transition-all duration-700" style={{ width: `${avg}%`, background: color }} />
                         </div>
-                        <div className="w-10 text-right text-sm font-extrabold shrink-0" style={{ color }}>{avg}</div>
+                        <div className="w-8 sm:w-10 text-right text-sm font-extrabold shrink-0" style={{ color }}>{avg}</div>
                         <div
-                          className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                          className="hidden sm:block text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
                           style={{
                             background: avg >= 80 ? "oklch(0.96 0.06 160)" : avg >= 60 ? "oklch(0.97 0.06 80)" : "oklch(0.97 0.04 25)",
                             color: avg >= 80 ? "oklch(0.38 0.12 160)" : avg >= 60 ? "oklch(0.45 0.14 60)" : "oklch(0.5 0.18 25)",

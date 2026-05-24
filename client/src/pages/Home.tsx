@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ChevronRight,
   ExternalLink,
+  Menu,
   MessageSquare,
   Mic,
   Sparkles,
@@ -15,9 +16,11 @@ import {
   TrendingUp,
   Trophy,
   Users,
+  X,
   Zap,
   XCircle,
 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -134,13 +137,14 @@ const TESTIMONIALS = [
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
 
       {/* ── Nav ────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div
               className="w-8 h-8 rounded-xl flex items-center justify-center"
@@ -156,34 +160,67 @@ export default function Home() {
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
             <a href="#partners" className="hover:text-foreground transition-colors">Partners</a>
           </div>
-          <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
-                style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
-              >
-                Go to Dashboard <ArrowRight size={14} />
-              </Link>
-            ) : (
-              <>
-                <a
-                  href="/dashboard"
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Sign in
-                </a>
-                <a
+          <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-3">
+              {isAuthenticated ? (
+                <Link
                   href="/dashboard"
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
                 >
-                  Get started free <ArrowRight size={14} />
-                </a>
-              </>
-            )}
+                  Go to Dashboard <ArrowRight size={14} />
+                </Link>
+              ) : (
+                <>
+                  <a
+                    href="/dashboard"
+                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Sign in
+                  </a>
+                  <a
+                    href="/dashboard"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+                    style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
+                  >
+                    Get started free <ArrowRight size={14} />
+                  </a>
+                </>
+              )}
+            </div>
+            {/* Mobile CTA */}
+            <a
+              href="/dashboard"
+              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
+              style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
+            >
+              Go to Dashboard
+            </a>
+            {/* Hamburger */}
+            <button
+              className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              onClick={() => setMobileNavOpen((v) => !v)}
+              aria-label="Toggle navigation"
+            >
+              {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
+        {/* Mobile nav dropdown */}
+        {mobileNavOpen && (
+          <div className="md:hidden border-t border-border bg-white/95 backdrop-blur-xl px-4 py-4 space-y-1">
+            {["#problem", "#pilot", "#features", "#partners"].map((href, i) => (
+              <a
+                key={href}
+                href={href}
+                onClick={() => setMobileNavOpen(false)}
+                className="block px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                {["The Problem", "Pilot Results", "Features", "Partners"][i]}
+              </a>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* ── Hero ───────────────────────────────────────────────── */}
@@ -201,7 +238,7 @@ export default function Home() {
             backgroundSize: "32px 32px",
           }}
         />
-        <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-20 text-center">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-14 sm:pb-20 text-center">
           <div
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8 border"
             style={{ background: "oklch(0.52 0.26 272 / 0.06)", borderColor: "oklch(0.52 0.26 272 / 0.2)", color: "oklch(0.48 0.24 272)" }}
@@ -210,7 +247,7 @@ export default function Home() {
             AI-Powered Adaptive Performance Training
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground mb-6 leading-[1.05]">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight text-foreground mb-6 leading-[1.05]">
             Training simulations that{" "}
             <span
               style={{
@@ -224,10 +261,10 @@ export default function Home() {
             </span>
           </h1>
 
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
+          <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 leading-relaxed">
             Traditional training simulations are static. They follow scripts. Real people don't.
           </p>
-          <p className="text-xl font-semibold text-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-base sm:text-xl font-semibold text-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
             Agent Forge uses AI agents to create dynamic, adaptive performance scenarios — so your team practises the real thing, not a rehearsed version of it.
           </p>
 
@@ -252,7 +289,7 @@ export default function Home() {
           </div>
 
           {/* Key stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-2xl mx-auto">
             {[
               { value: "+6pp", label: "QA Score Improvement" },
               { value: "6+", label: "Built-in Scenarios" },
@@ -281,8 +318,8 @@ export default function Home() {
       </section>
 
       {/* ── Problem ────────────────────────────────────────────── */}
-      <section id="problem" className="py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="problem" className="py-16 sm:py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 border"
@@ -291,15 +328,15 @@ export default function Home() {
               <AlertTriangle size={11} />
               The problem with traditional training
             </div>
-            <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">
-              Static simulations create false confidence
-            </h2>
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground mb-4">
+            Static simulations create false confidence
+          </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Most training platforms give learners a script to memorise and a decision tree to click through. That's not practice — that's theatre.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-14">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-10 sm:mb-14">
             {PROBLEMS.map((p) => (
               <div key={p.title} className="bg-white border border-border rounded-2xl p-6 shadow-sm">
                 <div
@@ -315,7 +352,7 @@ export default function Home() {
           </div>
 
           {/* Contrast: static vs adaptive */}
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
             <div className="bg-white border border-border rounded-2xl p-7 shadow-sm">
               <div className="flex items-center gap-2 mb-5">
                 <div className="w-2 h-2 rounded-full bg-red-400" />
@@ -364,9 +401,9 @@ export default function Home() {
       </section>
 
       {/* ── Pilot Results ──────────────────────────────────────── */}
-      <section id="pilot" className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section id="pilot" className="py-16 sm:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-2 gap-8 sm:gap-12 items-center">
             {/* Left: copy */}
             <div>
               <div
@@ -376,7 +413,7 @@ export default function Home() {
                 <TrendingUp size={11} />
                 Pilot results
               </div>
-              <h2 className="text-4xl font-black tracking-tight text-foreground mb-5 leading-tight">
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground mb-5 leading-tight">
                 +6 percentage point improvement in QA scores
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed mb-6">
@@ -433,8 +470,8 @@ export default function Home() {
       </section>
 
       {/* ── Features ───────────────────────────────────────────── */}
-      <section id="features" className="py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="features" className="py-16 sm:py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
             <div
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 border"
@@ -442,7 +479,7 @@ export default function Home() {
             >
               Everything you need
             </div>
-            <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground mb-4">
               One platform. Every skill.
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -450,7 +487,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {FEATURES.map((f) => (
               <div
                 key={f.title}
@@ -476,13 +513,13 @@ export default function Home() {
       </section>
 
       {/* ── How it works ───────────────────────────────────────── */}
-      <section className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
+      <section className="py-16 sm:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">How it works</h2>
             <p className="text-lg text-muted-foreground">From zero to confident in three steps.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {HOW_IT_WORKS.map((item, i) => (
               <div key={i} className="relative">
                 {i < 2 && (
@@ -511,12 +548,12 @@ export default function Home() {
       </section>
 
       {/* ── Testimonials ───────────────────────────────────────── */}
-      <section className="py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
-        <div className="max-w-6xl mx-auto px-6">
+      <section className="py-16 sm:py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">Loved by learners</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {TESTIMONIALS.map((t) => (
               <div key={t.name} className="bg-white border border-border rounded-2xl p-6 shadow-sm">
                 <div className="flex gap-0.5 mb-4">
@@ -544,8 +581,8 @@ export default function Home() {
       </section>
 
       {/* ── Partners ───────────────────────────────────────────── */}
-      <section id="partners" className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
+      <section id="partners" className="py-16 sm:py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 border"
@@ -554,7 +591,7 @@ export default function Home() {
               <Users size={11} />
               Built with our partners
             </div>
-            <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground mb-4">
               Backed by leading L&D expertise
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
@@ -562,7 +599,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto">
             {/* Learning Catalyst */}
             <a
               href="https://www.learningcatalyst.co.uk"
@@ -624,7 +661,7 @@ export default function Home() {
       </section>
 
       {/* ── CTA ────────────────────────────────────────────────── */}
-      <section className="py-24 relative overflow-hidden" style={{ background: "oklch(0.115 0.028 265)" }}>
+      <section className="py-16 sm:py-24 relative overflow-hidden" style={{ background: "oklch(0.115 0.028 265)" }}>
         <div
           className="absolute inset-0"
           style={{
@@ -638,7 +675,7 @@ export default function Home() {
           >
             <Brain size={28} color="white" />
           </div>
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-5" style={{ color: "oklch(0.97 0.01 260)" }}>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-5" style={{ color: "oklch(0.97 0.01 260)" }}>
             Ready to see the difference?
           </h2>
           <p className="text-lg mb-4 leading-relaxed" style={{ color: "oklch(0.60 0.025 260)" }}>
@@ -669,7 +706,7 @@ export default function Home() {
               Talk to our L&D partners <ExternalLink size={15} />
             </a>
           </div>
-          <div className="flex items-center justify-center gap-6 mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mt-8">
             {["No credit card", "Instant access", "Cancel anytime"].map((item) => (
               <div key={item} className="flex items-center gap-1.5 text-sm" style={{ color: "oklch(0.55 0.025 260)" }}>
                 <CheckCircle2 size={14} style={{ color: "oklch(0.62 0.20 162)" }} />

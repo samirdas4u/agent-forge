@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   Layers,
   LogOut,
+  Menu,
   MessageSquare,
   Microscope,
   ScrollText,
@@ -23,9 +24,10 @@ import {
   Terminal,
   Trophy,
   Users,
+  X,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 
@@ -58,6 +60,22 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
   const [activeSection, setActiveSection] = useState<"training" | "sandbox">(() =>
     location.startsWith("/sandbox") ? "sandbox" : "training"
   );
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Close drawer on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location]);
+
+  // Prevent body scroll when drawer is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileOpen]);
 
   const { data: myStats } = trpc.leaderboard.myStreak.useQuery(undefined, { enabled: true });
 
@@ -84,10 +102,10 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
     ? "bg-violet-500/10 text-violet-200 border-l-2 border-violet-400"
     : "bg-emerald-500/10 text-emerald-200 border-l-2 border-emerald-400";
 
-  const sidebar = (
-    <aside className="w-60 flex-shrink-0 flex flex-col h-full bg-[#111318] border-r border-white/[0.06]">
+  const sidebarContent = (
+    <>
       {/* Logo */}
-      <div className="px-4 py-4 border-b border-white/[0.06]">
+      <div className="px-4 py-4 border-b border-white/[0.06] flex items-center justify-between">
         <Link href="/dashboard" className="flex items-center gap-3 group">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-md shadow-violet-500/20">
             <Sparkles className="w-4 h-4 text-white" />
@@ -97,6 +115,14 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             <div className="text-[10px] text-slate-600 font-mono">AI Practice Platform</div>
           </div>
         </Link>
+        {/* Close button — mobile only */}
+        <button
+          className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+          onClick={() => setMobileOpen(false)}
+          aria-label="Close menu"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Pillar Switcher */}
@@ -273,12 +299,56 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
           )}
         </div>
       </div>
+    </>
+  );
+
+  const sidebar = (
+    <aside className="w-60 flex-shrink-0 flex flex-col h-full bg-[#111318] border-r border-white/[0.06]">
+      {sidebarContent}
     </aside>
+  );
+
+  // Mobile top bar
+  const mobileTopBar = (
+    <div className="md:hidden flex items-center gap-3 px-4 py-3 bg-[#111318] border-b border-white/[0.06] sticky top-0 z-30">
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+        aria-label="Open menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+      <Link href="/dashboard" className="flex items-center gap-2">
+        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+          <Sparkles className="w-3 h-3 text-white" />
+        </div>
+        <span className="text-sm font-bold text-white">Agent Forge</span>
+      </Link>
+    </div>
   );
 
   if (fullscreen) {
     return (
-      <div className="flex h-screen overflow-hidden bg-[#0d0f14]">
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-[#0d0f14]">
+        {/* Mobile top bar */}
+        {mobileTopBar}
+        {/* Mobile drawer overlay */}
+        {mobileOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/60 md:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+        {/* Mobile drawer */}
+        <div
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-[#111318] border-r border-white/[0.06] transition-transform duration-300 md:hidden",
+            mobileOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
+          {sidebarContent}
+        </div>
+        {/* Desktop sidebar */}
         <div className="hidden md:flex shrink-0">{sidebar}</div>
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
@@ -286,7 +356,26 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0d0f14]">
+    <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-[#0d0f14]">
+      {/* Mobile top bar */}
+      {mobileTopBar}
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+      {/* Mobile drawer */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-72 flex flex-col bg-[#111318] border-r border-white/[0.06] transition-transform duration-300 md:hidden",
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {sidebarContent}
+      </div>
+      {/* Desktop sidebar */}
       <div className="hidden md:flex shrink-0">{sidebar}</div>
       <main className="flex-1 overflow-y-auto">{children}</main>
     </div>

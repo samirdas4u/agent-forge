@@ -92,7 +92,7 @@ export default function SandboxHub() {
       <div className="min-h-screen bg-[#0d0f14] text-white">
         {/* Header */}
         <div className="border-b border-white/[0.06] bg-[#111318]">
-          <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
                 <FlaskConical className="w-5 h-5 text-white" />
@@ -114,7 +114,7 @@ export default function SandboxHub() {
 
         {/* Stats bar */}
         <div className="border-b border-white/[0.06] bg-[#111318]/50">
-          <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center gap-4 sm:gap-8">
             {[
               { label: "Total Sandboxes", value: sandboxes.length, icon: Cpu },
               { label: "Active", value: sandboxes.filter(s => s.status === "active").length, icon: CheckCircle2, color: "text-emerald-400" },
@@ -133,7 +133,7 @@ export default function SandboxHub() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 sm:py-8">
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[...Array(3)].map((_, i) => (

@@ -53,7 +53,7 @@ export default function Leaderboard() {
     <AppLayout>
       <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="shrink-0 px-6 py-5 border-b border-border bg-white">
+        <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b border-border bg-white">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: "oklch(0.95 0.08 80)" }}>
               <Trophy size={12} style={{ color: "oklch(0.45 0.18 60)" }} />
@@ -64,7 +64,7 @@ export default function Leaderboard() {
           <p className="text-sm text-muted-foreground mt-0.5">Top performers ranked by average score and practice consistency</p>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-3xl mx-auto space-y-6">
 
             {/* My Stats Card */}
@@ -189,7 +189,7 @@ export default function Leaderboard() {
                     return (
                       <div
                         key={entry.id}
-                        className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-gray-50"
+                        className="flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-3 sm:py-4 transition-colors hover:bg-gray-50"
                         style={isMe ? { background: "oklch(0.97 0.04 264 / 0.3)" } : {}}
                       >
                         {/* Rank */}

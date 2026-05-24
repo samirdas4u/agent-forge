@@ -75,7 +75,7 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-7">
+      <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-5 sm:space-y-7">
 
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -99,7 +99,7 @@ export default function Dashboard() {
         </div>
 
         {/* KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {kpis.map((kpi) => (
             <div
               key={kpi.label}
@@ -118,7 +118,7 @@ export default function Dashboard() {
         </div>
 
         {/* Main grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
 
           {/* Recent Sessions */}
           <div className="lg:col-span-2 bg-white border border-border rounded-2xl overflow-hidden" style={{ boxShadow: "0 1px 4px oklch(0 0 0 / 0.04)" }}>
@@ -166,10 +166,10 @@ export default function Dashboard() {
                     <Link
                       key={row.session.id}
                       href={`/session/${row.session.id}/result`}
-                      className="flex items-center gap-4 px-6 py-4 hover:bg-muted/40 transition-colors"
+                      className="flex items-center gap-3 px-4 sm:px-6 py-3 sm:py-4 hover:bg-muted/40 transition-colors"
                     >
                       <div className="relative shrink-0">
-                        <ScoreRing score={score ?? 0} size={44} />
+                        <ScoreRing score={score ?? 0} size={40} />
                         <div className="absolute inset-0 flex items-center justify-center">
                           <span className="text-[10px] font-black text-foreground">{score ?? "—"}</span>
                         </div>
@@ -180,9 +180,9 @@ export default function Dashboard() {
                           {row.session?.messageCount ?? 0} exchanges · {format(new Date(row.session.startedAt), "MMM d, yyyy")}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <span
-                          className="text-xs font-bold px-2.5 py-1 rounded-full"
+                          className="hidden sm:inline text-xs font-bold px-2.5 py-1 rounded-full"
                           style={{ background: scoreBg ?? "oklch(0.97 0.006 260)", color: scoreColor ?? "oklch(0.52 0.025 260)" }}
                         >
                           {scoreLabel}

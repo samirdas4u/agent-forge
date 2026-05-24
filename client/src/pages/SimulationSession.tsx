@@ -347,10 +347,11 @@ export default function SimulationSession({ sessionId }: Props) {
                 <>
                   <button
                     onClick={() => setShowEndConfirm(true)}
-                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border hover:bg-gray-50 transition-colors"
                   >
                     <CheckCircle2 size={12} style={{ color: "oklch(0.45 0.14 160)" }} />
-                    End & Score
+                    <span className="hidden sm:inline">End & Score</span>
+                    <span className="sm:hidden">End</span>
                   </button>
                   <button
                     onClick={() => abandonSession.mutate({ sessionId })}
@@ -503,7 +504,8 @@ export default function SimulationSession({ sessionId }: Props) {
                 </button>
               </div>
               <div className="flex justify-between mt-1.5 px-0.5">
-                <span className="text-[10px] text-muted-foreground">Enter to send · Shift+Enter for new line · Mic to speak</span>
+                <span className="text-[10px] text-muted-foreground hidden sm:block">Enter to send · Shift+Enter for new line · Mic to speak</span>
+                <span className="text-[10px] text-muted-foreground sm:hidden">Tap mic to speak</span>
                 {userMessageCount >= 3 && (
                   <button
                     onClick={() => setShowEndConfirm(true)}

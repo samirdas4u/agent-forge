@@ -53,7 +53,7 @@ export default function Scenarios() {
 
   return (
     <AppLayout>
-      <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-7">
+      <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-5 sm:space-y-7">
 
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -116,7 +116,7 @@ export default function Scenarios() {
 
         {/* Grid */}
         {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {[1,2,3,4,5,6].map(i => (
               <div key={i} className="bg-white border border-border rounded-2xl h-64 shimmer" />
             ))}
@@ -130,7 +130,7 @@ export default function Scenarios() {
             <p className="text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {filtered.map((scenario) => {
               const catStyle = CATEGORY_STYLES[scenario.category] ?? CATEGORY_STYLES.sales;
               const diffStyle = DIFF_STYLES[scenario.difficulty] ?? DIFF_STYLES.beginner;
