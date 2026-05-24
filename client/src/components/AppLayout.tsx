@@ -7,6 +7,7 @@ import {
   Bot,
   ChevronRight,
   Cpu,
+  ExternalLink,
   FlaskConical,
   Flame,
   GraduationCap,
@@ -197,6 +198,50 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
           </>
         )}
       </nav>
+
+      {/* Creator credit */}
+      <div className="px-3 py-2.5 border-t border-white/[0.06]">
+        <div className="rounded-lg px-3 py-2" style={{ background: "oklch(0.14 0.02 265 / 0.6)" }}>
+          <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: "oklch(0.52 0.26 272)" }}>Built by</p>
+          <a
+            href="https://samirdas.co.uk/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:opacity-80 transition-opacity"
+          >
+            <span className="text-xs font-semibold text-slate-200">Samir Das</span>
+            <ExternalLink className="w-2.5 h-2.5 text-slate-500" />
+          </a>
+          <div className="flex items-center gap-2 mt-1.5">
+            <a
+              href="https://www.linkedin.com/in/samir-lifelonglearner/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[9px] text-slate-500 hover:text-violet-400 transition-colors"
+            >
+              LinkedIn
+            </a>
+            <span className="text-slate-700 text-[9px]">·</span>
+            <a
+              href="https://www.youtube.com/@samsdigitalacademy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[9px] text-slate-500 hover:text-violet-400 transition-colors"
+            >
+              YouTube
+            </a>
+            <span className="text-slate-700 text-[9px]">·</span>
+            <a
+              href="https://www.mentoring-club.com/profiles/samir-das#mentor-profile"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[9px] text-slate-500 hover:text-violet-400 transition-colors"
+            >
+              Mentoring
+            </a>
+          </div>
+        </div>
+      </div>
 
       {/* Streak + User */}
       <div className="border-t border-white/[0.06] p-3 space-y-2">

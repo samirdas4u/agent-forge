@@ -681,37 +681,145 @@ export default function Home() {
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────── */}
-      <footer className="py-10 border-t border-border bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-6 h-6 rounded-lg flex items-center justify-center"
-                style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
-              >
-                <Brain size={12} color="white" />
+      <footer
+        className="border-t"
+        style={{ background: "oklch(0.09 0.015 265)", borderColor: "oklch(0.20 0.025 265)" }}
+      >
+        {/* Main footer grid */}
+        <div className="max-w-6xl mx-auto px-6 pt-14 pb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {/* Brand + creator credit */}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
+                >
+                  <Brain size={16} color="white" />
+                </div>
+                <span className="text-base font-black" style={{ color: "oklch(0.97 0.01 260)" }}>Agent Forge</span>
               </div>
-              <span className="text-sm font-bold text-foreground">Agent Forge</span>
+              <p className="text-sm leading-relaxed" style={{ color: "oklch(0.55 0.025 260)" }}>
+                AI-powered practice simulation and eLearning platform. Replace static training with adaptive AI scenarios that actually improve performance.
+              </p>
+              {/* Creator attribution */}
+              <div
+                className="mt-1 rounded-xl p-4"
+                style={{ background: "oklch(0.14 0.02 265)", border: "1px solid oklch(0.22 0.03 272)" }}
+              >
+                <p className="text-xs font-semibold mb-1" style={{ color: "oklch(0.52 0.26 272)" }}>BUILT BY</p>
+                <a
+                  href="https://samirdas.co.uk/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-bold hover:opacity-80 transition-opacity"
+                  style={{ color: "oklch(0.97 0.01 260)" }}
+                >
+                  Samir Das
+                </a>
+                <p className="text-xs mt-0.5" style={{ color: "oklch(0.55 0.025 260)" }}>
+                  AI Learning &amp; Knowledge Technology Architect
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+
+            {/* Samir's links */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest" style={{ color: "oklch(0.52 0.26 272)" }}>Creator Links</h4>
+              <div className="flex flex-col gap-3">
+                {[
+                  { label: "samirdas.co.uk", href: "https://samirdas.co.uk/", desc: "Personal website" },
+                  { label: "LinkedIn", href: "https://www.linkedin.com/in/samir-lifelonglearner/", desc: "Professional profile" },
+                  { label: "YouTube — Sam's Digital Academy", href: "https://www.youtube.com/@samsdigitalacademy", desc: "Educational content" },
+                  { label: "Facebook", href: "https://www.facebook.com/samsdigital/", desc: "Community updates" },
+                  { label: "Mentoring Club", href: "https://www.mentoring-club.com/profiles/samir-das#mentor-profile", desc: "1:1 mentorship" },
+                ].map(({ label, href, desc }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-2 hover:opacity-80 transition-opacity"
+                  >
+                    <ExternalLink size={13} className="mt-0.5 shrink-0" style={{ color: "oklch(0.52 0.26 272)" }} />
+                    <div>
+                      <span className="text-sm font-medium" style={{ color: "oklch(0.85 0.02 260)" }}>{label}</span>
+                      <p className="text-xs" style={{ color: "oklch(0.50 0.02 260)" }}>{desc}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Partner links */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest" style={{ color: "oklch(0.52 0.26 272)" }}>Partner Organisations</h4>
+              <div className="flex flex-col gap-3">
+                {[
+                  { label: "Learning Catalyst", href: "https://www.learningcatalyst.co.uk", desc: "AI-powered eLearning platform" },
+                  { label: "Sam's Digital Academy", href: "https://www.samsdigitalacademy.co.uk", desc: "Digital skills training" },
+                  { label: "Blog & Articles", href: "https://samirdas.co.uk/blog", desc: "L&D thought leadership" },
+                  { label: "Speaking Engagements", href: "https://samirdas.co.uk/speaking", desc: "Conference talks & keynotes" },
+                  { label: "Books", href: "https://samirdas.co.uk/books", desc: "Published works on L&D" },
+                ].map(({ label, href, desc }) => (
+                  <a
+                    key={href}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-2 hover:opacity-80 transition-opacity"
+                  >
+                    <ExternalLink size={13} className="mt-0.5 shrink-0" style={{ color: "oklch(0.42 0.20 162)" }} />
+                    <div>
+                      <span className="text-sm font-medium" style={{ color: "oklch(0.85 0.02 260)" }}>{label}</span>
+                      <p className="text-xs" style={{ color: "oklch(0.50 0.02 260)" }}>{desc}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div
+          className="border-t"
+          style={{ borderColor: "oklch(0.18 0.025 265)" }}
+        >
+          <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs" style={{ color: "oklch(0.45 0.02 260)" }}>
+              © 2026{" "}
               <a
-                href="https://www.learningcatalyst.co.uk"
+                href="https://samirdas.co.uk/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
+                className="hover:opacity-80 transition-opacity font-semibold"
+                style={{ color: "oklch(0.65 0.15 272)" }}
               >
-                Learning Catalyst <ExternalLink size={11} />
+                Samir Das
               </a>
+              . Agent Forge is an open AI training platform. All rights reserved.
+            </p>
+            <div className="flex items-center gap-4">
               <a
-                href="https://www.samsdigitalacademy.co.uk"
+                href="https://samirdas.co.uk/contact"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
+                className="text-xs hover:opacity-80 transition-opacity"
+                style={{ color: "oklch(0.50 0.02 260)" }}
               >
-                Sam's Digital Academy <ExternalLink size={11} />
+                Contact
+              </a>
+              <a
+                href="https://samirdas.co.uk/mentorship"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs hover:opacity-80 transition-opacity"
+                style={{ color: "oklch(0.50 0.02 260)" }}
+              >
+                Mentorship
               </a>
             </div>
-            <p className="text-xs text-muted-foreground">© 2026 Agent Forge. All rights reserved.</p>
           </div>
         </div>
       </footer>

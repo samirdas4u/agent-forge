@@ -153,3 +153,11 @@
 ### Event Log & Replay
 - [ ] Full event stream per sandbox with filters
 - [ ] Step-by-step replay and CSV/JSON export
+
+## Creator Footer & Attribution (v9.0)
+- [x] Scrape samirdas.co.uk for all social/project links
+- [x] Add rich 3-column footer to landing page (Home.tsx): brand+creator card, Creator Links column, Partner Organisations column
+- [x] Footer includes: samirdas.co.uk, LinkedIn, YouTube (Sam's Digital Academy), Facebook, Mentoring Club, Learning Catalyst, Sam's Digital Academy, Blog, Speaking, Books
+- [x] Copyright line: © 2026 Samir Das — with link to samirdas.co.uk
+- [x] Add "Built by Samir Das" credit panel in sidebar (AppLayout.tsx) visible on all inner pages
+- [x] Sidebar credit includes: name link → samirdas.co.uk, LinkedIn, YouTube, Mentoring Club quick links
