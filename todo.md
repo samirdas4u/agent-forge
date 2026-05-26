@@ -180,3 +180,14 @@
 - [x] Home.tsx landing page fully responsive (nav, hero, sections, footer)
 - [x] Dashboard, Scenarios, Analytics, Leaderboard responsive
 - [x] SimulationSession, Sandbox pages (EventLog, SandboxHub) responsive
+
+## AI Voice Output + Multi-Language UI (v11)
+- [x] TTS backend tRPC procedure (server/routers.ts) using OpenAI TTS API
+- [x] Frontend audio playback in SimulationSession after each AI message
+- [x] Voice toggle button (mute/unmute AI voice) in SimulationSession header
+- [x] i18n setup with react-i18next
+- [x] Translation files: EN, FR, ES, AR, ZH
+- [x] LanguageSwitcher component
+- [x] Language switcher in AppLayout sidebar and landing page nav
+- [x] Translate all UI strings across all pages (nav + simulation + dashboard + scenarios)
+- [x] Language selector on scenario creation/session start (AI converses in chosen language)

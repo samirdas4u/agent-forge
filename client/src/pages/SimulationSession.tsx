@@ -1,9 +1,10 @@
 import { trpc } from "@/lib/trpc";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
 import {
   AlertCircle, CheckCircle2, ChevronRight, Clock,
-  Lightbulb, MessageSquare, Mic, MicOff, Send, Sparkles, X, Zap
+  Lightbulb, MessageSquare, Mic, MicOff, Send, Sparkles, Volume2, VolumeX, X, Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -80,6 +81,10 @@ export default function SimulationSession({ sessionId }: Props) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isTranscribing, setIsTranscribing] = useState(false);
+  // TTS (AI voice output) state
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -91,12 +96,19 @@ export default function SimulationSession({ sessionId }: Props) {
     { refetchInterval: false }
   );
 
+  const { i18n } = useTranslation();
+
   const sendMessage = trpc.sessions.sendMessage.useMutation({
     onMutate: () => setIsTyping(true),
     onSuccess: (result) => {
       setIsTyping(false);
       if (result.feedback) setLatestFeedback(result.feedback as FeedbackData);
-      refetch();
+      refetch().then(() => {
+        // Auto-play AI response if voice is enabled
+        if (voiceEnabled && result.aiContent) {
+          playAIMessage(result.aiContent);
+        }
+      });
     },
     onError: () => {
       setIsTyping(false);
@@ -127,6 +139,37 @@ export default function SimulationSession({ sessionId }: Props) {
     },
   });
 
+  const speakText = trpc.sessions.speakText.useMutation({
+    onSuccess: (result) => {
+      if (!voiceEnabled) return;
+      try {
+        // Stop any currently playing audio
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+        const src = `data:${result.mimeType};base64,${result.audioBase64}`;
+        const audio = new Audio(src);
+        audioRef.current = audio;
+        setIsSpeaking(true);
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => setIsSpeaking(false);
+        audio.play().catch(() => setIsSpeaking(false));
+      } catch {
+        setIsSpeaking(false);
+      }
+    },
+    onError: () => setIsSpeaking(false),
+  });
+
+  const playAIMessage = (text: string) => {
+    if (!voiceEnabled) return;
+    // Strip markdown for cleaner speech
+    const clean = text.replace(/[*_`#>\[\]]/g, "").replace(/\n+/g, " ").trim();
+    if (clean.length === 0) return;
+    speakText.mutate({ text: clean });
+  };
+
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -145,7 +188,7 @@ export default function SimulationSession({ sessionId }: Props) {
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = (reader.result as string).split(",")[1];
-          transcribeVoice.mutate({ audioBase64: base64, mimeType: "audio/webm" });
+          transcribeVoice.mutate({ audioBase64: base64, mimeType: "audio/webm", language: i18n.language });
         };
         reader.readAsDataURL(blob);
       };
@@ -180,7 +223,7 @@ export default function SimulationSession({ sessionId }: Props) {
     if (!input.trim() || sendMessage.isPending) return;
     const content = input.trim();
     setInput("");
-    sendMessage.mutate({ sessionId, content });
+    sendMessage.mutate({ sessionId, content, language: i18n.language });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -343,6 +386,25 @@ export default function SimulationSession({ sessionId }: Props) {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
+              {/* AI Voice toggle */}
+              <button
+                onClick={() => {
+                  const next = !voiceEnabled;
+                  setVoiceEnabled(next);
+                  if (!next && audioRef.current) {
+                    audioRef.current.pause();
+                    audioRef.current = null;
+                    setIsSpeaking(false);
+                  }
+                }}
+                className="p-1.5 rounded-lg hover:bg-gray-50 transition-colors relative"
+                title={voiceEnabled ? "Mute AI voice" : "Enable AI voice"}
+              >
+                {voiceEnabled
+                  ? <Volume2 size={15} style={{ color: isSpeaking ? "oklch(0.51 0.23 264)" : undefined }} className={isSpeaking ? "animate-pulse" : "text-muted-foreground"} />
+                  : <VolumeX size={15} className="text-muted-foreground opacity-50" />
+                }
+              </button>
               {isActive && (
                 <>
                   <button

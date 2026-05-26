@@ -23,6 +23,8 @@ import {
 import { useState } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const FEATURES = [
   {
@@ -137,6 +139,7 @@ const TESTIMONIALS = [
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
@@ -161,6 +164,7 @@ export default function Home() {
             <a href="#partners" className="hover:text-foreground transition-colors">Partners</a>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher variant="compact" className="hidden md:flex" />
             <div className="hidden md:flex items-center gap-3">
               {isAuthenticated ? (
                 <Link

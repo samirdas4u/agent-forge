@@ -30,32 +30,35 @@ import {
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface AppLayoutProps {
   children: React.ReactNode;
   fullscreen?: boolean;
 }
 
-const TRAINING_NAV = [
-  { href: "/dashboard",    label: "Dashboard",       icon: LayoutDashboard },
-  { href: "/simulate",     label: "Simulate",        icon: MessageSquare },
-  { href: "/walkthroughs", label: "Walkthroughs",    icon: Layers },
-  { href: "/courses",      label: "Courses",         icon: BookOpen },
-  { href: "/analytics",    label: "Analytics",       icon: BarChart3 },
-  { href: "/leaderboard",  label: "Leaderboard",     icon: Trophy },
+const TRAINING_NAV_KEYS = [
+  { href: "/dashboard",    key: "nav_dashboard",    icon: LayoutDashboard },
+  { href: "/simulate",     key: "nav_simulate",     icon: MessageSquare },
+  { href: "/walkthroughs", key: "nav_walkthroughs", icon: Layers },
+  { href: "/courses",      key: "nav_courses",      icon: BookOpen },
+  { href: "/analytics",    key: "nav_analytics",    icon: BarChart3 },
+  { href: "/leaderboard",  key: "nav_leaderboard",  icon: Trophy },
 ];
 
-const SANDBOX_NAV = [
-  { href: "/sandbox",           label: "Sandbox Hub",   icon: Cpu },
-  { href: "/sandbox/flags",     label: "Feature Flags", icon: Zap },
-  { href: "/sandbox/ai-tester", label: "AI Tester",     icon: Microscope },
-  { href: "/sandbox/tests",     label: "Test Runner",   icon: Terminal },
-  { href: "/sandbox/personas",  label: "Persona Lab",   icon: Bot },
-  { href: "/sandbox/events",    label: "Event Log",     icon: ScrollText },
+const SANDBOX_NAV_KEYS = [
+  { href: "/sandbox",           key: "nav_sandbox_hub", icon: Cpu },
+  { href: "/sandbox/flags",     key: "Feature Flags",   icon: Zap },
+  { href: "/sandbox/ai-tester", key: "AI Tester",       icon: Microscope },
+  { href: "/sandbox/tests",     key: "Test Runner",     icon: Terminal },
+  { href: "/sandbox/personas",  key: "Persona Lab",     icon: Bot },
+  { href: "/sandbox/events",    key: "nav_event_log",   icon: ScrollText },
 ];
 
 export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
   const { user, loading, isAuthenticated, logout } = useAuth();
+  const { t } = useTranslation();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<"training" | "sandbox">(() =>
     location.startsWith("/sandbox") ? "sandbox" : "training"
@@ -97,7 +100,10 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
       ? location === "/sandbox"
       : location === href || location.startsWith(href + "/");
 
-  const navItems = activeSection === "training" ? TRAINING_NAV : SANDBOX_NAV;
+  const navItems = (activeSection === "training" ? TRAINING_NAV_KEYS : SANDBOX_NAV_KEYS).map(item => ({
+    ...item,
+    label: item.key.startsWith("nav_") ? t(item.key) : item.key,
+  }));
   const accentClass = activeSection === "training"
     ? "bg-violet-500/10 text-violet-200 border-l-2 border-violet-400"
     : "bg-emerald-500/10 text-emerald-200 border-l-2 border-emerald-400";
@@ -138,7 +144,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             )}
           >
             <GraduationCap className="w-3.5 h-3.5" />
-            Training
+            {t("nav_training")}
           </button>
           <button
             onClick={() => setActiveSection("sandbox")}
@@ -150,7 +156,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             )}
           >
             <FlaskConical className="w-3.5 h-3.5" />
-            Sandbox
+            {t("nav_sandbox")}
           </button>
         </div>
       </div>
@@ -162,8 +168,8 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
           activeSection === "training" ? "text-violet-500" : "text-emerald-500"
         )}>
           {activeSection === "training"
-            ? <><GraduationCap className="w-3 h-3" /> Training</>
-            : <><FlaskConical className="w-3 h-3" /> Product Sandbox</>
+            ? <><GraduationCap className="w-3 h-3" /> {t("nav_training")}</>
+            : <><FlaskConical className="w-3 h-3" /> {t("nav_sandbox")}</>
           }
         </div>
       </div>
@@ -225,8 +231,13 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
         )}
       </nav>
 
-      {/* Creator credit */}
-      <div className="px-3 py-2.5 border-t border-white/[0.06]">
+        {/* Language switcher */}
+        <div className="px-3 py-2 border-t border-white/[0.06] flex justify-end">
+          <LanguageSwitcher variant="compact" />
+        </div>
+
+        {/* Creator credit */}
+        <div className="px-3 py-2.5 border-t border-white/[0.06]">
         <div className="rounded-lg px-3 py-2" style={{ background: "oklch(0.14 0.02 265 / 0.6)" }}>
           <p className="text-[9px] font-bold uppercase tracking-widest mb-1" style={{ color: "oklch(0.52 0.26 272)" }}>Built by</p>
           <a

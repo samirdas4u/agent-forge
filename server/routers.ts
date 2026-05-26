@@ -29,6 +29,7 @@ import {
   updateWalkthroughCompletion,
 } from "./db";
 import { transcribeAudio } from "./_core/voiceTranscription";
+import { textToSpeech } from "./_core/tts";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -222,7 +223,11 @@ export const appRouter = router({
     }),
 
     sendMessage: publicProcedure
-      .input(z.object({ sessionId: z.number(), content: z.string().min(1) }))
+      .input(z.object({
+        sessionId: z.number(),
+        content: z.string().min(1),
+        language: z.string().optional(), // BCP-47 language code e.g. "en", "fr", "ar"
+      }))
       .mutation(async ({ input, ctx }) => {
         const session = await getSessionById(input.sessionId);
         if (!session || session.userId !== (ctx.user?.id ?? 0)) throw new TRPCError({ code: "NOT_FOUND" });
@@ -237,9 +242,19 @@ export const appRouter = router({
         // Get conversation history
         const history = await getSessionMessages(input.sessionId);
 
+        // Build language instruction if a non-English language is requested
+        const LANGUAGE_NAMES: Record<string, string> = {
+          fr: "French", es: "Spanish", ar: "Arabic", zh: "Mandarin Chinese",
+          de: "German", pt: "Portuguese", it: "Italian", ja: "Japanese", ko: "Korean",
+        };
+        const langCode = input.language ?? "en";
+        const langInstruction = langCode !== "en" && LANGUAGE_NAMES[langCode]
+          ? `\n\nIMPORTANT: You MUST respond entirely in ${LANGUAGE_NAMES[langCode]}. Do not use English.`
+          : "";
+
         // Build messages for LLM
         const llmMessages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-          { role: "system", content: scenario.systemPrompt },
+          { role: "system", content: scenario.systemPrompt + langInstruction },
           ...history.slice(-20).map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
         ];
 
@@ -304,16 +319,36 @@ Return JSON with: { score: number (0-100), feedback: string (1-2 sentences), dim
       }),
 
     transcribeVoice: publicProcedure
-      .input(z.object({ audioBase64: z.string(), mimeType: z.string().default("audio/webm") }))
+      .input(z.object({ audioBase64: z.string(), mimeType: z.string().default("audio/webm"), language: z.string().optional() }))
       .mutation(async ({ input, ctx }) => {
         // Decode base64 audio and upload to S3
         const buffer = Buffer.from(input.audioBase64, "base64");
         const fileKey = `voice/${(ctx.user?.id ?? 0)}/${Date.now()}.webm`;
         const { url } = await storagePut(fileKey, buffer, input.mimeType);
-        // Transcribe via Whisper
-        const result = await transcribeAudio({ audioUrl: url, language: "en" });
+        // Transcribe via Whisper (pass language hint if provided)
+        const result = await transcribeAudio({ audioUrl: url, language: input.language ?? "en" });
         if ("error" in result) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: result.error });
         return { text: result.text };
+      }),
+
+    speakText: publicProcedure
+      .input(z.object({
+        text: z.string().min(1).max(4096),
+        voice: z.enum(["alloy", "echo", "fable", "onyx", "nova", "shimmer"]).optional(),
+        speed: z.number().min(0.25).max(4.0).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Truncate very long AI responses to keep TTS snappy
+        const truncated = input.text.length > 600
+          ? input.text.substring(0, 600) + "..."
+          : input.text;
+        const audioBuffer = await textToSpeech({
+          text: truncated,
+          voice: input.voice ?? "nova",
+          speed: input.speed ?? 1.0,
+        });
+        // Return as base64 so the browser can play it directly without a separate fetch
+        return { audioBase64: audioBuffer.toString("base64"), mimeType: "audio/mpeg" };
       }),
 
     complete: publicProcedure
