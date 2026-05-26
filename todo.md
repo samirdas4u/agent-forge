@@ -199,3 +199,8 @@
 - [ ] Show language badge on scenario cards
 - [ ] sendMessage respects scenario language_lock over user UI language
 - [ ] Prominent language quick-switcher pill on scenario cards ("Practice in French?")
+
+## Language Feature Sprint (v14)
+- [ ] Seed language-specific scenario packs (French Sales, Arabic Customer Service, Spanish Interview, German Negotiation)
+- [ ] Language filter on Scenarios page filter bar
+- [ ] AI "Translate this scenario" button in admin panel — creates language-locked copy

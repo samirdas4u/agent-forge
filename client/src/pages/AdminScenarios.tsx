@@ -3,11 +3,12 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import {
   BookOpen, ChevronDown, ChevronRight, Edit2, Eye, EyeOff,
-  Layers, Plus, Save, Shield, Trash2, X
+  Globe, Languages, Layers, Plus, Save, Shield, Trash2, X
 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 
 const CATEGORIES = ["sales", "customer_service", "interview", "negotiation", "presentation"] as const;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
@@ -271,6 +272,8 @@ export default function AdminScenarios() {
   const [showForm, setShowForm] = useState(false);
   const [editTarget, setEditTarget] = useState<(ScenarioForm & { id?: number }) | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [translateTarget, setTranslateTarget] = useState<{ id: number; title: string } | null>(null);
+  const [translateLang, setTranslateLang] = useState("fr");
 
   const { data: scenarios, refetch } = trpc.admin.listScenarios.useQuery(undefined, {
     enabled: true,
@@ -289,6 +292,15 @@ export default function AdminScenarios() {
   const deleteMutation = trpc.admin.deleteScenario.useMutation({
     onSuccess: () => { toast.success("Scenario deactivated."); refetch(); },
     onError: (e) => toast.error(e.message),
+  });
+
+  const translateMutation = trpc.admin.translateScenario.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Translated copy created: "${data.title}" (${data.language})`);
+      refetch();
+      setTranslateTarget(null);
+    },
+    onError: (e) => toast.error(`Translation failed: ${e.message}`),
   });
 
   const toggleActive = (id: number, current: boolean) => {
@@ -435,6 +447,13 @@ export default function AdminScenarios() {
                       {/* Actions */}
                       <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                         <button
+                          onClick={() => setTranslateTarget({ id: scenario.id, title: scenario.title })}
+                          title="Translate this scenario with AI"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-indigo-50 transition-colors"
+                        >
+                          <Languages size={14} style={{ color: "oklch(0.51 0.23 264)" }} />
+                        </button>
+                        <button
                           onClick={() => toggleActive(scenario.id, scenario.isActive)}
                           title={scenario.isActive ? "Deactivate" : "Activate"}
                           className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
@@ -526,6 +545,68 @@ export default function AdminScenarios() {
           onSave={handleSave}
           isPending={createMutation.isPending || updateMutation.isPending}
         />
+      )}
+
+      {/* AI Translate Modal */}
+      {translateTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl border border-border shadow-2xl w-full max-w-md">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: "oklch(0.95 0.05 264)" }}>
+                  <Languages size={15} style={{ color: "oklch(0.51 0.23 264)" }} />
+                </div>
+                <h2 className="text-base font-bold text-foreground">AI Translate Scenario</h2>
+              </div>
+              <button onClick={() => setTranslateTarget(null)} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors">
+                <X size={16} className="text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-5 space-y-4">
+              <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-100">
+                <p className="text-xs font-semibold text-indigo-700 mb-0.5">Source scenario</p>
+                <p className="text-sm text-foreground font-medium">{translateTarget.title}</p>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1.5">Translate into</label>
+                <select
+                  value={translateLang}
+                  onChange={(e) => setTranslateLang(e.target.value)}
+                  className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
+                >
+                  {SUPPORTED_LANGUAGES.map((l) => (
+                    <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                The AI will translate the title, description, persona, and system prompt into the selected language and create a new language-locked copy. This may take 10–20 seconds.
+              </p>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-border flex gap-3">
+              <button
+                onClick={() => setTranslateTarget(null)}
+                className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => translateMutation.mutate({ id: translateTarget.id, targetLanguage: translateLang })}
+                disabled={translateMutation.isPending}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                style={{ background: "oklch(0.51 0.23 264)" }}
+              >
+                <Globe size={14} />
+                {translateMutation.isPending ? "Translating…" : "Translate & Create Copy"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </AppLayout>
   );

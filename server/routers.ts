@@ -569,6 +569,79 @@ Return JSON with: {
         await deleteScenario(input.id);
         return { success: true };
       }),
+
+    translateScenario: publicProcedure
+      .input(z.object({
+        id: z.number(),
+        targetLanguage: z.string().min(2).max(10), // BCP-47 code e.g. "fr", "ar"
+      }))
+      .mutation(async ({ input }) => {
+        const source = await getScenarioById(input.id);
+        if (!source) throw new TRPCError({ code: "NOT_FOUND" });
+
+        const LANGUAGE_NAMES: Record<string, string> = {
+          fr: "French", es: "Spanish", ar: "Arabic", zh: "Mandarin Chinese",
+          de: "German", pt: "Portuguese", it: "Italian", ja: "Japanese", ko: "Korean",
+          hi: "Hindi", nl: "Dutch", tr: "Turkish", pl: "Polish", sv: "Swedish",
+          bn: "Bengali", sw: "Swahili",
+        };
+        const langName = LANGUAGE_NAMES[input.targetLanguage] ?? input.targetLanguage;
+
+        const translationResponse = await invokeLLM({
+          messages: [
+            {
+              role: "system",
+              content: `You are a professional L&D content translator. Translate the following training scenario fields into ${langName}. Return a JSON object with keys: title, description, systemPrompt, aiPersona. Keep the JSON structure exactly. Translate all text values. For systemPrompt, add an instruction at the end: "Respond ONLY in ${langName}." Do not translate tags.`,
+            },
+            {
+              role: "user",
+              content: JSON.stringify({
+                title: source.title,
+                description: source.description ?? "",
+                systemPrompt: source.systemPrompt,
+                aiPersona: source.aiPersona ?? "",
+              }),
+            },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "translated_scenario",
+              strict: true,
+              schema: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  description: { type: "string" },
+                  systemPrompt: { type: "string" },
+                  aiPersona: { type: "string" },
+                },
+                required: ["title", "description", "systemPrompt", "aiPersona"],
+                additionalProperties: false,
+              },
+            },
+          },
+        });
+
+        const raw = translationResponse.choices[0]?.message?.content;
+        if (!raw || typeof raw !== "string") throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Translation failed" });
+        const translated = JSON.parse(raw) as { title: string; description: string; systemPrompt: string; aiPersona: string };
+
+        await createScenario({
+          title: translated.title,
+          description: translated.description,
+          category: source.category,
+          difficulty: source.difficulty,
+          systemPrompt: translated.systemPrompt,
+          aiPersona: translated.aiPersona,
+          tags: source.tags as string[] ?? [],
+          estimatedMinutes: source.estimatedMinutes ?? 10,
+          isActive: true,
+          languageLock: input.targetLanguage,
+        });
+
+        return { success: true, title: translated.title, language: langName };
+      }),
   }),
 
   // ── Leaderboard & Streaks ────────────────────────────────────────

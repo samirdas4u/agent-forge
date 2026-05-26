@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO scenarios (title, description, category, difficulty, systemPrompt, aiPersona, tags, estimatedMinutes, isActive, languageLock) VALUES ('خدمة العملاء: التعامل مع شكوى', 'تدرب على التعامل مع شكوى عميل غاضب بشأن منتج معيب باللغة العربية.', 'customer_service', 'intermediate', 'أنت عميل عربي محبط تلقيت منتجاً معيباً. أنت غاضب لكنك تحافظ على أدب معقول. تريد استرداد أموالك أو استبدال المنتج فوراً. إذا كان الموظف متعاطفاً ويقدم حلولاً عملية، ستهدأ تدريجياً. إذا كان دفاعياً أو بيروقراطياً، ستزداد انزعاجاً. أجب فقط باللغة العربية. حدد ردودك في 2-3 جمل.', 'أحمد الخالدي، عميل غير راضٍ', '[\"خدمة-عملاء\",\"شكوى\",\"عربي\"]', 8, true, 'ar')",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute INSERT INTO scenarios (title, description, category, difficulty, systemPrompt, aiPersona, tags, estimatedMinutes, isActive, languageLock) VALUES ('خدمة العملاء: التعامل مع شكوى', 'تدرب على التعامل مع شكوى عميل غاضب بشأن منتج معيب باللغة العربية.', 'customer_service', 'intermediate', 'أنت عميل عربي محبط تلقيت منتجاً معيباً. أنت غاضب لكنك تحافظ على أدب معقول. تريد استرداد أموالك أو استبدال المنتج فوراً. إذا كان الموظف متعاطفاً ويقدم حلولاً عملية، ستهدأ تدريجياً. إذا كان دفاعياً أو بيروقراطياً، ستزداد انزعاجاً. أجب فقط باللغة العربية. حدد ردودك في 2-3 جمل.', 'أحمد الخالدي، عميل غير راضٍ', '[\"خدمة-عملاء\",\"شكوى\",\"عربي\"]', 8, true, 'ar')",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 272
+}

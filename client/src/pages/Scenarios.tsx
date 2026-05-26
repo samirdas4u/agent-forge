@@ -43,6 +43,7 @@ export default function Scenarios() {
   const { i18n } = useTranslation();
   const [category, setCategory] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
+  const [language, setLanguage] = useState("all");
   const [search, setSearch] = useState("");
 
   const { data: scenarios, isLoading } = trpc.scenarios.list.useQuery(
@@ -55,9 +56,15 @@ export default function Scenarios() {
     onError: () => toast.error("Failed to start session. Please try again."),
   });
 
-  const filtered = scenarios?.filter((s) =>
-    search === "" || s.title.toLowerCase().includes(search.toLowerCase()) || s.description?.toLowerCase().includes(search.toLowerCase())
-  ) ?? [];
+  const filtered = scenarios?.filter((s) => {
+    const matchesSearch = search === "" || s.title.toLowerCase().includes(search.toLowerCase()) || s.description?.toLowerCase().includes(search.toLowerCase());
+    const matchesLanguage = language === "all"
+      ? true
+      : language === "none"
+        ? !s.languageLock
+        : s.languageLock === language;
+    return matchesSearch && matchesLanguage;
+  }) ?? [];
 
   return (
     <AppLayout>
@@ -112,6 +119,17 @@ export default function Scenarios() {
               className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-border text-foreground focus:outline-none"
             >
               {DIFFICULTIES.map((d) => <option key={d} value={d}>{DIFF_LABELS[d]}</option>)}
+            </select>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-border text-foreground focus:outline-none"
+            >
+              <option value="all">🌐 All Languages</option>
+              <option value="none">Any language</option>
+              {SUPPORTED_LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
+              ))}
             </select>
           </div>
         </div>
