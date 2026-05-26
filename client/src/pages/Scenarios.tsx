@@ -2,42 +2,54 @@ import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Brain, Clock, Globe, MessageSquare, Mic, Play, Search, Sparkles, Target, Users, Zap } from "lucide-react";
+import {
+  ArrowRight, Brain, Mail, MessageSquare, Mic, Phone,
+  Play, Plus, Search, SlidersHorizontal, Zap
+} from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 
+// ── Constants ──────────────────────────────────────────────────
 const CATEGORIES = ["all", "sales", "customer_service", "interview", "negotiation", "presentation"];
 const DIFFICULTIES = ["all", "beginner", "intermediate", "advanced"];
 
 const CATEGORY_LABELS: Record<string, string> = {
-  all: "All Categories", sales: "Sales", customer_service: "Customer Service",
+  all: "All", sales: "Sales", customer_service: "Customer Service",
   interview: "Interview", negotiation: "Negotiation", presentation: "Presentation",
 };
 
-const DIFF_LABELS: Record<string, string> = {
-  all: "All Levels", beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced",
-};
-
-const CATEGORY_STYLES: Record<string, { color: string; bg: string; gradient: string }> = {
-  sales:            { color: "oklch(0.52 0.26 272)", bg: "oklch(0.52 0.26 272 / 0.08)", gradient: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" },
-  customer_service: { color: "oklch(0.42 0.20 162)", bg: "oklch(0.42 0.20 162 / 0.08)", gradient: "linear-gradient(135deg, oklch(0.42 0.20 162), oklch(0.62 0.18 162))" },
-  interview:        { color: "oklch(0.62 0.22 300)", bg: "oklch(0.62 0.22 300 / 0.08)", gradient: "linear-gradient(135deg, oklch(0.62 0.22 300), oklch(0.72 0.20 320))" },
-  negotiation:      { color: "oklch(0.52 0.18 75)",  bg: "oklch(0.52 0.18 75 / 0.08)",  gradient: "linear-gradient(135deg, oklch(0.52 0.18 75), oklch(0.72 0.18 75))" },
-  presentation:     { color: "oklch(0.58 0.22 27)",  bg: "oklch(0.58 0.22 27 / 0.08)",  gradient: "linear-gradient(135deg, oklch(0.58 0.22 27), oklch(0.72 0.18 47))" },
-};
-
 const DIFF_STYLES: Record<string, { label: string; bg: string; color: string }> = {
-  beginner:     { label: "Beginner",     bg: "oklch(0.95 0.07 162)", color: "oklch(0.35 0.14 162)" },
-  intermediate: { label: "Intermediate", bg: "oklch(0.97 0.07 80)",  color: "oklch(0.42 0.16 70)"  },
-  advanced:     { label: "Advanced",     bg: "oklch(0.97 0.05 27)",  color: "oklch(0.48 0.20 27)"  },
+  beginner:     { label: "Easy",   bg: "oklch(0.95 0.07 162)", color: "oklch(0.35 0.14 162)" },
+  intermediate: { label: "Medium", bg: "oklch(0.97 0.07 80)",  color: "oklch(0.42 0.16 70)"  },
+  advanced:     { label: "Hard",   bg: "oklch(0.97 0.05 27)",  color: "oklch(0.48 0.20 27)"  },
 };
 
-// Map language code → display label + flag
+// Channel → icon + label
+const CHANNEL_META: Record<string, { icon: React.ReactNode; label: string; bg: string; color: string }> = {
+  text:  { icon: <MessageSquare size={11} />, label: "Chat",  bg: "oklch(0.95 0.04 264)", color: "oklch(0.45 0.18 264)" },
+  voice: { icon: <Mic size={11} />,           label: "Voice", bg: "oklch(0.95 0.05 162)", color: "oklch(0.38 0.14 162)" },
+  email: { icon: <Mail size={11} />,          label: "Email", bg: "oklch(0.97 0.04 75)",  color: "oklch(0.45 0.14 60)"  },
+  phone: { icon: <Phone size={11} />,         label: "Phone", bg: "oklch(0.97 0.04 27)",  color: "oklch(0.48 0.18 27)"  },
+};
+
 const LANG_DISPLAY: Record<string, { flag: string; label: string }> = Object.fromEntries(
   SUPPORTED_LANGUAGES.map((l) => [l.code, { flag: l.flag, label: l.label }])
 );
 
+function timeAgo(dateStr: string | null | undefined): string {
+  if (!dateStr) return "—";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString();
+}
+
+// ── Component ──────────────────────────────────────────────────
 export default function Scenarios() {
   const [, navigate] = useLocation();
   const { i18n } = useTranslation();
@@ -45,6 +57,7 @@ export default function Scenarios() {
   const [difficulty, setDifficulty] = useState("all");
   const [language, setLanguage] = useState("all");
   const [search, setSearch] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
 
   const { data: scenarios, isLoading } = trpc.scenarios.list.useQuery(
     { category: category !== "all" ? category : undefined, difficulty: difficulty !== "all" ? difficulty as any : undefined },
@@ -57,223 +70,261 @@ export default function Scenarios() {
   });
 
   const filtered = scenarios?.filter((s) => {
-    const matchesSearch = search === "" || s.title.toLowerCase().includes(search.toLowerCase()) || s.description?.toLowerCase().includes(search.toLowerCase());
-    const matchesLanguage = language === "all"
-      ? true
-      : language === "none"
-        ? !s.languageLock
-        : s.languageLock === language;
+    const matchesSearch = search === "" ||
+      s.title.toLowerCase().includes(search.toLowerCase()) ||
+      s.description?.toLowerCase().includes(search.toLowerCase()) ||
+      s.aiPersona?.toLowerCase().includes(search.toLowerCase());
+    const matchesLanguage = language === "all" ? true
+      : language === "none" ? !s.languageLock
+      : s.languageLock === language;
     return matchesSearch && matchesLanguage;
   }) ?? [];
 
   return (
     <AppLayout>
-      <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-5 sm:space-y-7">
+      <div className="flex-1 flex flex-col min-h-0">
 
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-black text-foreground tracking-tight">Conversation Simulations</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Choose a scenario and practise with a realistic AI persona. Scored in real time.
-            </p>
+        {/* ── Page header ── */}
+        <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b border-border bg-white">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">Simulations</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                {filtered.length} simulation{filtered.length !== 1 ? "s" : ""} available
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/admin/scenarios")}
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-opacity hover:opacity-90 shrink-0"
+              style={{ background: "oklch(0.51 0.23 264)" }}
+            >
+              <Plus size={14} />
+              <span className="hidden sm:inline">New simulation</span>
+              <span className="sm:hidden">New</span>
+            </button>
           </div>
-          <div
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border"
-            style={{ background: "oklch(0.52 0.26 272 / 0.06)", borderColor: "oklch(0.52 0.26 272 / 0.2)", color: "oklch(0.48 0.24 272)" }}
-          >
-            <Sparkles size={12} /> AI-Powered
-          </div>
-        </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-          <div className="relative w-full sm:w-64">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search scenarios..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-border rounded-xl bg-white focus:outline-none focus:ring-2"
-              style={{ "--tw-ring-color": "oklch(0.52 0.26 272 / 0.3)" } as React.CSSProperties}
-            />
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCategory(c)}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
-                style={category === c
-                  ? { background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))", color: "white", boxShadow: "0 2px 8px oklch(0.52 0.26 272 / 0.3)" }
-                  : { background: "white", color: "oklch(0.40 0.025 260)", border: "1px solid oklch(0.905 0.012 260)" }
-                }
-              >
-                {CATEGORY_LABELS[c]}
-              </button>
-            ))}
+          {/* Search + filter row */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative flex-1 min-w-[160px] max-w-xs">
+              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search simulations..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            {/* Category pills — hidden on mobile, shown via filter toggle */}
+            <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCategory(c)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={category === c
+                    ? { background: "oklch(0.51 0.23 264)", color: "white" }
+                    : { background: "oklch(0.97 0.005 264)", color: "oklch(0.40 0.025 260)", border: "1px solid oklch(0.905 0.012 260)" }
+                  }
+                >
+                  {CATEGORY_LABELS[c]}
+                </button>
+              ))}
+            </div>
+
+            {/* Difficulty + Language selects */}
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-border text-foreground focus:outline-none"
+              className="px-2.5 py-2 rounded-lg text-xs font-medium bg-white border border-border text-foreground focus:outline-none"
             >
-              {DIFFICULTIES.map((d) => <option key={d} value={d}>{DIFF_LABELS[d]}</option>)}
+              {DIFFICULTIES.map((d) => (
+                <option key={d} value={d}>
+                  {d === "all" ? "All levels" : d === "beginner" ? "Easy" : d === "intermediate" ? "Medium" : "Hard"}
+                </option>
+              ))}
             </select>
+
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-border text-foreground focus:outline-none"
+              className="px-2.5 py-2 rounded-lg text-xs font-medium bg-white border border-border text-foreground focus:outline-none"
             >
-              <option value="all">🌐 All Languages</option>
+              <option value="all">🌐 All languages</option>
               <option value="none">Any language</option>
               {SUPPORTED_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
               ))}
             </select>
+
+            {/* Mobile filter toggle */}
+            <button
+              onClick={() => setShowFilters((v) => !v)}
+              className="sm:hidden p-2 rounded-lg border border-border bg-white"
+            >
+              <SlidersHorizontal size={14} className="text-muted-foreground" />
+            </button>
           </div>
+
+          {/* Mobile category pills */}
+          {showFilters && (
+            <div className="flex items-center gap-1.5 flex-wrap mt-3 sm:hidden">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCategory(c)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={category === c
+                    ? { background: "oklch(0.51 0.23 264)", color: "white" }
+                    : { background: "oklch(0.97 0.005 264)", color: "oklch(0.40 0.025 260)", border: "1px solid oklch(0.905 0.012 260)" }
+                  }
+                >
+                  {CATEGORY_LABELS[c]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {!isLoading && (
-          <p className="text-xs text-muted-foreground font-medium">
-            {filtered.length} scenario{filtered.length !== 1 ? "s" : ""} available
-          </p>
-        )}
-
-        {/* Grid */}
-        {isLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {[1,2,3,4,5,6].map(i => (
-              <div key={i} className="bg-white border border-border rounded-2xl h-64 shimmer" />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "oklch(0.52 0.26 272 / 0.08)" }}>
-              <Brain size={28} style={{ color: "oklch(0.52 0.26 272)" }} />
+        {/* ── Table ── */}
+        <div className="flex-1 overflow-y-auto">
+          {isLoading ? (
+            <div className="p-6 space-y-2">
+              {[1,2,3,4,5].map(i => (
+                <div key={i} className="h-14 rounded-xl bg-gray-100 animate-pulse" />
+              ))}
             </div>
-            <p className="font-bold text-foreground mb-2">No scenarios found</p>
-            <p className="text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {filtered.map((scenario) => {
-              const catStyle = CATEGORY_STYLES[scenario.category] ?? CATEGORY_STYLES.sales;
-              const diffStyle = DIFF_STYLES[scenario.difficulty] ?? DIFF_STYLES.beginner;
-              return (
-                <div
-                  key={scenario.id}
-                  className="group bg-white border border-border rounded-2xl overflow-hidden flex flex-col transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
-                  style={{ boxShadow: "0 1px 4px oklch(0 0 0 / 0.04)" }}
-                >
-                  {/* Top accent bar */}
-                  <div className="h-1 w-full" style={{ background: catStyle.gradient }} />
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center px-4">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "oklch(0.95 0.04 264)" }}>
+                <Brain size={26} style={{ color: "oklch(0.51 0.23 264)" }} />
+              </div>
+              <p className="font-bold text-foreground mb-1">No simulations found</p>
+              <p className="text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
+            </div>
+          ) : (
+            <>
+              {/* Table header — desktop */}
+              <div className="hidden sm:grid grid-cols-[2fr_100px_90px_130px_160px_100px] gap-4 px-6 py-2.5 border-b border-border bg-gray-50/60 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                <span>Name</span>
+                <span>Scenario</span>
+                <span>Difficulty</span>
+                <span>Language</span>
+                <span>AI Persona</span>
+                <span className="text-right">Created</span>
+              </div>
 
-                  <div className="p-6 flex flex-col flex-1">
-                    {/* Icon + badges */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: catStyle.bg }}>
-                        <MessageSquare size={20} style={{ color: catStyle.color }} />
+              {/* Rows */}
+              <div className="divide-y divide-border">
+                {filtered.map((scenario) => {
+                  const diffStyle = DIFF_STYLES[scenario.difficulty] ?? DIFF_STYLES.beginner;
+                  const channel = (scenario as any).channel ?? "text";
+                  const channelMeta = CHANNEL_META[channel] ?? CHANNEL_META.text;
+                  const langInfo = scenario.languageLock ? LANG_DISPLAY[scenario.languageLock] : null;
+                  const uiLang = LANG_DISPLAY[i18n.language];
+                  const personaInitial = scenario.aiPersona?.[0]?.toUpperCase() ?? "A";
+                  const personaName = scenario.aiPersona?.split(",")[0] ?? "AI Persona";
+
+                  return (
+                    <div
+                      key={scenario.id}
+                      className="group flex sm:grid sm:grid-cols-[2fr_100px_90px_130px_160px_100px] gap-3 sm:gap-4 items-center px-4 sm:px-6 py-3.5 hover:bg-gray-50/70 transition-colors cursor-pointer"
+                      onClick={() => createSession.mutate({ scenarioId: scenario.id })}
+                    >
+                      {/* Name */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate leading-snug group-hover:text-indigo-600 transition-colors">
+                          {scenario.title}
+                        </p>
+                        {/* Mobile-only meta */}
+                        <div className="flex items-center gap-2 mt-0.5 sm:hidden flex-wrap">
+                          <span
+                            className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded"
+                            style={{ background: channelMeta.bg, color: channelMeta.color }}
+                          >
+                            {channelMeta.icon}{channelMeta.label}
+                          </span>
+                          <span
+                            className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                            style={{ background: diffStyle.bg, color: diffStyle.color }}
+                          >
+                            {diffStyle.label}
+                          </span>
+                          {(langInfo ?? uiLang) && (
+                            <span className="text-[11px]">{(langInfo ?? uiLang)?.flag}</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex flex-col items-end gap-1.5">
+
+                      {/* Channel badge — desktop */}
+                      <div className="hidden sm:flex items-center">
                         <span
-                          className="text-[10px] font-bold px-2.5 py-1 rounded-full"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-md"
+                          style={{ background: channelMeta.bg, color: channelMeta.color }}
+                        >
+                          {channelMeta.icon}
+                          {channelMeta.label}
+                        </span>
+                      </div>
+
+                      {/* Difficulty — desktop */}
+                      <div className="hidden sm:flex items-center">
+                        <span
+                          className="text-[11px] font-bold px-2 py-1 rounded-md"
                           style={{ background: diffStyle.bg, color: diffStyle.color }}
                         >
                           {diffStyle.label}
                         </span>
-                        <span
-                          className="text-[10px] font-semibold px-2.5 py-1 rounded-full capitalize"
-                          style={{ background: catStyle.bg, color: catStyle.color }}
-                        >
-                          {CATEGORY_LABELS[scenario.category]}
+                      </div>
+
+                      {/* Language — desktop */}
+                      <div className="hidden sm:flex items-center gap-1.5">
+                        <span className="text-base leading-none">
+                          {langInfo ? langInfo.flag : (uiLang?.flag ?? "🌐")}
+                        </span>
+                        <span className="text-xs text-muted-foreground truncate">
+                          {langInfo ? langInfo.label : (uiLang?.label ?? "English")}
                         </span>
                       </div>
-                    </div>
 
-                    {/* Title + description */}
-                    <h3 className="font-bold text-base text-foreground mb-2 leading-snug">{scenario.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4 flex-1">
-                      {scenario.description ?? "Practice this scenario with an AI persona and get real-time feedback."}
-                    </p>
-
-                    {/* AI Persona */}
-                    {scenario.aiPersona && (
-                      <div className="flex items-center gap-2.5 p-3 rounded-xl mb-4" style={{ background: "oklch(0.975 0.003 260)" }}>
+                      {/* AI Persona — desktop */}
+                      <div className="hidden sm:flex items-center gap-2">
                         <div
                           className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                          style={{ background: catStyle.gradient }}
+                          style={{ background: "oklch(0.51 0.23 264)" }}
                         >
-                          {scenario.aiPersona[0].toUpperCase()}
+                          {personaInitial}
                         </div>
-                        <div className="min-w-0">
-                          <div className="text-[10px] text-muted-foreground">AI Persona</div>
-                          <div className="text-xs font-semibold text-foreground truncate">{scenario.aiPersona}</div>
-                        </div>
-                        <Users size={12} className="text-muted-foreground shrink-0 ml-auto" />
+                        <span className="text-xs text-foreground font-medium truncate">{personaName}</span>
                       </div>
-                    )}
 
-                    {/* Language badge (if locked) or quick-switcher pill */}
-                    {scenario.languageLock ? (
-                      <div className="flex items-center gap-1.5 mb-3">
-                        <Globe size={11} className="text-muted-foreground" />
-                        <span className="text-[10px] font-semibold text-muted-foreground">
-                          {LANG_DISPLAY[scenario.languageLock]?.flag ?? ""}{" "}
-                          {LANG_DISPLAY[scenario.languageLock]?.label ?? scenario.languageLock} only
+                      {/* Created + Start button — desktop */}
+                      <div className="hidden sm:flex items-center justify-end gap-3">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {timeAgo((scenario as any).createdAt)}
                         </span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); createSession.mutate({ scenarioId: scenario.id }); }}
+                          disabled={createSession.isPending}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+                          style={{ background: "oklch(0.51 0.23 264)" }}
+                        >
+                          <Play size={11} />
+                          Start
+                        </button>
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-                        <Globe size={11} className="text-muted-foreground shrink-0" />
-                        <span className="text-[10px] text-muted-foreground shrink-0">Practice in:</span>
-                        {["en", "fr", "es", "de", "zh", "ar"].map((code) => {
-                          const lang = LANG_DISPLAY[code];
-                          const isActive = (i18n.language === code) || (code === "en" && !LANG_DISPLAY[i18n.language]);
-                          return (
-                            <button
-                              key={code}
-                              onClick={(e) => { e.stopPropagation(); i18n.changeLanguage(code); }}
-                              title={lang?.label}
-                              className="text-[11px] px-1.5 py-0.5 rounded-full border transition-all"
-                              style={isActive
-                                ? { background: catStyle.bg, borderColor: catStyle.color, color: catStyle.color, fontWeight: 700 }
-                                : { background: "transparent", borderColor: "oklch(0.88 0 0)", color: "oklch(0.55 0 0)" }
-                              }
-                            >
-                              {lang?.flag}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
 
-                    {/* Meta row */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                      <span className="flex items-center gap-1"><Clock size={11} /> {scenario.estimatedMinutes}m</span>
-                      <span className="flex items-center gap-1"><Mic size={11} /> Voice ready</span>
-                      <span className="flex items-center gap-1"><Target size={11} /> 5 dimensions</span>
+                      {/* Mobile: arrow */}
+                      <ArrowRight size={14} className="sm:hidden shrink-0 text-muted-foreground group-hover:text-indigo-500 transition-colors" />
                     </div>
-
-                    {/* CTA */}
-                    <button
-                      onClick={() => createSession.mutate({ scenarioId: scenario.id })}
-                      disabled={createSession.isPending}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 hover:shadow-md disabled:opacity-50"
-                      style={{ background: catStyle.gradient }}
-                    >
-                      {createSession.isPending ? (
-                        <><Zap size={14} className="animate-spin" /> Starting...</>
-                      ) : (
-                        <><Play size={14} /> Start Practice <ArrowRight size={13} className="ml-auto opacity-70" /></>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </AppLayout>
   );

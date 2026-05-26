@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import {
   AlertCircle, CheckCircle2, ChevronRight, Clock,
-  Lightbulb, MessageSquare, Mic, MicOff, Send, Sparkles, Volume2, VolumeX, X, Zap
+  Lightbulb, Mail, MessageSquare, Mic, MicOff, Phone, Send, Sparkles, Volume2, VolumeX, X, Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
@@ -82,6 +82,8 @@ export default function SimulationSession({ sessionId }: Props) {
   const [recordingTime, setRecordingTime] = useState(0);
   const [isTranscribing, setIsTranscribing] = useState(false);
   // TTS (AI voice output) state
+  // Simulation mode: 'chat' | 'voice' | 'email' | 'phone'
+  const [simulationMode, setSimulationMode] = useState<'chat' | 'voice' | 'email' | 'phone'>('chat');
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -373,6 +375,58 @@ export default function SimulationSession({ sessionId }: Props) {
 
         {/* ── CENTER PANEL: Chat ── */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Mode switcher bar */}
+          <div className="shrink-0 bg-white border-b border-border">
+            <div className="flex items-center gap-1 px-4 py-2">
+              {([
+                { id: 'chat',  label: 'Chat',  icon: <MessageSquare size={13} /> },
+                { id: 'voice', label: 'Voice', icon: <Mic size={13} /> },
+                { id: 'email', label: 'Email', icon: <Mail size={13} /> },
+                { id: 'phone', label: 'Phone', icon: <Phone size={13} /> },
+              ] as const).map((mode) => (
+                <button
+                  key={mode.id}
+                  onClick={() => setSimulationMode(mode.id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={simulationMode === mode.id
+                    ? { background: 'oklch(0.51 0.23 264)', color: 'white', boxShadow: '0 1px 6px oklch(0.51 0.23 264 / 0.35)' }
+                    : { background: 'transparent', color: 'oklch(0.50 0.02 264)', border: '1px solid oklch(0.91 0.012 264)' }
+                  }
+                >
+                  {mode.icon}
+                  {mode.label}
+                </button>
+              ))}
+              <div className="ml-auto flex items-center gap-2">
+                {/* AI voice toggle — only relevant in chat/phone modes */}
+                {(simulationMode === 'chat' || simulationMode === 'phone') && (
+                  <button
+                    onClick={() => {
+                      const next = !voiceEnabled;
+                      setVoiceEnabled(next);
+                      if (!next && audioRef.current) {
+                        audioRef.current.pause();
+                        audioRef.current = null;
+                        setIsSpeaking(false);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all"
+                    style={voiceEnabled
+                      ? { background: isSpeaking ? 'oklch(0.96 0.06 160)' : 'oklch(0.96 0.04 264)', borderColor: 'oklch(0.85 0.08 264)', color: 'oklch(0.45 0.18 264)' }
+                      : { background: 'transparent', borderColor: 'oklch(0.91 0.012 264)', color: 'oklch(0.60 0.01 264)' }
+                    }
+                    title={voiceEnabled ? 'AI voice on — click to mute' : 'AI voice off — click to enable'}
+                  >
+                    {voiceEnabled
+                      ? <><Volume2 size={12} className={isSpeaking ? 'animate-pulse' : ''} /> <span className="hidden sm:inline">{isSpeaking ? 'Speaking…' : 'AI Voice On'}</span></>
+                      : <><VolumeX size={12} /> <span className="hidden sm:inline">AI Voice Off</span></>
+                    }
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Chat header */}
           <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-border shrink-0">
             <div className="flex-1 min-w-0">
@@ -386,25 +440,6 @@ export default function SimulationSession({ sessionId }: Props) {
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              {/* AI Voice toggle */}
-              <button
-                onClick={() => {
-                  const next = !voiceEnabled;
-                  setVoiceEnabled(next);
-                  if (!next && audioRef.current) {
-                    audioRef.current.pause();
-                    audioRef.current = null;
-                    setIsSpeaking(false);
-                  }
-                }}
-                className="p-1.5 rounded-lg hover:bg-gray-50 transition-colors relative"
-                title={voiceEnabled ? "Mute AI voice" : "Enable AI voice"}
-              >
-                {voiceEnabled
-                  ? <Volume2 size={15} style={{ color: isSpeaking ? "oklch(0.51 0.23 264)" : undefined }} className={isSpeaking ? "animate-pulse" : "text-muted-foreground"} />
-                  : <VolumeX size={15} className="text-muted-foreground opacity-50" />
-                }
-              </button>
               {isActive && (
                 <>
                   <button
@@ -505,79 +540,206 @@ export default function SimulationSession({ sessionId }: Props) {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
+          {/* Input area — mode-aware */}
           {isActive ? (
-            <div className="shrink-0 bg-white border-t border-border p-3">
-              {/* Recording indicator */}
-              {isRecording && (
-                <div
-                  className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
-                  style={{ background: "oklch(0.97 0.04 25)", border: "1px solid oklch(0.9 0.06 25)" }}
-                >
-                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <span style={{ color: "oklch(0.5 0.18 25)" }}>Recording… {Math.floor(recordingTime / 60).toString().padStart(2, "0")}:{(recordingTime % 60).toString().padStart(2, "0")}</span>
-                  <span className="ml-auto text-muted-foreground font-normal">Click mic to stop</span>
-                </div>
-              )}
-              {isTranscribing && (
-                <div
-                  className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
-                  style={{ background: "oklch(0.95 0.05 264 / 0.5)", border: "1px solid oklch(0.88 0.08 264)" }}
-                >
-                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "oklch(0.51 0.23 264)" }} />
-                  <span style={{ color: "oklch(0.38 0.18 264)" }}>Transcribing your voice…</span>
-                </div>
-              )}
-              <div className="flex items-end gap-2">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={isRecording ? "Recording… click mic to stop" : "Type your response or use the mic…"}
-                  rows={2}
-                  className="flex-1 resize-none px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
-                  disabled={sendMessage.isPending || isRecording || isTranscribing}
-                />
-                {/* Mic button */}
-                <button
-                  onClick={isRecording ? stopRecording : startRecording}
-                  disabled={isTranscribing || sendMessage.isPending}
-                  title={isRecording ? "Stop recording" : "Record voice"}
-                  className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-40"
-                  style={{
-                    background: isRecording ? "oklch(0.58 0.22 27)" : "oklch(0.95 0.03 264)",
-                    border: isRecording ? "2px solid oklch(0.58 0.22 27)" : "1px solid oklch(0.88 0.06 264)",
-                  }}
-                >
-                  {isRecording
-                    ? <MicOff size={15} color="white" />
-                    : <Mic size={15} style={{ color: "oklch(0.51 0.23 264)" }} />
-                  }
-                </button>
-                {/* Send button */}
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim() || sendMessage.isPending || isRecording || isTranscribing}
-                  className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-40"
-                  style={{ background: "oklch(0.51 0.23 264)" }}
-                >
-                  <Send size={15} color="white" />
-                </button>
-              </div>
-              <div className="flex justify-between mt-1.5 px-0.5">
-                <span className="text-[10px] text-muted-foreground hidden sm:block">Enter to send · Shift+Enter for new line · Mic to speak</span>
-                <span className="text-[10px] text-muted-foreground sm:hidden">Tap mic to speak</span>
-                {userMessageCount >= 3 && (
+            <div className="shrink-0 bg-white border-t border-border">
+
+              {/* ── VOICE MODE: large central mic ── */}
+              {simulationMode === 'voice' ? (
+                <div className="flex flex-col items-center justify-center py-8 px-6 gap-4">
+                  {/* Status label */}
+                  <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase">
+                    {isRecording ? 'Recording — tap to stop' : isTranscribing ? 'Transcribing…' : isSpeaking ? 'AI is speaking…' : sendMessage.isPending ? 'AI is thinking…' : 'Tap to speak'}
+                  </p>
+
+                  {/* AI speaking waveform */}
+                  {isSpeaking && (
+                    <div className="flex items-end gap-1 h-8">
+                      {[1,2,3,4,5,4,3,2,1].map((h, i) => (
+                        <div
+                          key={i}
+                          className="w-1.5 rounded-full"
+                          style={{
+                            height: `${h * 6}px`,
+                            background: 'oklch(0.51 0.23 264)',
+                            animation: `waveBar 0.8s ease-in-out ${i * 0.08}s infinite alternate`,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Large mic button */}
                   <button
-                    onClick={() => setShowEndConfirm(true)}
-                    className="text-[10px] font-semibold hover:underline"
-                    style={{ color: "oklch(0.51 0.23 264)" }}
+                    onClick={isRecording ? stopRecording : startRecording}
+                    disabled={isTranscribing || sendMessage.isPending || isSpeaking}
+                    className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all disabled:opacity-40 shadow-lg hover:shadow-xl active:scale-95"
+                    style={{
+                      background: isRecording
+                        ? 'linear-gradient(135deg, oklch(0.58 0.22 27), oklch(0.68 0.20 40))'
+                        : 'linear-gradient(135deg, oklch(0.51 0.23 264), oklch(0.62 0.22 290))',
+                      boxShadow: isRecording
+                        ? '0 0 0 8px oklch(0.58 0.22 27 / 0.15), 0 4px 20px oklch(0.58 0.22 27 / 0.4)'
+                        : '0 0 0 8px oklch(0.51 0.23 264 / 0.12), 0 4px 20px oklch(0.51 0.23 264 / 0.35)',
+                    }}
                   >
-                    Ready to finish? →
+                    {isRecording
+                      ? <MicOff size={28} color="white" />
+                      : <Mic size={28} color="white" />
+                    }
+                    {/* Pulse ring when recording */}
+                    {isRecording && (
+                      <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'oklch(0.58 0.22 27 / 0.25)' }} />
+                    )}
                   </button>
-                )}
-              </div>
+
+                  {/* Recording timer */}
+                  {isRecording && (
+                    <span className="text-sm font-bold tabular-nums" style={{ color: 'oklch(0.58 0.22 27)' }}>
+                      {Math.floor(recordingTime / 60).toString().padStart(2, '0')}:{(recordingTime % 60).toString().padStart(2, '0')}
+                    </span>
+                  )}
+
+                  {/* Transcribed text preview */}
+                  {input && (
+                    <div className="w-full max-w-sm">
+                      <div className="px-3 py-2 rounded-xl text-sm bg-gray-50 border border-border text-foreground">{input}</div>
+                      <div className="flex gap-2 mt-2 justify-end">
+                        <button onClick={() => setInput('')} className="text-xs text-muted-foreground hover:underline">Clear</button>
+                        <button
+                          onClick={handleSend}
+                          disabled={sendMessage.isPending}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white disabled:opacity-50"
+                          style={{ background: 'oklch(0.51 0.23 264)' }}
+                        >
+                          <Send size={11} /> Send
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {userMessageCount >= 3 && (
+                    <button
+                      onClick={() => setShowEndConfirm(true)}
+                      className="text-xs font-semibold hover:underline"
+                      style={{ color: 'oklch(0.51 0.23 264)' }}
+                    >
+                      Ready to finish? →
+                    </button>
+                  )}
+                </div>
+
+              ) : simulationMode === 'email' ? (
+                /* ── EMAIL MODE: subject + body ── */
+                <div className="p-3 space-y-2">
+                  <input
+                    type="text"
+                    placeholder="Subject line…"
+                    className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-white"
+                    disabled={sendMessage.isPending}
+                  />
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Write your email…"
+                    rows={4}
+                    className="w-full resize-none px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
+                    disabled={sendMessage.isPending}
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-muted-foreground">Shift+Enter for new line · Enter to send</span>
+                    <button
+                      onClick={handleSend}
+                      disabled={!input.trim() || sendMessage.isPending}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-40"
+                      style={{ background: 'oklch(0.51 0.23 264)' }}
+                    >
+                      <Mail size={13} /> Send Email
+                    </button>
+                  </div>
+                </div>
+
+              ) : (
+                /* ── CHAT / PHONE MODE: standard text + mic ── */
+                <div className="p-3">
+                  {isRecording && (
+                    <div
+                      className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
+                      style={{ background: 'oklch(0.97 0.04 25)', border: '1px solid oklch(0.9 0.06 25)' }}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <span style={{ color: 'oklch(0.5 0.18 25)' }}>Recording… {Math.floor(recordingTime / 60).toString().padStart(2, '0')}:{(recordingTime % 60).toString().padStart(2, '0')}</span>
+                      <span className="ml-auto text-muted-foreground font-normal">Tap mic to stop</span>
+                    </div>
+                  )}
+                  {isTranscribing && (
+                    <div
+                      className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
+                      style={{ background: 'oklch(0.95 0.05 264 / 0.5)', border: '1px solid oklch(0.88 0.08 264)' }}
+                    >
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'oklch(0.51 0.23 264)' }} />
+                      <span style={{ color: 'oklch(0.38 0.18 264)' }}>Transcribing your voice…</span>
+                    </div>
+                  )}
+                  {isSpeaking && (
+                    <div
+                      className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
+                      style={{ background: 'oklch(0.96 0.04 264 / 0.6)', border: '1px solid oklch(0.88 0.08 264)' }}
+                    >
+                      <div className="flex items-end gap-0.5 h-4">
+                        {[1,2,3,2,1].map((h, i) => (
+                          <div key={i} className="w-1 rounded-full" style={{ height: `${h * 4}px`, background: 'oklch(0.51 0.23 264)', animation: `waveBar 0.6s ease-in-out ${i * 0.1}s infinite alternate` }} />
+                        ))}
+                      </div>
+                      <span style={{ color: 'oklch(0.38 0.18 264)' }}>AI is speaking…</span>
+                      <button onClick={() => { audioRef.current?.pause(); setIsSpeaking(false); }} className="ml-auto text-muted-foreground hover:text-foreground"><X size={12} /></button>
+                    </div>
+                  )}
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      ref={textareaRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder={isRecording ? 'Recording… tap mic to stop' : simulationMode === 'phone' ? 'Type what you would say on the call…' : 'Type your response…'}
+                      rows={2}
+                      className="flex-1 resize-none px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
+                      disabled={sendMessage.isPending || isRecording || isTranscribing}
+                    />
+                    <button
+                      onClick={isRecording ? stopRecording : startRecording}
+                      disabled={isTranscribing || sendMessage.isPending}
+                      title={isRecording ? 'Stop recording' : 'Record voice'}
+                      className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-40"
+                      style={{
+                        background: isRecording ? 'oklch(0.58 0.22 27)' : 'oklch(0.95 0.03 264)',
+                        border: isRecording ? '2px solid oklch(0.58 0.22 27)' : '1px solid oklch(0.88 0.06 264)',
+                      }}
+                    >
+                      {isRecording ? <MicOff size={15} color="white" /> : <Mic size={15} style={{ color: 'oklch(0.51 0.23 264)' }} />}
+                    </button>
+                    <button
+                      onClick={handleSend}
+                      disabled={!input.trim() || sendMessage.isPending || isRecording || isTranscribing}
+                      className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-40"
+                      style={{ background: 'oklch(0.51 0.23 264)' }}
+                    >
+                      <Send size={15} color="white" />
+                    </button>
+                  </div>
+                  <div className="flex justify-between mt-1.5 px-0.5">
+                    <span className="text-[10px] text-muted-foreground hidden sm:block">Enter to send · Shift+Enter for new line · Mic to speak</span>
+                    <span className="text-[10px] text-muted-foreground sm:hidden">Tap mic to speak</span>
+                    {userMessageCount >= 3 && (
+                      <button onClick={() => setShowEndConfirm(true)} className="text-[10px] font-semibold hover:underline" style={{ color: 'oklch(0.51 0.23 264)' }}>
+                        Ready to finish? →
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="shrink-0 bg-gray-50 border-t border-border p-4 text-center">

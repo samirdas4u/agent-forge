@@ -526,15 +526,30 @@ Return JSON with: {
         description: z.string().optional(),
         category: z.enum(["sales", "customer_service", "interview", "negotiation", "presentation"]),
         difficulty: z.enum(["beginner", "intermediate", "advanced"]),
-        systemPrompt: z.string().min(20),
+        systemPrompt: z.string().min(10),
         aiPersona: z.string().optional(),
+        personaRole: z.string().optional(),
+        personaCompany: z.string().optional(),
+        personaPersonality: z.string().optional(),
+        channel: z.string().optional(),
+        learnerRole: z.string().optional(),
+        learnerTeam: z.string().optional(),
+        focusSkill: z.string().optional(),
+        scoringNotes: z.string().optional(),
         tags: z.array(z.string()).optional(),
-        estimatedMinutes: z.number().min(1).max(60).optional(),
+        estimatedMinutes: z.number().min(1).max(120).optional(),
         languageLock: z.string().max(10).nullable().optional(),
       }))
       .mutation(async ({ input }) => {
+        // Auto-build systemPrompt from wizard fields if it is minimal
+        let systemPrompt = input.systemPrompt;
+        if ((!systemPrompt || systemPrompt.trim().length < 20) && input.focusSkill) {
+          const persona = [input.aiPersona, input.personaRole, input.personaCompany].filter(Boolean).join(", ");
+          systemPrompt = `You are ${persona || "an AI persona"}. Your personality is ${input.personaPersonality || "professional"}. Focus this conversation on helping the learner practise: ${input.focusSkill}. Respond realistically and stay in character throughout.`;
+        }
         await createScenario({
           ...input,
+          systemPrompt,
           tags: input.tags ?? [],
           estimatedMinutes: input.estimatedMinutes ?? 10,
           languageLock: input.languageLock ?? null,
@@ -550,10 +565,18 @@ Return JSON with: {
         description: z.string().optional(),
         category: z.enum(["sales", "customer_service", "interview", "negotiation", "presentation"]).optional(),
         difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
-        systemPrompt: z.string().min(20).optional(),
+        systemPrompt: z.string().min(10).optional(),
         aiPersona: z.string().optional(),
+        personaRole: z.string().optional(),
+        personaCompany: z.string().optional(),
+        personaPersonality: z.string().optional(),
+        channel: z.string().optional(),
+        learnerRole: z.string().optional(),
+        learnerTeam: z.string().optional(),
+        focusSkill: z.string().optional(),
+        scoringNotes: z.string().optional(),
         tags: z.array(z.string()).optional(),
-        estimatedMinutes: z.number().min(1).max(60).optional(),
+        estimatedMinutes: z.number().min(1).max(120).optional(),
         isActive: z.boolean().optional(),
         languageLock: z.string().max(10).nullable().optional(),
       }))
