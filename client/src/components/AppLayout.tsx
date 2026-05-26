@@ -51,7 +51,7 @@ const SANDBOX_NAV_KEYS = [
   { href: "/sandbox",           key: "nav_sandbox_hub", icon: Cpu },
   { href: "/sandbox/flags",     key: "Feature Flags",   icon: Zap },
   { href: "/sandbox/ai-tester", key: "AI Tester",       icon: Microscope },
-  { href: "/sandbox/tests",     key: "Test Runner",     icon: Terminal },
+  { href: "/sandbox/test-runner", key: "Test Runner",     icon: Terminal },
   { href: "/sandbox/personas",  key: "Persona Lab",     icon: Bot },
   { href: "/sandbox/events",    key: "nav_event_log",   icon: ScrollText },
 ];
