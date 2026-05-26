@@ -204,3 +204,8 @@
 - [ ] Seed language-specific scenario packs (French Sales, Arabic Customer Service, Spanish Interview, German Negotiation)
 - [ ] Language filter on Scenarios page filter bar
 - [ ] AI "Translate this scenario" button in admin panel — creates language-locked copy
+
+## Three-Feature Sprint v16
+- [ ] Scenario folder grouping — folder column in DB, folder filter/group UI on Scenarios page
+- [ ] Replay in Voice Mode button on SessionResult page
+- [ ] Persona avatar image upload in ScenarioWizard (S3 upload + avatar display on scenario cards)

@@ -11,10 +11,11 @@
  *   └────────────┴──────────────────────────┴──────────────────┘
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { trpc } from "@/lib/trpc";
 import {
-  Bot, BookOpen, CheckCircle2, ChevronRight, Clock, FileText,
-  Globe, Layers, Lightbulb, Save, Settings2, Target, Users, X, Zap
+  Bot, BookOpen, Camera, CheckCircle2, ChevronRight, Clock, FileText,
+  Folder, Globe, Layers, Lightbulb, Save, Settings2, Target, Trash2, Users, X, Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
@@ -45,6 +46,9 @@ export type WizardForm = {
   description: string;
   tags: string;
   scoringNotes: string;
+  // Extra fields
+  folder: string;
+  personaAvatarUrl: string;
 };
 
 export const EMPTY_WIZARD_FORM: WizardForm = {
@@ -66,6 +70,8 @@ export const EMPTY_WIZARD_FORM: WizardForm = {
   description: "",
   tags: "",
   scoringNotes: "",
+  folder: "",
+  personaAvatarUrl: "",
 };
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -363,6 +369,69 @@ function StepLearners({ form, set }: { form: WizardForm; set: (k: keyof WizardFo
   );
 }
 
+function AvatarUploader({ form, set }: { form: WizardForm; set: (k: keyof WizardForm, v: any) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const uploadMutation = trpc.admin.uploadPersonaAvatar.useMutation({
+    onSuccess: (data) => { set("personaAvatarUrl", data.url); setUploading(false); },
+    onError: () => setUploading(false),
+  });
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      uploadMutation.mutate({ base64, mimeType: file.type });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="flex items-center gap-4">
+      {/* Avatar preview */}
+      <div
+        className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer hover:border-indigo-400 transition-colors"
+        onClick={() => fileRef.current?.click()}
+      >
+        {form.personaAvatarUrl ? (
+          <img src={form.personaAvatarUrl} alt="avatar" className="w-full h-full object-cover" />
+        ) : uploading ? (
+          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <Camera size={20} className="text-gray-400" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-gray-700 mb-1">Persona photo</p>
+        <p className="text-xs text-gray-400 mb-2">Upload a photo or illustration to make the persona feel real</p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            {uploading ? "Uploading…" : "Choose photo"}
+          </button>
+          {form.personaAvatarUrl && (
+            <button
+              type="button"
+              onClick={() => set("personaAvatarUrl", "")}
+              className="px-3 py-1.5 rounded-lg border border-red-100 text-xs font-medium text-red-500 hover:bg-red-50 transition-colors"
+            >
+              Remove
+            </button>
+          )}
+        </div>
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+    </div>
+  );
+}
+
 function StepPersona({ form, set }: { form: WizardForm; set: (k: keyof WizardForm, v: any) => void }) {
   const PREBUILT_PERSONAS = [
     { name: "Sarah Chen",     role: "VP of Operations",    company: "TechCorp",       personality: "analytical" },
@@ -491,6 +560,14 @@ function StepPersona({ form, set }: { form: WizardForm; set: (k: keyof WizardFor
           </div>
         </div>
       )}
+
+      {/* Avatar upload — always visible */}
+      <div>
+        <FieldLabel hint="Optional: upload a photo or illustration to make the persona feel real">
+          Persona photo
+        </FieldLabel>
+        <AvatarUploader form={form} set={set} />
+      </div>
     </div>
   );
 }
@@ -620,6 +697,19 @@ function StepInstructions({ form, set }: { form: WizardForm; set: (k: keyof Wiza
           placeholder="e.g. cold-call, saas, b2b, enterprise"
         />
       </div>
+
+      <div>
+        <FieldLabel hint="Group this scenario into a named folder (e.g. French Sales Pack, Onboarding Series)">Folder (optional)</FieldLabel>
+        <div className="relative">
+          <Folder size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Input
+            value={form.folder}
+            onChange={(e) => set("folder", e.target.value)}
+            placeholder="e.g. French Sales Pack"
+            className="pl-8"
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -642,22 +732,34 @@ function PreviewPanel({ form }: { form: WizardForm }) {
     { label: "Learner",     value: form.learnerRole || null },
     { label: "Team",        value: form.learnerTeam || null },
     { label: "Duration",    value: form.estimatedMinutes ? `${form.estimatedMinutes} min` : null },
+    { label: "Folder",      value: form.folder || null },
   ];
 
   return (
     <div className="w-56 shrink-0 border-l border-gray-100 bg-gray-50/60 p-5 overflow-y-auto hidden lg:block">
       <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Preview</h3>
 
-      {/* Title */}
-      <div className="mb-4">
-        <p className="text-base font-bold text-gray-900 leading-tight">
-          {form.title || <span className="text-gray-300 font-normal">Untitled</span>}
-        </p>
-        {cat && (
-          <span className="inline-flex items-center gap-1 text-xs text-gray-500 mt-1">
-            {cat.emoji} {cat.label}
-          </span>
-        )}
+      {/* Persona avatar + title */}
+      <div className="mb-4 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden shrink-0">
+          {form.personaAvatarUrl ? (
+            <img src={form.personaAvatarUrl} alt="persona" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-sm font-bold text-indigo-600">
+              {form.aiPersona ? form.aiPersona.charAt(0).toUpperCase() : "?"}
+            </span>
+          )}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-gray-900 leading-tight truncate">
+            {form.title || <span className="text-gray-300 font-normal">Untitled</span>}
+          </p>
+          {cat && (
+            <span className="inline-flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+              {cat.emoji} {cat.label}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Rows */}

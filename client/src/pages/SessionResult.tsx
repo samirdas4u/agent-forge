@@ -1,10 +1,12 @@
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
+import { useState, useRef, useCallback } from "react";
 import {
-  ArrowLeft, BarChart3, CheckCircle2, Clock, MessageSquare,
-  Play, RotateCcw, ThumbsDown, ThumbsUp, TrendingUp
+  ArrowLeft, BarChart3, CheckCircle2, Clock, Linkedin, MessageSquare,
+  Mic, MicOff, Play, RotateCcw, ThumbsDown, ThumbsUp, TrendingUp, Volume2, VolumeX
 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 
 interface Props { sessionId: number; }
@@ -50,6 +52,61 @@ function ScoreRing({ score, size = 120 }: { score: number; size?: number }) {
 export default function SessionResult({ sessionId }: Props) {
   const [, navigate] = useLocation();
   const { data, isLoading } = trpc.sessions.get.useQuery({ sessionId });
+  const [isReplaying, setIsReplaying] = useState(false);
+  const [replayIndex, setReplayIndex] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const ttsMutation = trpc.sessions.speakText.useMutation();
+
+  const stopReplay = useCallback(() => {
+    setIsReplaying(false);
+    setIsSpeaking(false);
+    setReplayIndex(0);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+  }, []);
+
+  const replayVoice = useCallback(async (msgs: any[], scenario: any) => {
+    const speakable = msgs.filter((m: any) => m.role !== "system");
+    setIsReplaying(true);
+    setReplayIndex(0);
+    for (let i = 0; i < speakable.length; i++) {
+      if (!speakable[i].content) continue;
+      setReplayIndex(i);
+      setIsSpeaking(true);
+      try {
+        const voice = speakable[i].role === "user" ? "nova" : "onyx";
+        const result = await ttsMutation.mutateAsync({
+          text: speakable[i].content,
+          voice: voice as "nova" | "onyx" | "alloy" | "echo" | "fable" | "shimmer",
+        });
+        await new Promise<void>((resolve) => {
+          const dataUrl = `data:${result.mimeType};base64,${result.audioBase64}`;
+          const audio = new Audio(dataUrl);
+          audioRef.current = audio;
+          audio.onended = () => resolve();
+          audio.onerror = () => resolve();
+          audio.play().catch(() => resolve());
+        });
+      } catch {
+        // skip failed TTS
+      }
+      setIsSpeaking(false);
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    setIsReplaying(false);
+    setReplayIndex(0);
+  }, [ttsMutation]);
+
+  const handleLinkedInShare = useCallback((score: number, scenarioTitle: string) => {
+    const text = encodeURIComponent(
+      `I just completed an AI roleplay simulation on Agent Forge — "${scenarioTitle}" — and scored ${Math.round(score)}/100! 🎯 Practising real-world conversations with AI is a game-changer for L&D. Try it: https://www.agentforge.org.uk`
+    );
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=https://www.agentforge.org.uk&summary=${text}`, "_blank");
+  }, []);
 
   if (isLoading) {
     return (
@@ -99,13 +156,34 @@ export default function SessionResult({ sessionId }: Props) {
                 {format(new Date(session.startedAt), "MMMM d, yyyy · h:mm a")}
               </p>
             </div>
-            <div className="flex gap-2 shrink-0">
+            <div className="flex gap-2 shrink-0 flex-wrap">
+              {/* LinkedIn share */}
               <button
-                onClick={() => navigate(`/session/${sessionId}/replay`)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-semibold hover:bg-gray-50 transition-colors"
+                onClick={() => handleLinkedInShare(overallScore, scenario?.title ?? "AI Simulation")}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-semibold hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                style={{ color: "#0077B5" }}
+                title="Share on LinkedIn"
               >
-                <RotateCcw size={12} /> Replay
+                <Linkedin size={12} /> Share
               </button>
+              {/* Replay in voice mode */}
+              {isReplaying ? (
+                <button
+                  onClick={stopReplay}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-semibold transition-colors"
+                  style={{ background: "oklch(0.97 0.04 27)", borderColor: "oklch(0.85 0.10 27)", color: "oklch(0.48 0.20 27)" }}
+                >
+                  <VolumeX size={12} /> Stop Replay
+                </button>
+              ) : (
+                <button
+                  onClick={() => replayVoice(messages, scenario)}
+                  disabled={ttsMutation.isPending}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  <Volume2 size={12} /> Replay in Voice
+                </button>
+              )}
               <button
                 onClick={() => navigate("/simulate")}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
@@ -231,6 +309,13 @@ export default function SessionResult({ sessionId }: Props) {
                 <h2 className="text-sm font-bold text-foreground">Conversation Transcript</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">{messages.length} messages total</p>
               </div>
+              {/* Voice replay indicator */}
+              {isReplaying && (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold animate-pulse" style={{ background: "oklch(0.95 0.05 162)", color: "oklch(0.38 0.14 162)" }}>
+                  <Volume2 size={12} />
+                  {isSpeaking ? `Speaking message ${replayIndex + 1} of ${messages.filter((m: any) => m.role !== "system").length}…` : "Loading…"}
+                </div>
+              )}
               <button
                 onClick={() => navigate(`/session/${sessionId}/replay`)}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs font-semibold hover:bg-gray-50 transition-colors"

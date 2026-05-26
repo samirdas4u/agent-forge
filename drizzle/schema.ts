@@ -51,6 +51,8 @@ export const scenarios = mysqlTable("scenarios", {
   tags: json("tags").$type<string[]>().default([]),
   estimatedMinutes: int("estimatedMinutes").default(10),
   languageLock: varchar("languageLock", { length: 10 }), // null = any language; e.g. "fr", "es"
+  folder: varchar("folder", { length: 255 }), // optional folder/collection name
+  personaAvatarUrl: varchar("personaAvatarUrl", { length: 1024 }), // S3 URL for persona avatar
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

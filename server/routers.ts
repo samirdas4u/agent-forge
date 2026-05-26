@@ -539,6 +539,8 @@ Return JSON with: {
         tags: z.array(z.string()).optional(),
         estimatedMinutes: z.number().min(1).max(120).optional(),
         languageLock: z.string().max(10).nullable().optional(),
+        folder: z.string().max(255).nullable().optional(),
+        personaAvatarUrl: z.string().max(1024).nullable().optional(),
       }))
       .mutation(async ({ input }) => {
         // Auto-build systemPrompt from wizard fields if it is minimal
@@ -553,6 +555,8 @@ Return JSON with: {
           tags: input.tags ?? [],
           estimatedMinutes: input.estimatedMinutes ?? 10,
           languageLock: input.languageLock ?? null,
+          folder: input.folder ?? null,
+          personaAvatarUrl: input.personaAvatarUrl ?? null,
           isActive: true,
         });
         return { success: true };
@@ -579,6 +583,8 @@ Return JSON with: {
         estimatedMinutes: z.number().min(1).max(120).optional(),
         isActive: z.boolean().optional(),
         languageLock: z.string().max(10).nullable().optional(),
+        folder: z.string().max(255).nullable().optional(),
+        personaAvatarUrl: z.string().max(1024).nullable().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
@@ -591,6 +597,20 @@ Return JSON with: {
       .mutation(async ({ input }) => {
         await deleteScenario(input.id);
         return { success: true };
+      }),
+
+    uploadPersonaAvatar: publicProcedure
+      .input(z.object({
+        base64: z.string(), // base64-encoded image
+        mimeType: z.string().default("image/jpeg"),
+        scenarioId: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const buffer = Buffer.from(input.base64, "base64");
+        const ext = input.mimeType.includes("png") ? "png" : "jpg";
+        const fileKey = `persona-avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { url } = await storagePut(fileKey, buffer, input.mimeType);
+        return { url };
       }),
 
     translateScenario: publicProcedure

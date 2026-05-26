@@ -1,10 +1,10 @@
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowRight, Brain, Mail, MessageSquare, Mic, Phone,
-  Play, Plus, Search, SlidersHorizontal, Zap
+  ArrowRight, Brain, ChevronDown, ChevronRight, Folder, FolderOpen,
+  Mail, MessageSquare, Mic, Phone, Play, Plus, Search, SlidersHorizontal, Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
@@ -25,7 +25,6 @@ const DIFF_STYLES: Record<string, { label: string; bg: string; color: string }> 
   advanced:     { label: "Hard",   bg: "oklch(0.97 0.05 27)",  color: "oklch(0.48 0.20 27)"  },
 };
 
-// Channel → icon + label
 const CHANNEL_META: Record<string, { icon: React.ReactNode; label: string; bg: string; color: string }> = {
   text:  { icon: <MessageSquare size={11} />, label: "Chat",  bg: "oklch(0.95 0.04 264)", color: "oklch(0.45 0.18 264)" },
   voice: { icon: <Mic size={11} />,           label: "Voice", bg: "oklch(0.95 0.05 162)", color: "oklch(0.38 0.14 162)" },
@@ -49,15 +48,173 @@ function timeAgo(dateStr: string | null | undefined): string {
   return new Date(dateStr).toLocaleDateString();
 }
 
-// ── Component ──────────────────────────────────────────────────
+// ── Scenario row ──────────────────────────────────────────────
+function ScenarioRow({ scenario, onStart, isPending }: {
+  scenario: any;
+  onStart: (id: number) => void;
+  isPending: boolean;
+}) {
+  const { i18n } = useTranslation();
+  const diffStyle = DIFF_STYLES[scenario.difficulty] ?? DIFF_STYLES.beginner;
+  const channel = scenario.channel ?? "text";
+  const channelMeta = CHANNEL_META[channel] ?? CHANNEL_META.text;
+  const langInfo = scenario.languageLock ? LANG_DISPLAY[scenario.languageLock] : null;
+  const uiLang = LANG_DISPLAY[i18n.language];
+  const personaInitial = scenario.aiPersona?.[0]?.toUpperCase() ?? "A";
+  const personaName = scenario.aiPersona?.split(",")[0] ?? "AI Persona";
+
+  return (
+    <div
+      className="group flex sm:grid sm:grid-cols-[2fr_100px_90px_130px_160px_100px] gap-3 sm:gap-4 items-center px-4 sm:px-6 py-3.5 hover:bg-gray-50/70 transition-colors cursor-pointer"
+      onClick={() => onStart(scenario.id)}
+    >
+      {/* Name */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-foreground truncate leading-snug group-hover:text-indigo-600 transition-colors">
+          {scenario.title}
+        </p>
+        {/* Mobile-only meta */}
+        <div className="flex items-center gap-2 mt-0.5 sm:hidden flex-wrap">
+          <span
+            className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded"
+            style={{ background: channelMeta.bg, color: channelMeta.color }}
+          >
+            {channelMeta.icon}{channelMeta.label}
+          </span>
+          <span
+            className="text-[10px] font-bold px-1.5 py-0.5 rounded"
+            style={{ background: diffStyle.bg, color: diffStyle.color }}
+          >
+            {diffStyle.label}
+          </span>
+          {(langInfo ?? uiLang) && (
+            <span className="text-[11px]">{(langInfo ?? uiLang)?.flag}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Channel badge — desktop */}
+      <div className="hidden sm:flex items-center">
+        <span
+          className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-md"
+          style={{ background: channelMeta.bg, color: channelMeta.color }}
+        >
+          {channelMeta.icon}
+          {channelMeta.label}
+        </span>
+      </div>
+
+      {/* Difficulty — desktop */}
+      <div className="hidden sm:flex items-center">
+        <span
+          className="text-[11px] font-bold px-2 py-1 rounded-md"
+          style={{ background: diffStyle.bg, color: diffStyle.color }}
+        >
+          {diffStyle.label}
+        </span>
+      </div>
+
+      {/* Language — desktop */}
+      <div className="hidden sm:flex items-center gap-1.5">
+        <span className="text-base leading-none">
+          {langInfo ? langInfo.flag : (uiLang?.flag ?? "🌐")}
+        </span>
+        <span className="text-xs text-muted-foreground truncate">
+          {langInfo ? langInfo.label : (uiLang?.label ?? "English")}
+        </span>
+      </div>
+
+      {/* AI Persona — desktop */}
+      <div className="hidden sm:flex items-center gap-2">
+        {scenario.personaAvatarUrl ? (
+          <img
+            src={scenario.personaAvatarUrl}
+            alt={personaName}
+            className="w-7 h-7 rounded-full object-cover shrink-0 border border-border"
+          />
+        ) : (
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
+            style={{ background: "oklch(0.51 0.23 264)" }}
+          >
+            {personaInitial}
+          </div>
+        )}
+        <span className="text-xs text-foreground font-medium truncate">{personaName}</span>
+      </div>
+
+      {/* Created + Start button — desktop */}
+      <div className="hidden sm:flex items-center justify-end gap-3">
+        <span className="text-xs text-muted-foreground whitespace-nowrap">
+          {timeAgo(scenario.createdAt)}
+        </span>
+        <button
+          onClick={(e) => { e.stopPropagation(); onStart(scenario.id); }}
+          disabled={isPending}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+          style={{ background: "oklch(0.51 0.23 264)" }}
+        >
+          <Play size={11} />
+          Start
+        </button>
+      </div>
+
+      {/* Mobile: arrow */}
+      <ArrowRight size={14} className="sm:hidden shrink-0 text-muted-foreground group-hover:text-indigo-500 transition-colors" />
+    </div>
+  );
+}
+
+// ── Folder group ──────────────────────────────────────────────
+function FolderGroup({ name, scenarios, onStart, isPending }: {
+  name: string;
+  scenarios: any[];
+  onStart: (id: number) => void;
+  isPending: boolean;
+}) {
+  const [open, setOpen] = useState(true);
+  return (
+    <div className="border-b border-border last:border-b-0">
+      {/* Folder header row */}
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-gray-50/80 hover:bg-gray-100/60 transition-colors text-left"
+      >
+        {open
+          ? <FolderOpen size={14} style={{ color: "oklch(0.51 0.23 264)" }} />
+          : <Folder size={14} style={{ color: "oklch(0.51 0.23 264)" }} />
+        }
+        <span className="text-xs font-bold text-foreground tracking-wide">{name}</span>
+        <span className="ml-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "oklch(0.95 0.04 264)", color: "oklch(0.45 0.18 264)" }}>
+          {scenarios.length}
+        </span>
+        <span className="ml-auto">
+          {open ? <ChevronDown size={13} className="text-muted-foreground" /> : <ChevronRight size={13} className="text-muted-foreground" />}
+        </span>
+      </button>
+      {/* Rows */}
+      {open && (
+        <div className="divide-y divide-border/60">
+          {scenarios.map((s) => (
+            <ScenarioRow key={s.id} scenario={s} onStart={onStart} isPending={isPending} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ──────────────────────────────────────────────
 export default function Scenarios() {
   const [, navigate] = useLocation();
   const { i18n } = useTranslation();
   const [category, setCategory] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
   const [language, setLanguage] = useState("all");
+  const [folder, setFolder] = useState("all");
   const [search, setSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [groupByFolder, setGroupByFolder] = useState(true);
 
   const { data: scenarios, isLoading } = trpc.scenarios.list.useQuery(
     { category: category !== "all" ? category : undefined, difficulty: difficulty !== "all" ? difficulty as any : undefined },
@@ -69,7 +226,14 @@ export default function Scenarios() {
     onError: () => toast.error("Failed to start session. Please try again."),
   });
 
-  const filtered = scenarios?.filter((s) => {
+  // Collect unique folder names
+  const folders = useMemo(() => {
+    const names = new Set<string>();
+    scenarios?.forEach((s: any) => { if (s.folder) names.add(s.folder); });
+    return Array.from(names).sort();
+  }, [scenarios]);
+
+  const filtered = useMemo(() => (scenarios ?? []).filter((s: any) => {
     const matchesSearch = search === "" ||
       s.title.toLowerCase().includes(search.toLowerCase()) ||
       s.description?.toLowerCase().includes(search.toLowerCase()) ||
@@ -77,8 +241,31 @@ export default function Scenarios() {
     const matchesLanguage = language === "all" ? true
       : language === "none" ? !s.languageLock
       : s.languageLock === language;
-    return matchesSearch && matchesLanguage;
-  }) ?? [];
+    const matchesFolder = folder === "all" ? true
+      : folder === "none" ? !s.folder
+      : s.folder === folder;
+    return matchesSearch && matchesLanguage && matchesFolder;
+  }), [scenarios, search, language, folder]);
+
+  // Group by folder when enabled
+  const grouped = useMemo(() => {
+    if (!groupByFolder || folders.length === 0) return null;
+    const map: Record<string, any[]> = {};
+    const ungrouped: any[] = [];
+    filtered.forEach((s: any) => {
+      if (s.folder) {
+        if (!map[s.folder]) map[s.folder] = [];
+        map[s.folder].push(s);
+      } else {
+        ungrouped.push(s);
+      }
+    });
+    return { map, ungrouped };
+  }, [filtered, groupByFolder, folders]);
+
+  const handleStart = (scenarioId: number) => {
+    createSession.mutate({ scenarioId });
+  };
 
   return (
     <AppLayout>
@@ -91,17 +278,34 @@ export default function Scenarios() {
               <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">Simulations</h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                 {filtered.length} simulation{filtered.length !== 1 ? "s" : ""} available
+                {folders.length > 0 && ` · ${folders.length} folder${folders.length !== 1 ? "s" : ""}`}
               </p>
             </div>
-            <button
-              onClick={() => navigate("/admin/scenarios")}
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-opacity hover:opacity-90 shrink-0"
-              style={{ background: "oklch(0.51 0.23 264)" }}
-            >
-              <Plus size={14} />
-              <span className="hidden sm:inline">New simulation</span>
-              <span className="sm:hidden">New</span>
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Group by folder toggle */}
+              {folders.length > 0 && (
+                <button
+                  onClick={() => setGroupByFolder((v) => !v)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all"
+                  style={groupByFolder
+                    ? { background: "oklch(0.95 0.04 264)", borderColor: "oklch(0.85 0.08 264)", color: "oklch(0.45 0.18 264)" }
+                    : { background: "transparent", borderColor: "oklch(0.91 0.012 264)", color: "oklch(0.55 0.02 264)" }
+                  }
+                >
+                  <Folder size={13} />
+                  <span className="hidden sm:inline">Folders</span>
+                </button>
+              )}
+              <button
+                onClick={() => navigate("/admin/scenarios")}
+                className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                style={{ background: "oklch(0.51 0.23 264)" }}
+              >
+                <Plus size={14} />
+                <span className="hidden sm:inline">New simulation</span>
+                <span className="sm:hidden">New</span>
+              </button>
+            </div>
           </div>
 
           {/* Search + filter row */}
@@ -117,7 +321,7 @@ export default function Scenarios() {
               />
             </div>
 
-            {/* Category pills — hidden on mobile, shown via filter toggle */}
+            {/* Category pills — desktop */}
             <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
               {CATEGORIES.map((c) => (
                 <button
@@ -134,7 +338,6 @@ export default function Scenarios() {
               ))}
             </div>
 
-            {/* Difficulty + Language selects */}
             <select
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
@@ -158,6 +361,21 @@ export default function Scenarios() {
                 <option key={l.code} value={l.code}>{l.flag} {l.label}</option>
               ))}
             </select>
+
+            {/* Folder filter — only shown when folders exist */}
+            {folders.length > 0 && (
+              <select
+                value={folder}
+                onChange={(e) => setFolder(e.target.value)}
+                className="px-2.5 py-2 rounded-lg text-xs font-medium bg-white border border-border text-foreground focus:outline-none"
+              >
+                <option value="all">📁 All folders</option>
+                <option value="none">No folder</option>
+                {folders.map((f) => (
+                  <option key={f} value={f}>📁 {f}</option>
+                ))}
+              </select>
+            )}
 
             {/* Mobile filter toggle */}
             <button
@@ -204,9 +422,10 @@ export default function Scenarios() {
               <p className="font-bold text-foreground mb-1">No simulations found</p>
               <p className="text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
             </div>
-          ) : (
-            <>
-              {/* Table header — desktop */}
+          ) : grouped && Object.keys(grouped.map).length > 0 ? (
+            /* Folder-grouped view */
+            <div>
+              {/* Table header */}
               <div className="hidden sm:grid grid-cols-[2fr_100px_90px_130px_160px_100px] gap-4 px-6 py-2.5 border-b border-border bg-gray-50/60 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
                 <span>Name</span>
                 <span>Scenario</span>
@@ -215,112 +434,41 @@ export default function Scenarios() {
                 <span>AI Persona</span>
                 <span className="text-right">Created</span>
               </div>
-
-              {/* Rows */}
+              {/* Folder groups */}
+              {Object.entries(grouped.map).map(([folderName, items]) => (
+                <FolderGroup
+                  key={folderName}
+                  name={folderName}
+                  scenarios={items}
+                  onStart={handleStart}
+                  isPending={createSession.isPending}
+                />
+              ))}
+              {/* Ungrouped scenarios */}
+              {grouped.ungrouped.length > 0 && (
+                <FolderGroup
+                  name="Other"
+                  scenarios={grouped.ungrouped}
+                  onStart={handleStart}
+                  isPending={createSession.isPending}
+                />
+              )}
+            </div>
+          ) : (
+            /* Flat list view */
+            <>
+              <div className="hidden sm:grid grid-cols-[2fr_100px_90px_130px_160px_100px] gap-4 px-6 py-2.5 border-b border-border bg-gray-50/60 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+                <span>Name</span>
+                <span>Scenario</span>
+                <span>Difficulty</span>
+                <span>Language</span>
+                <span>AI Persona</span>
+                <span className="text-right">Created</span>
+              </div>
               <div className="divide-y divide-border">
-                {filtered.map((scenario) => {
-                  const diffStyle = DIFF_STYLES[scenario.difficulty] ?? DIFF_STYLES.beginner;
-                  const channel = (scenario as any).channel ?? "text";
-                  const channelMeta = CHANNEL_META[channel] ?? CHANNEL_META.text;
-                  const langInfo = scenario.languageLock ? LANG_DISPLAY[scenario.languageLock] : null;
-                  const uiLang = LANG_DISPLAY[i18n.language];
-                  const personaInitial = scenario.aiPersona?.[0]?.toUpperCase() ?? "A";
-                  const personaName = scenario.aiPersona?.split(",")[0] ?? "AI Persona";
-
-                  return (
-                    <div
-                      key={scenario.id}
-                      className="group flex sm:grid sm:grid-cols-[2fr_100px_90px_130px_160px_100px] gap-3 sm:gap-4 items-center px-4 sm:px-6 py-3.5 hover:bg-gray-50/70 transition-colors cursor-pointer"
-                      onClick={() => createSession.mutate({ scenarioId: scenario.id })}
-                    >
-                      {/* Name */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground truncate leading-snug group-hover:text-indigo-600 transition-colors">
-                          {scenario.title}
-                        </p>
-                        {/* Mobile-only meta */}
-                        <div className="flex items-center gap-2 mt-0.5 sm:hidden flex-wrap">
-                          <span
-                            className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded"
-                            style={{ background: channelMeta.bg, color: channelMeta.color }}
-                          >
-                            {channelMeta.icon}{channelMeta.label}
-                          </span>
-                          <span
-                            className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                            style={{ background: diffStyle.bg, color: diffStyle.color }}
-                          >
-                            {diffStyle.label}
-                          </span>
-                          {(langInfo ?? uiLang) && (
-                            <span className="text-[11px]">{(langInfo ?? uiLang)?.flag}</span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Channel badge — desktop */}
-                      <div className="hidden sm:flex items-center">
-                        <span
-                          className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-1 rounded-md"
-                          style={{ background: channelMeta.bg, color: channelMeta.color }}
-                        >
-                          {channelMeta.icon}
-                          {channelMeta.label}
-                        </span>
-                      </div>
-
-                      {/* Difficulty — desktop */}
-                      <div className="hidden sm:flex items-center">
-                        <span
-                          className="text-[11px] font-bold px-2 py-1 rounded-md"
-                          style={{ background: diffStyle.bg, color: diffStyle.color }}
-                        >
-                          {diffStyle.label}
-                        </span>
-                      </div>
-
-                      {/* Language — desktop */}
-                      <div className="hidden sm:flex items-center gap-1.5">
-                        <span className="text-base leading-none">
-                          {langInfo ? langInfo.flag : (uiLang?.flag ?? "🌐")}
-                        </span>
-                        <span className="text-xs text-muted-foreground truncate">
-                          {langInfo ? langInfo.label : (uiLang?.label ?? "English")}
-                        </span>
-                      </div>
-
-                      {/* AI Persona — desktop */}
-                      <div className="hidden sm:flex items-center gap-2">
-                        <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                          style={{ background: "oklch(0.51 0.23 264)" }}
-                        >
-                          {personaInitial}
-                        </div>
-                        <span className="text-xs text-foreground font-medium truncate">{personaName}</span>
-                      </div>
-
-                      {/* Created + Start button — desktop */}
-                      <div className="hidden sm:flex items-center justify-end gap-3">
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {timeAgo((scenario as any).createdAt)}
-                        </span>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); createSession.mutate({ scenarioId: scenario.id }); }}
-                          disabled={createSession.isPending}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-white opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
-                          style={{ background: "oklch(0.51 0.23 264)" }}
-                        >
-                          <Play size={11} />
-                          Start
-                        </button>
-                      </div>
-
-                      {/* Mobile: arrow */}
-                      <ArrowRight size={14} className="sm:hidden shrink-0 text-muted-foreground group-hover:text-indigo-500 transition-colors" />
-                    </div>
-                  );
-                })}
+                {filtered.map((s: any) => (
+                  <ScenarioRow key={s.id} scenario={s} onStart={handleStart} isPending={createSession.isPending} />
+                ))}
               </div>
             </>
           )}

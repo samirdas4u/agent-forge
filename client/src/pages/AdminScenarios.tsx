@@ -68,10 +68,12 @@ export default function AdminScenarios() {
     const tags = data.tags.split(",").map((t) => t.trim()).filter(Boolean);
     const category = data.category as "sales" | "customer_service" | "interview" | "negotiation" | "presentation";
     const difficulty = data.difficulty as "beginner" | "intermediate" | "advanced";
+    const folder = data.folder?.trim() || null;
+    const personaAvatarUrl = data.personaAvatarUrl?.trim() || null;
     if (data.id) {
-      updateMutation.mutate({ ...data, id: data.id, tags, category, difficulty });
+      updateMutation.mutate({ ...data, id: data.id, tags, category, difficulty, folder, personaAvatarUrl });
     } else {
-      createMutation.mutate({ ...data, tags, category, difficulty });
+      createMutation.mutate({ ...data, tags, category, difficulty, folder, personaAvatarUrl });
     }
   };
 
@@ -101,6 +103,8 @@ export default function AdminScenarios() {
       tags: (scenario.tags as string[] | null)?.join(", ") ?? "",
       estimatedMinutes: scenario.estimatedMinutes ?? 10,
       languageLock: scenario.languageLock ?? null,
+      folder: scenario.folder ?? "",
+      personaAvatarUrl: scenario.personaAvatarUrl ?? "",
     });
     setShowWizard(true);
   };
