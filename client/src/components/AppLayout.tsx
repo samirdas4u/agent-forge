@@ -5,6 +5,7 @@ import {
   BarChart3,
   BookOpen,
   Bot,
+  Video,
   ChevronRight,
   Cpu,
   ExternalLink,
@@ -45,6 +46,7 @@ const TRAINING_NAV_KEYS = [
   { href: "/courses",      key: "nav_courses",      icon: BookOpen },
   { href: "/analytics",    key: "nav_analytics",    icon: BarChart3 },
   { href: "/leaderboard",  key: "nav_leaderboard",  icon: Trophy },
+  { href: "/interview",     key: "nav_interview",    icon: Video },
 ];
 
 const SANDBOX_NAV_KEYS = [

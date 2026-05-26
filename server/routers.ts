@@ -3,6 +3,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { coursesRouter } from "./routers/courses";
+import { interviewRouter } from "./routers/interview";
 import { sandboxRouter } from "./routers/sandbox";
 import { invokeLLM } from "./_core/llm";
 import {
@@ -708,6 +709,7 @@ Return JSON with: {
   // ── eLearning Courses ─────────────────────────────────────────────────────────
   courses: coursesRouter,
   sandbox: sandboxRouter,
+  interview: interviewRouter,
 });
 
 export type AppRouter = typeof appRouter;

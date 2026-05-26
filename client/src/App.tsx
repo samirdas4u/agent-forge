@@ -19,6 +19,8 @@ import Courses from "./pages/Courses";
 import CourseCreate from "./pages/CourseCreate";
 import CourseEditor from "./pages/CourseEditor";
 import LearnCourse from "./pages/LearnCourse";
+import InterviewPractice from "./pages/InterviewPractice";
+import InterviewSession from "./pages/InterviewSession";
 import AppLayout from "./components/AppLayout";
 import SandboxHub from "./pages/sandbox/SandboxHub";
 import FeatureFlags from "./pages/sandbox/FeatureFlags";
@@ -76,6 +78,13 @@ function Router() {
       </Route>
       <Route path="/learn/:slug">
         {(params) => <LearnCourse />}
+      </Route>
+      {/* Interview Practice routes */}
+      <Route path="/interview">
+        <InterviewPractice />
+      </Route>
+      <Route path="/interview/session/:conversationId">
+        {(params) => <InterviewSession />}
       </Route>
       {/* Product Sandbox routes */}
       <Route path="/sandbox">

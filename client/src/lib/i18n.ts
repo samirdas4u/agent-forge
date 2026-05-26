@@ -10,6 +10,7 @@ const en = {
   nav_scenarios: "Scenarios",
   nav_analytics: "Analytics",
   nav_leaderboard: "Leaderboard",
+  nav_interview: "Video Interview",
   nav_walkthroughs: "Walkthroughs",
   nav_courses: "Courses",
   nav_sandbox: "Sandbox",
@@ -120,6 +121,7 @@ const fr: typeof en = {
   nav_scenarios: "Scénarios",
   nav_analytics: "Analytique",
   nav_leaderboard: "Classement",
+  nav_interview: "Entretien Vidéo",
   nav_walkthroughs: "Tutoriels",
   nav_courses: "Cours",
   nav_sandbox: "Bac à sable",
@@ -221,6 +223,7 @@ const es: typeof en = {
   nav_scenarios: "Escenarios",
   nav_analytics: "Analítica",
   nav_leaderboard: "Clasificación",
+  nav_interview: "Entrevista en Vídeo",
   nav_walkthroughs: "Tutoriales",
   nav_courses: "Cursos",
   nav_sandbox: "Entorno de pruebas",
@@ -322,6 +325,7 @@ const ar: typeof en = {
   nav_scenarios: "السيناريوهات",
   nav_analytics: "التحليلات",
   nav_leaderboard: "لوحة المتصدرين",
+  nav_interview: "مقابلة فيديو",
   nav_walkthroughs: "الشروحات",
   nav_courses: "الدورات",
   nav_sandbox: "بيئة الاختبار",
@@ -423,6 +427,7 @@ const zh: typeof en = {
   nav_scenarios: "场景",
   nav_analytics: "分析",
   nav_leaderboard: "排行榜",
+  nav_interview: "视频面试",
   nav_walkthroughs: "教程",
   nav_courses: "课程",
   nav_sandbox: "沙盒",
@@ -520,7 +525,7 @@ const zh: typeof en = {
 // ─── German ─────────────────────────────────────────────────────────────────
 const de: typeof en = {
   nav_dashboard: "Dashboard", nav_simulate: "Simulieren", nav_scenarios: "Szenarien",
-  nav_analytics: "Analytik", nav_leaderboard: "Rangliste", nav_walkthroughs: "Anleitungen",
+  nav_analytics: "Analytik", nav_leaderboard: "Rangliste", nav_interview: "Video-Interview", nav_walkthroughs: "Anleitungen",
   nav_courses: "Kurse", nav_sandbox: "Sandbox", nav_sandbox_hub: "Sandbox-Hub",
   nav_event_log: "Ereignisprotokoll", nav_admin: "Admin", nav_scenario_builder: "Szenario-Builder",
   nav_training: "Training", nav_sign_in: "Anmelden", nav_sign_out: "Abmelden", nav_profile: "Profil",
@@ -565,7 +570,7 @@ const de: typeof en = {
 // ─── Portuguese ──────────────────────────────────────────────────────────────
 const pt: typeof en = {
   nav_dashboard: "Painel", nav_simulate: "Simular", nav_scenarios: "Cenários",
-  nav_analytics: "Análise", nav_leaderboard: "Classificação", nav_walkthroughs: "Tutoriais",
+  nav_analytics: "Análise", nav_leaderboard: "Classificação", nav_interview: "Entrevista em Vídeo", nav_walkthroughs: "Tutoriais",
   nav_courses: "Cursos", nav_sandbox: "Sandbox", nav_sandbox_hub: "Hub Sandbox",
   nav_event_log: "Registro de eventos", nav_admin: "Admin", nav_scenario_builder: "Construtor de cenários",
   nav_training: "Treinamento", nav_sign_in: "Entrar", nav_sign_out: "Sair", nav_profile: "Perfil",
@@ -610,7 +615,7 @@ const pt: typeof en = {
 // ─── Italian ─────────────────────────────────────────────────────────────────
 const it: typeof en = {
   nav_dashboard: "Dashboard", nav_simulate: "Simula", nav_scenarios: "Scenari",
-  nav_analytics: "Analisi", nav_leaderboard: "Classifica", nav_walkthroughs: "Tutorial",
+  nav_analytics: "Analisi", nav_leaderboard: "Classifica", nav_interview: "Colloquio Video", nav_walkthroughs: "Tutorial",
   nav_courses: "Corsi", nav_sandbox: "Sandbox", nav_sandbox_hub: "Hub Sandbox",
   nav_event_log: "Registro eventi", nav_admin: "Admin", nav_scenario_builder: "Costruttore scenari",
   nav_training: "Formazione", nav_sign_in: "Accedi", nav_sign_out: "Esci", nav_profile: "Profilo",
@@ -655,7 +660,7 @@ const it: typeof en = {
 // ─── Japanese ────────────────────────────────────────────────────────────────
 const ja: typeof en = {
   nav_dashboard: "ダッシュボード", nav_simulate: "シミュレート", nav_scenarios: "シナリオ",
-  nav_analytics: "分析", nav_leaderboard: "リーダーボード", nav_walkthroughs: "ウォークスルー",
+  nav_analytics: "分析", nav_leaderboard: "リーダーボード", nav_interview: "ビデオ面接", nav_walkthroughs: "ウォークスルー",
   nav_courses: "コース", nav_sandbox: "サンドボックス", nav_sandbox_hub: "サンドボックスハブ",
   nav_event_log: "イベントログ", nav_admin: "管理", nav_scenario_builder: "シナリオビルダー",
   nav_training: "トレーニング", nav_sign_in: "サインイン", nav_sign_out: "サインアウト", nav_profile: "プロフィール",
@@ -700,7 +705,7 @@ const ja: typeof en = {
 // ─── Korean ──────────────────────────────────────────────────────────────────
 const ko: typeof en = {
   nav_dashboard: "대시보드", nav_simulate: "시뮬레이션", nav_scenarios: "시나리오",
-  nav_analytics: "분석", nav_leaderboard: "리더보드", nav_walkthroughs: "연습 가이드",
+  nav_analytics: "분석", nav_leaderboard: "리더보드", nav_interview: "화상 면접", nav_walkthroughs: "연습 가이드",
   nav_courses: "강좌", nav_sandbox: "샌드박스", nav_sandbox_hub: "샌드박스 허브",
   nav_event_log: "이벤트 로그", nav_admin: "관리자", nav_scenario_builder: "시나리오 빌더",
   nav_training: "훈련", nav_sign_in: "로그인", nav_sign_out: "로그아웃", nav_profile: "프로필",
@@ -745,7 +750,7 @@ const ko: typeof en = {
 // ─── Hindi ───────────────────────────────────────────────────────────────────
 const hi: typeof en = {
   nav_dashboard: "डैशबोर्ड", nav_simulate: "सिमुलेट", nav_scenarios: "परिदृश्य",
-  nav_analytics: "विश्लेषण", nav_leaderboard: "लीडरबोर्ड", nav_walkthroughs: "वॉकथ्रू",
+  nav_analytics: "विश्लेषण", nav_leaderboard: "लीडरबोर्ड", nav_interview: "वीडियो साक्षात्कार", nav_walkthroughs: "वॉकथ्रू",
   nav_courses: "पाठ्यक्रम", nav_sandbox: "सैंडबॉक्स", nav_sandbox_hub: "सैंडबॉक्स हब",
   nav_event_log: "इवेंट लॉग", nav_admin: "व्यवस्थापक", nav_scenario_builder: "परिदृश्य निर्माता",
   nav_training: "प्रशिक्षण", nav_sign_in: "साइन इन", nav_sign_out: "साइन आउट", nav_profile: "प्रोफ़ाइल",
@@ -790,7 +795,7 @@ const hi: typeof en = {
 // ─── Dutch ───────────────────────────────────────────────────────────────────
 const nl: typeof en = {
   nav_dashboard: "Dashboard", nav_simulate: "Simuleren", nav_scenarios: "Scenario's",
-  nav_analytics: "Analyse", nav_leaderboard: "Ranglijst", nav_walkthroughs: "Handleidingen",
+  nav_analytics: "Analyse", nav_leaderboard: "Ranglijst", nav_interview: "Video-interview", nav_walkthroughs: "Handleidingen",
   nav_courses: "Cursussen", nav_sandbox: "Sandbox", nav_sandbox_hub: "Sandbox Hub",
   nav_event_log: "Gebeurtenislogboek", nav_admin: "Beheer", nav_scenario_builder: "Scenariobouwer",
   nav_training: "Training", nav_sign_in: "Inloggen", nav_sign_out: "Uitloggen", nav_profile: "Profiel",
@@ -835,7 +840,7 @@ const nl: typeof en = {
 // ─── Turkish ─────────────────────────────────────────────────────────────────
 const tr: typeof en = {
   nav_dashboard: "Gösterge Paneli", nav_simulate: "Simüle Et", nav_scenarios: "Senaryolar",
-  nav_analytics: "Analitik", nav_leaderboard: "Liderlik Tablosu", nav_walkthroughs: "Kılavuzlar",
+  nav_analytics: "Analitik", nav_leaderboard: "Liderlik Tablosu", nav_interview: "Video Mülakat", nav_walkthroughs: "Kılavuzlar",
   nav_courses: "Kurslar", nav_sandbox: "Sandbox", nav_sandbox_hub: "Sandbox Merkezi",
   nav_event_log: "Olay Günlüğü", nav_admin: "Yönetici", nav_scenario_builder: "Senaryo Oluşturucu",
   nav_training: "Eğitim", nav_sign_in: "Giriş Yap", nav_sign_out: "Çıkış Yap", nav_profile: "Profil",
@@ -880,7 +885,7 @@ const tr: typeof en = {
 // ─── Polish ──────────────────────────────────────────────────────────────────
 const pl: typeof en = {
   nav_dashboard: "Panel", nav_simulate: "Symuluj", nav_scenarios: "Scenariusze",
-  nav_analytics: "Analityka", nav_leaderboard: "Ranking", nav_walkthroughs: "Samouczki",
+  nav_analytics: "Analityka", nav_leaderboard: "Ranking", nav_interview: "Rozmowa Wideo", nav_walkthroughs: "Samouczki",
   nav_courses: "Kursy", nav_sandbox: "Sandbox", nav_sandbox_hub: "Hub Sandbox",
   nav_event_log: "Dziennik zdarzeń", nav_admin: "Admin", nav_scenario_builder: "Kreator scenariuszy",
   nav_training: "Szkolenie", nav_sign_in: "Zaloguj się", nav_sign_out: "Wyloguj się", nav_profile: "Profil",
@@ -925,7 +930,7 @@ const pl: typeof en = {
 // ─── Swedish ─────────────────────────────────────────────────────────────────
 const sv: typeof en = {
   nav_dashboard: "Instrumentpanel", nav_simulate: "Simulera", nav_scenarios: "Scenarier",
-  nav_analytics: "Analys", nav_leaderboard: "Topplista", nav_walkthroughs: "Genomgångar",
+  nav_analytics: "Analys", nav_leaderboard: "Topplista", nav_interview: "Videointervju", nav_walkthroughs: "Genomgångar",
   nav_courses: "Kurser", nav_sandbox: "Sandbox", nav_sandbox_hub: "Sandbox-nav",
   nav_event_log: "Händelselogg", nav_admin: "Admin", nav_scenario_builder: "Scenariobyggare",
   nav_training: "Utbildning", nav_sign_in: "Logga in", nav_sign_out: "Logga ut", nav_profile: "Profil",
@@ -970,7 +975,7 @@ const sv: typeof en = {
 // ─── Bengali ─────────────────────────────────────────────────────────────────
 const bn: typeof en = {
   nav_dashboard: "ড্যাশবোর্ড", nav_simulate: "সিমুলেট", nav_scenarios: "পরিস্থিতি",
-  nav_analytics: "বিশ্লেষণ", nav_leaderboard: "লিডারবোর্ড", nav_walkthroughs: "ওয়াকথ্রু",
+  nav_analytics: "বিশ্লেষণ", nav_leaderboard: "লিডারবোর্ড", nav_interview: "ভিডিও সাক্ষাৎকার", nav_walkthroughs: "ওয়াকথ্রু",
   nav_courses: "কোর্স", nav_sandbox: "স্যান্ডবক্স", nav_sandbox_hub: "স্যান্ডবক্স হাব",
   nav_event_log: "ইভেন্ট লগ", nav_admin: "অ্যাডমিন", nav_scenario_builder: "পরিস্থিতি নির্মাতা",
   nav_training: "প্রশিক্ষণ", nav_sign_in: "সাইন ইন", nav_sign_out: "সাইন আউট", nav_profile: "প্রোফাইল",
@@ -1015,7 +1020,7 @@ const bn: typeof en = {
 // ─── Swahili ──────────────────────────────────────────────────────────────────
 const sw: typeof en = {
   nav_dashboard: "Dashibodi", nav_simulate: "Simula", nav_scenarios: "Hali",
-  nav_analytics: "Uchambuzi", nav_leaderboard: "Orodha ya Viongozi", nav_walkthroughs: "Mwongozo",
+  nav_analytics: "Uchambuzi", nav_leaderboard: "Orodha ya Viongozi", nav_interview: "Mahojiano ya Video", nav_walkthroughs: "Mwongozo",
   nav_courses: "Kozi", nav_sandbox: "Sanduku la Mchanga", nav_sandbox_hub: "Kitovu cha Sanduku",
   nav_event_log: "Kumbukumbu ya Matukio", nav_admin: "Msimamizi", nav_scenario_builder: "Mjenzi wa Hali",
   nav_training: "Mafunzo", nav_sign_in: "Ingia", nav_sign_out: "Toka", nav_profile: "Wasifu",
