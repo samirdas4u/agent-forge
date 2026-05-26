@@ -191,3 +191,11 @@
 - [x] Language switcher in AppLayout sidebar and landing page nav
 - [x] Translate all UI strings across all pages (nav + simulation + dashboard + scenarios)
 - [x] Language selector on scenario creation/session start (AI converses in chosen language)
+
+## Three-Feature Sprint (v13)
+- [ ] Add Bengali (bn) and Swahili (sw) to i18n.ts and LANGUAGE_NAMES map
+- [ ] Add language_lock column to scenarios table (DB migration)
+- [ ] Update scenario creation/edit to allow admins to set a language lock
+- [ ] Show language badge on scenario cards
+- [ ] sendMessage respects scenario language_lock over user UI language
+- [ ] Prominent language quick-switcher pill on scenario cards ("Practice in French?")

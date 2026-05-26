@@ -36,6 +36,13 @@
       "when": 1778826815627,
       "tag": "0004_low_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1779811267982,
+      "tag": "0005_tearful_triathlon",
+      "breakpoints": true
     }
   ]
 }

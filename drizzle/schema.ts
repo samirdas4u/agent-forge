@@ -42,6 +42,7 @@ export const scenarios = mysqlTable("scenarios", {
   aiPersona: varchar("aiPersona", { length: 255 }),
   tags: json("tags").$type<string[]>().default([]),
   estimatedMinutes: int("estimatedMinutes").default(10),
+  languageLock: varchar("languageLock", { length: 10 }), // null = any language; e.g. "fr", "es"
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

@@ -35,6 +35,7 @@ type ScenarioForm = {
   aiPersona: string;
   tags: string;
   estimatedMinutes: number;
+  languageLock: string | null;
 };
 
 const EMPTY_FORM: ScenarioForm = {
@@ -46,7 +47,29 @@ const EMPTY_FORM: ScenarioForm = {
   aiPersona: "",
   tags: "",
   estimatedMinutes: 10,
+  languageLock: null,
 };
+
+const LANGUAGE_OPTIONS = [
+  { code: null,  label: "Any language (follows user preference)" },
+  { code: "en",  label: "🇬🇧 English only" },
+  { code: "fr",  label: "🇫🇷 French only" },
+  { code: "es",  label: "🇪🇸 Spanish only" },
+  { code: "de",  label: "🇩🇪 German only" },
+  { code: "pt",  label: "🇧🇷 Portuguese only" },
+  { code: "it",  label: "🇮🇹 Italian only" },
+  { code: "nl",  label: "🇳🇱 Dutch only" },
+  { code: "sv",  label: "🇸🇪 Swedish only" },
+  { code: "pl",  label: "🇵🇱 Polish only" },
+  { code: "tr",  label: "🇹🇷 Turkish only" },
+  { code: "ar",  label: "🇸🇦 Arabic only" },
+  { code: "hi",  label: "🇮🇳 Hindi only" },
+  { code: "zh",  label: "🇨🇳 Mandarin only" },
+  { code: "ja",  label: "🇯🇵 Japanese only" },
+  { code: "ko",  label: "🇰🇷 Korean only" },
+  { code: "bn",  label: "🇧🇩 Bengali only" },
+  { code: "sw",  label: "🇰🇪 Swahili only" },
+];
 
 function ScenarioFormModal({
   initial,
@@ -168,6 +191,23 @@ function ScenarioFormModal({
                 className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
+          </div>
+
+          {/* Language Lock */}
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1.5">
+              Language Lock
+              <span className="ml-2 font-normal text-muted-foreground">— Force AI to respond in a specific language</span>
+            </label>
+            <select
+              value={form.languageLock ?? ""}
+              onChange={(e) => set("languageLock", e.target.value || null as any)}
+              className="w-full px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
+            >
+              {LANGUAGE_OPTIONS.map((l) => (
+                <option key={l.code ?? "any"} value={l.code ?? ""}>{l.label}</option>
+              ))}
+            </select>
           </div>
 
           {/* Tags */}
@@ -416,6 +456,7 @@ export default function AdminScenarios() {
                               aiPersona: scenario.aiPersona ?? "",
                               tags: (scenario.tags as string[] | null)?.join(", ") ?? "",
                               estimatedMinutes: scenario.estimatedMinutes ?? 10,
+                              languageLock: scenario.languageLock ?? null,
                             });
                             setShowForm(true);
                           }}

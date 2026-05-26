@@ -247,8 +247,10 @@ export const appRouter = router({
           fr: "French", es: "Spanish", ar: "Arabic", zh: "Mandarin Chinese",
           de: "German", pt: "Portuguese", it: "Italian", ja: "Japanese", ko: "Korean",
           hi: "Hindi", nl: "Dutch", tr: "Turkish", pl: "Polish", sv: "Swedish",
+          bn: "Bengali", sw: "Swahili",
         };
-        const langCode = input.language ?? "en";
+        // scenario.languageLock overrides the user's UI language preference
+        const langCode = scenario.languageLock ?? input.language ?? "en";
         const langInstruction = langCode !== "en" && LANGUAGE_NAMES[langCode]
           ? `\n\nIMPORTANT: You MUST respond entirely in ${LANGUAGE_NAMES[langCode]}. Do not use English.`
           : "";
@@ -528,12 +530,14 @@ Return JSON with: {
         aiPersona: z.string().optional(),
         tags: z.array(z.string()).optional(),
         estimatedMinutes: z.number().min(1).max(60).optional(),
+        languageLock: z.string().max(10).nullable().optional(),
       }))
       .mutation(async ({ input }) => {
         await createScenario({
           ...input,
           tags: input.tags ?? [],
           estimatedMinutes: input.estimatedMinutes ?? 10,
+          languageLock: input.languageLock ?? null,
           isActive: true,
         });
         return { success: true };
@@ -551,6 +555,7 @@ Return JSON with: {
         tags: z.array(z.string()).optional(),
         estimatedMinutes: z.number().min(1).max(60).optional(),
         isActive: z.boolean().optional(),
+        languageLock: z.string().max(10).nullable().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;

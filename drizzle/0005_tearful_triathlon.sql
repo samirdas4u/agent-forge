@@ -1,0 +1,1 @@
+ALTER TABLE `scenarios` ADD `languageLock` varchar(10);

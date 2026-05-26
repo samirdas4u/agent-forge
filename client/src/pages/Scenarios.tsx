@@ -1,9 +1,11 @@
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { ArrowRight, Brain, Clock, MessageSquare, Mic, Play, Search, Sparkles, Target, Users, Zap } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, Brain, Clock, Globe, MessageSquare, Mic, Play, Search, Sparkles, Target, Users, Zap } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
+import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 
 const CATEGORIES = ["all", "sales", "customer_service", "interview", "negotiation", "presentation"];
 const DIFFICULTIES = ["all", "beginner", "intermediate", "advanced"];
@@ -31,8 +33,14 @@ const DIFF_STYLES: Record<string, { label: string; bg: string; color: string }> 
   advanced:     { label: "Advanced",     bg: "oklch(0.97 0.05 27)",  color: "oklch(0.48 0.20 27)"  },
 };
 
+// Map language code → display label + flag
+const LANG_DISPLAY: Record<string, { flag: string; label: string }> = Object.fromEntries(
+  SUPPORTED_LANGUAGES.map((l) => [l.code, { flag: l.flag, label: l.label }])
+);
+
 export default function Scenarios() {
   const [, navigate] = useLocation();
+  const { i18n } = useTranslation();
   const [category, setCategory] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
   const [search, setSearch] = useState("");
@@ -185,6 +193,40 @@ export default function Scenarios() {
                           <div className="text-xs font-semibold text-foreground truncate">{scenario.aiPersona}</div>
                         </div>
                         <Users size={12} className="text-muted-foreground shrink-0 ml-auto" />
+                      </div>
+                    )}
+
+                    {/* Language badge (if locked) or quick-switcher pill */}
+                    {scenario.languageLock ? (
+                      <div className="flex items-center gap-1.5 mb-3">
+                        <Globe size={11} className="text-muted-foreground" />
+                        <span className="text-[10px] font-semibold text-muted-foreground">
+                          {LANG_DISPLAY[scenario.languageLock]?.flag ?? ""}{" "}
+                          {LANG_DISPLAY[scenario.languageLock]?.label ?? scenario.languageLock} only
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 mb-3 flex-wrap">
+                        <Globe size={11} className="text-muted-foreground shrink-0" />
+                        <span className="text-[10px] text-muted-foreground shrink-0">Practice in:</span>
+                        {["en", "fr", "es", "de", "zh", "ar"].map((code) => {
+                          const lang = LANG_DISPLAY[code];
+                          const isActive = (i18n.language === code) || (code === "en" && !LANG_DISPLAY[i18n.language]);
+                          return (
+                            <button
+                              key={code}
+                              onClick={(e) => { e.stopPropagation(); i18n.changeLanguage(code); }}
+                              title={lang?.label}
+                              className="text-[11px] px-1.5 py-0.5 rounded-full border transition-all"
+                              style={isActive
+                                ? { background: catStyle.bg, borderColor: catStyle.color, color: catStyle.color, fontWeight: 700 }
+                                : { background: "transparent", borderColor: "oklch(0.88 0 0)", color: "oklch(0.55 0 0)" }
+                              }
+                            >
+                              {lang?.flag}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
 
