@@ -246,6 +246,7 @@ export const appRouter = router({
         const LANGUAGE_NAMES: Record<string, string> = {
           fr: "French", es: "Spanish", ar: "Arabic", zh: "Mandarin Chinese",
           de: "German", pt: "Portuguese", it: "Italian", ja: "Japanese", ko: "Korean",
+          hi: "Hindi", nl: "Dutch", tr: "Turkish", pl: "Polish", sv: "Swedish",
         };
         const langCode = input.language ?? "en";
         const langInstruction = langCode !== "en" && LANGUAGE_NAMES[langCode]
