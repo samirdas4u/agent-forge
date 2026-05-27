@@ -65,12 +65,12 @@ function ScenarioRow({ scenario, onStart, isPending }: {
 
   return (
     <div
-      className="group flex sm:grid sm:grid-cols-[2fr_100px_90px_130px_160px_100px] gap-3 sm:gap-4 items-center px-4 sm:px-6 py-3.5 hover:bg-gray-50/70 transition-colors cursor-pointer"
+      className="group flex sm:grid sm:grid-cols-[2fr_100px_90px_130px_160px_100px] gap-3 sm:gap-4 items-center px-4 sm:px-6 py-3.5 transition-colors cursor-pointer bg-white hover:bg-[oklch(0.97_0.008_264)]"
       onClick={() => onStart(scenario.id)}
     >
       {/* Name */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-foreground truncate leading-snug group-hover:text-indigo-600 transition-colors">
+        <p className="text-sm font-semibold truncate leading-snug transition-colors" style={{ color: 'oklch(0.12 0.025 260)' }} onMouseEnter={e => (e.currentTarget.style.color='oklch(0.51 0.23 264)')} onMouseLeave={e => (e.currentTarget.style.color='oklch(0.12 0.025 260)')}>
           {scenario.title}
         </p>
         {/* Mobile-only meta */}
@@ -119,7 +119,7 @@ function ScenarioRow({ scenario, onStart, isPending }: {
         <span className="text-base leading-none">
           {langInfo ? langInfo.flag : (uiLang?.flag ?? "🌐")}
         </span>
-        <span className="text-xs text-muted-foreground truncate">
+        <span className="text-xs truncate" style={{ color: 'oklch(0.50 0.025 260)' }}>
           {langInfo ? langInfo.label : (uiLang?.label ?? "English")}
         </span>
       </div>
@@ -140,12 +140,12 @@ function ScenarioRow({ scenario, onStart, isPending }: {
             {personaInitial}
           </div>
         )}
-        <span className="text-xs text-foreground font-medium truncate">{personaName}</span>
+        <span className="text-xs font-medium truncate" style={{ color: 'oklch(0.25 0.025 260)' }}>{personaName}</span>
       </div>
 
       {/* Created + Start button — desktop */}
       <div className="hidden sm:flex items-center justify-end gap-3">
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
+        <span className="text-xs whitespace-nowrap" style={{ color: 'oklch(0.55 0.025 260)' }}>
           {timeAgo(scenario.createdAt)}
         </span>
         <button
@@ -178,13 +178,13 @@ function FolderGroup({ name, scenarios, onStart, isPending }: {
       {/* Folder header row */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-2 px-4 sm:px-6 py-2.5 bg-gray-50/80 hover:bg-gray-100/60 transition-colors text-left"
+        className="w-full flex items-center gap-2 px-4 sm:px-6 py-2.5 transition-colors text-left" style={{ background: 'oklch(0.965 0.008 264)', borderBottom: '1px solid oklch(0.905 0.012 260)' }}
       >
         {open
           ? <FolderOpen size={14} style={{ color: "oklch(0.51 0.23 264)" }} />
           : <Folder size={14} style={{ color: "oklch(0.51 0.23 264)" }} />
         }
-        <span className="text-xs font-bold text-foreground tracking-wide">{name}</span>
+        <span className="text-xs font-bold tracking-wide" style={{ color: 'oklch(0.20 0.025 260)' }}>{name}</span>
         <span className="ml-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: "oklch(0.95 0.04 264)", color: "oklch(0.45 0.18 264)" }}>
           {scenarios.length}
         </span>
@@ -269,14 +269,14 @@ export default function Scenarios() {
 
   return (
     <AppLayout>
-      <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col min-h-0">
 
         {/* ── Page header ── */}
-        <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b border-border bg-white">
+        <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b bg-white" style={{ borderColor: 'oklch(0.905 0.012 260)' }}>
           <div className="flex items-center justify-between gap-4 mb-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">Simulations</h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight" style={{ color: 'oklch(0.12 0.025 260)' }}>Simulations</h1>
+              <p className="text-xs sm:text-sm mt-0.5" style={{ color: 'oklch(0.50 0.025 260)' }}>
                 {filtered.length} simulation{filtered.length !== 1 ? "s" : ""} available
                 {folders.length > 0 && ` · ${folders.length} folder${folders.length !== 1 ? "s" : ""}`}
               </p>
@@ -407,7 +407,7 @@ export default function Scenarios() {
         </div>
 
         {/* ── Table ── */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-white">
           {isLoading ? (
             <div className="p-6 space-y-2">
               {[1,2,3,4,5].map(i => (
@@ -419,14 +419,14 @@ export default function Scenarios() {
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ background: "oklch(0.95 0.04 264)" }}>
                 <Brain size={26} style={{ color: "oklch(0.51 0.23 264)" }} />
               </div>
-              <p className="font-bold text-foreground mb-1">No simulations found</p>
+              <p className="font-bold mb-1" style={{ color: 'oklch(0.12 0.025 260)' }}>No simulations found</p>
               <p className="text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
             </div>
           ) : grouped && Object.keys(grouped.map).length > 0 ? (
             /* Folder-grouped view */
             <div>
               {/* Table header */}
-              <div className="hidden sm:grid grid-cols-[2fr_100px_90px_130px_160px_100px] gap-4 px-6 py-2.5 border-b border-border bg-gray-50/60 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+              <div className="hidden sm:grid grid-cols-[2fr_100px_90px_130px_160px_100px] gap-4 px-6 py-2.5 border-b text-[11px] font-bold uppercase tracking-widest" style={{ borderColor: 'oklch(0.905 0.012 260)', background: 'oklch(0.97 0.005 260)', color: 'oklch(0.50 0.025 260)' }}>
                 <span>Name</span>
                 <span>Scenario</span>
                 <span>Difficulty</span>
@@ -457,7 +457,7 @@ export default function Scenarios() {
           ) : (
             /* Flat list view */
             <>
-              <div className="hidden sm:grid grid-cols-[2fr_100px_90px_130px_160px_100px] gap-4 px-6 py-2.5 border-b border-border bg-gray-50/60 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+              <div className="hidden sm:grid grid-cols-[2fr_100px_90px_130px_160px_100px] gap-4 px-6 py-2.5 border-b text-[11px] font-bold uppercase tracking-widest" style={{ borderColor: 'oklch(0.905 0.012 260)', background: 'oklch(0.97 0.005 260)', color: 'oklch(0.50 0.025 260)' }}>
                 <span>Name</span>
                 <span>Scenario</span>
                 <span>Difficulty</span>
@@ -465,7 +465,7 @@ export default function Scenarios() {
                 <span>AI Persona</span>
                 <span className="text-right">Created</span>
               </div>
-              <div className="divide-y divide-border">
+              <div className="divide-y" style={{ borderColor: 'oklch(0.905 0.012 260)' }}>
                 {filtered.map((s: any) => (
                   <ScenarioRow key={s.id} scenario={s} onStart={handleStart} isPending={createSession.isPending} />
                 ))}
