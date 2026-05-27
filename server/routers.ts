@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { coursesRouter } from "./routers/courses";
 import { interviewRouter } from "./routers/interview";
 import { sandboxRouter } from "./routers/sandbox";
@@ -30,6 +30,9 @@ import {
   updateWalkthroughCompletion,
 } from "./db";
 import { transcribeAudio } from "./_core/voiceTranscription";
+import { getDb } from "./db";
+import { users } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 import { textToSpeech } from "./_core/tts";
 import { storagePut } from "./storage";
 import { z } from "zod";
@@ -685,6 +688,35 @@ Return JSON with: {
         });
 
         return { success: true, title: translated.title, language: langName };
+      }),
+
+    listUsers: protectedProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      const allUsers = await db.select({
+        id: users.id,
+        name: users.name,
+        openId: users.openId,
+        role: users.role,
+        createdAt: users.createdAt,
+        lastSignedIn: users.lastSignedIn,
+        totalSessions: users.totalSessions,
+        avgScore: users.avgScore,
+      }).from(users).orderBy(users.createdAt);
+      return allUsers;
+    }),
+
+    changeUserRole: protectedProcedure
+      .input(z.object({
+        userId: z.number(),
+        role: z.enum(["admin", "user"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can change user roles" });
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        await db.update(users).set({ role: input.role }).where(eq(users.id, input.userId));
+        return { success: true };
       }),
   }),
 

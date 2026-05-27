@@ -20,6 +20,7 @@ import CourseCreate from "./pages/CourseCreate";
 import CourseEditor from "./pages/CourseEditor";
 import LearnCourse from "./pages/LearnCourse";
 import InterviewPractice from "./pages/InterviewPractice";
+import UserManagement from "./pages/UserManagement";
 import InterviewSession from "./pages/InterviewSession";
 import AppLayout from "./components/AppLayout";
 import SandboxHub from "./pages/sandbox/SandboxHub";
@@ -66,6 +67,9 @@ function Router() {
       </Route>
       <Route path="/admin/scenarios">
         <AdminScenarios />
+      </Route>
+      <Route path="/admin/users">
+        <UserManagement />
       </Route>
       <Route path="/courses">
         <Courses />
