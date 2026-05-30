@@ -106,7 +106,7 @@ export default function InterviewSession() {
         <div className="flex items-center gap-2 text-sm font-mono text-white/80">
           <Clock className="w-4 h-4 text-green-400" />
           <span className={elapsed > 1500 ? "text-amber-400" : "text-green-400"}>{formatTime(elapsed)}</span>
-          {elapsed > 1500 && <span className="text-xs text-amber-400/70">(25 min limit approaching)</span>}
+          {elapsed > 1500 && <span className="text-xs text-amber-400/70 hidden sm:inline">(25 min limit approaching)</span>}
         </div>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -136,7 +136,7 @@ export default function InterviewSession() {
         </div>
 
         {/* Self-view (picture-in-picture) */}
-        <div className="absolute bottom-8 right-8 w-32 md:w-44 aspect-video rounded-xl overflow-hidden border-2 border-white/20 bg-black shadow-xl">
+        <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 w-20 sm:w-32 md:w-44 aspect-video rounded-xl overflow-hidden border-2 border-white/20 bg-black shadow-xl">
           <video
             ref={selfViewRef}
             autoPlay
@@ -154,7 +154,7 @@ export default function InterviewSession() {
       </div>
 
       {/* Bottom controls */}
-      <div className="flex items-center justify-center gap-4 py-4 border-t border-white/10 bg-black/40">
+      <div className="flex items-center justify-center gap-3 sm:gap-4 py-3 sm:py-4 border-t border-white/10 bg-black/40">
         <button
           onClick={toggleMic}
           className={`p-3 rounded-full border transition-all ${
@@ -181,7 +181,7 @@ export default function InterviewSession() {
 
         <button
           onClick={() => setShowEndConfirm(true)}
-          className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-2 transition-colors shadow-lg"
+          className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-2 transition-colors shadow-lg text-sm"
         >
           <PhoneOff className="w-5 h-5" />
           End Interview

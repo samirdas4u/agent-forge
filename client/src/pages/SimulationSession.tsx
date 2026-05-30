@@ -377,7 +377,7 @@ export default function SimulationSession({ sessionId }: Props) {
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Mode switcher bar */}
           <div className="shrink-0 bg-white border-b border-border">
-            <div className="flex items-center gap-1 px-4 py-2">
+            <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto">
               {([
                 { id: 'chat',  label: 'Chat',  icon: <MessageSquare size={13} /> },
                 { id: 'voice', label: 'Voice', icon: <Mic size={13} /> },
@@ -387,7 +387,7 @@ export default function SimulationSession({ sessionId }: Props) {
                 <button
                   key={mode.id}
                   onClick={() => setSimulationMode(mode.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                   style={simulationMode === mode.id
                     ? { background: 'oklch(0.51 0.23 264)', color: 'white', boxShadow: '0 1px 6px oklch(0.51 0.23 264 / 0.35)' }
                     : { background: 'transparent', color: 'oklch(0.50 0.02 264)', border: '1px solid oklch(0.91 0.012 264)' }

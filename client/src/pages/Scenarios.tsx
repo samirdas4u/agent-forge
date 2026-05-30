@@ -422,22 +422,42 @@ export default function Scenarios() {
             </button>
           </div>
 
-          {/* Mobile category pills */}
+          {/* Mobile filter pills */}
           {showFilters && (
-            <div className="flex items-center gap-1.5 flex-wrap mt-3 sm:hidden">
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setCategory(c)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                  style={category === c
-                    ? { background: "oklch(0.51 0.23 264)", color: "white" }
-                    : { background: "oklch(0.97 0.005 264)", color: "oklch(0.40 0.025 260)", border: "1px solid oklch(0.905 0.012 260)" }
-                  }
-                >
-                  {CATEGORY_LABELS[c]}
-                </button>
-              ))}
+            <div className="flex flex-col gap-2 mt-3 sm:hidden">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground w-14 shrink-0">Channel</span>
+                {CHANNELS.map((ch) => (
+                  <button
+                    key={ch}
+                    onClick={() => setChannelFilter(ch)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={channelFilter === ch
+                      ? { background: "oklch(0.51 0.23 264)", color: "white" }
+                      : { background: "oklch(0.97 0.005 264)", color: "oklch(0.40 0.025 260)", border: "1px solid oklch(0.905 0.012 260)" }
+                    }
+                  >
+                    {CHANNEL_FILTER_ICONS[ch]}
+                    {CHANNEL_FILTER_LABELS[ch]}
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground w-14 shrink-0">Category</span>
+                {CATEGORIES.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCategory(c)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={category === c
+                      ? { background: "oklch(0.51 0.23 264)", color: "white" }
+                      : { background: "oklch(0.97 0.005 264)", color: "oklch(0.40 0.025 260)", border: "1px solid oklch(0.905 0.012 260)" }
+                    }
+                  >
+                    {CATEGORY_LABELS[c]}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

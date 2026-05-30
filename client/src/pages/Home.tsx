@@ -773,7 +773,7 @@ export default function Home() {
         style={{ background: "oklch(0.09 0.015 265)", borderColor: "oklch(0.20 0.025 265)" }}
       >
         {/* Main footer grid */}
-        <div className="max-w-6xl mx-auto px-6 pt-14 pb-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14 pb-8 sm:pb-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {/* Brand + creator credit */}
             <div className="flex flex-col gap-4">
@@ -873,7 +873,7 @@ export default function Home() {
           className="border-t"
           style={{ borderColor: "oklch(0.18 0.025 265)" }}
         >
-          <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs" style={{ color: "oklch(0.45 0.02 260)" }}>
               © 2026{" "}
               <a

@@ -223,3 +223,17 @@
 - [x] Home.tsx: Benchmark stats section with proper attribution (comparable deployment)
 - [x] TypeScript clean (0 errors)
 - [x] All 8 tests passing
+
+## v21 Sprint — Mobile Responsiveness Audit & Fixes
+- [x] Scenarios: channel + category filter chips shown in mobile expanded filter panel
+- [x] SimulationSession: mode switcher bar scrollable horizontally on mobile (overflow-x-auto + flex-shrink-0 buttons)
+- [x] InterviewSession: smaller PiP self-view on mobile (w-20 → w-32 → md:w-44), responsive bottom controls, hide long timer text on small screens
+- [x] Home.tsx: footer padding made responsive (px-4 sm:px-6)
+- [x] AppLayout: hamburger + slide-out drawer already in place (verified)
+- [x] InterviewResult: already uses flex-col md:flex-row, grid gap-6 md:grid-cols-2 (verified)
+- [x] Dashboard: already uses grid grid-cols-2 lg:grid-cols-4, lg:grid-cols-3 (verified)
+- [x] Analytics: already uses grid-cols-2 lg:grid-cols-4 and sm: breakpoints (verified)
+- [x] Leaderboard: already uses sm: breakpoints throughout (verified)
+- [x] TypeScript clean (0 errors)
+- [x] All 8 tests passing
+- [x] Mobile-responsiveness skill created as permanent standard
