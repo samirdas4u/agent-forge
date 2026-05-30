@@ -169,7 +169,7 @@ export default function Home() {
       >
         <AlertTriangle size={13} className="flex-shrink-0" />
         <span>
-          <strong>Prototype:</strong> Statistics shown are based on a similar tool rolled out in one of the largest tech companies globally — not yet measured on this platform.
+          Statistics shown are based on a similar tool rolled out in one of the largest tech companies globally — not yet measured on this platform.
         </span>
       </div>
       {/* ── Nav ────────────────────────────────────────────────── */}
@@ -348,6 +348,15 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Capability Statement Banner ──────────────────────── */}
+      <div
+        className="w-full px-4 py-3 text-center text-xs sm:text-sm flex items-center justify-center gap-2"
+        style={{ background: "oklch(0.97 0.004 260)", color: "oklch(0.45 0.02 260)", borderBottom: "1px solid oklch(0.91 0.006 260)" }}
+      >
+        <span className="max-w-3xl leading-relaxed">
+          Agent Forge is a publicly accessible platform demonstrating the full architectural capability of an AI-powered practice simulation system. This version is feature-complete. Enterprise pilot deployment with external organisations is the next phase.
+        </span>
+      </div>
       {/* ── Problem ────────────────────────────────────────────── */}
       <section id="problem" className="py-16 sm:py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
