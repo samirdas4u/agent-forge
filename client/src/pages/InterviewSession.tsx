@@ -12,6 +12,8 @@ export default function InterviewSession() {
   const searchParams = new URLSearchParams(window.location.search);
   const conversationUrl = searchParams.get("url") ?? "";
   const personaId = searchParams.get("persona") ?? "";
+  const jobTitle = searchParams.get("jobTitle") ?? "";
+  const candidateName = searchParams.get("candidateName") ?? "";
 
   const [elapsed, setElapsed] = useState(0);
   const [ended, setEnded] = useState(false);
@@ -72,7 +74,10 @@ export default function InterviewSession() {
     try {
       await endSession.mutateAsync({ conversationId });
     } catch (_) { /* ignore */ }
-    navigate("/interview");
+    const resultParams = new URLSearchParams({ personaId, durationSeconds: String(elapsed) });
+    if (jobTitle) resultParams.set("jobTitle", jobTitle);
+    if (candidateName) resultParams.set("candidateName", candidateName);
+    navigate(`/interview/result?${resultParams.toString()}`);
   };
 
   if (!conversationUrl) {

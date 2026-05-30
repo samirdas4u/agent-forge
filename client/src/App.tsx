@@ -22,6 +22,7 @@ import LearnCourse from "./pages/LearnCourse";
 import InterviewPractice from "./pages/InterviewPractice";
 import UserManagement from "./pages/UserManagement";
 import InterviewSession from "./pages/InterviewSession";
+import InterviewResult from "./pages/InterviewResult";
 import AppLayout from "./components/AppLayout";
 import SandboxHub from "./pages/sandbox/SandboxHub";
 import FeatureFlags from "./pages/sandbox/FeatureFlags";
@@ -89,6 +90,9 @@ function Router() {
       </Route>
       <Route path="/interview/session/:conversationId">
         {(params) => <InterviewSession />}
+      </Route>
+      <Route path="/interview/result">
+        <InterviewResult />
       </Route>
       {/* Product Sandbox routes */}
       <Route path="/sandbox">

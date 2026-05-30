@@ -127,4 +127,71 @@ export const interviewRouter = router({
         conversationUrl: data.conversation_url as string,
       };
     }),
+
+  // Generate AI feedback report for a completed interview
+  generateFeedback: protectedProcedure
+    .input(
+      z.object({
+        personaId: z.string(),
+        jobTitle: z.string().optional(),
+        candidateName: z.string().optional(),
+        durationSeconds: z.number(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const { invokeLLM } = await import("../_core/llm");
+      const persona = UK_INTERVIEW_PERSONAS.find((p) => p.id === input.personaId);
+      const personaDesc = persona?.description ?? "a general UK job interview";
+      const role = input.jobTitle ?? persona?.role ?? "the applied role";
+      const candidate = input.candidateName ?? (ctx.user as any).name ?? "the candidate";
+      const durationMins = Math.max(1, Math.round(input.durationSeconds / 60));
+
+      const prompt = `You are an expert UK interview coach. A candidate just completed a ${durationMins}-minute AI video interview for "${role}" with ${persona?.name ?? "an AI interviewer"}. The interview context was: "${personaDesc}".
+
+Generate a detailed, constructive post-interview feedback report for ${candidate}. Include all required fields. Be specific and actionable. Respond in JSON only.`;
+
+      const result = await invokeLLM({
+        messages: [
+          { role: "system", content: "You are an expert UK interview coach. Always respond with valid JSON only." },
+          { role: "user", content: prompt },
+        ],
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "interview_feedback",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                overallScore: { type: "number" },
+                starScore: { type: "number" },
+                starFeedback: { type: "string" },
+                clarityScore: { type: "number" },
+                clarityFeedback: { type: "string" },
+                competencyScore: { type: "number" },
+                competencyFeedback: { type: "string" },
+                confidenceScore: { type: "number" },
+                confidenceFeedback: { type: "string" },
+                strengths: { type: "array", items: { type: "string" } },
+                improvements: { type: "array", items: { type: "string" } },
+                sampleAnswer: { type: "string" },
+                summary: { type: "string" },
+              },
+              required: ["overallScore","starScore","starFeedback","clarityScore","clarityFeedback","competencyScore","competencyFeedback","confidenceScore","confidenceFeedback","strengths","improvements","sampleAnswer","summary"],
+              additionalProperties: false,
+            },
+          },
+        },
+      });
+
+      const content = result.choices?.[0]?.message?.content;
+      const feedback = typeof content === "string" ? JSON.parse(content) : content;
+      return {
+        ...feedback,
+        personaName: persona?.name ?? "AI Interviewer",
+        role,
+        candidateName: candidate,
+        durationMins,
+      };
+    }),
 });

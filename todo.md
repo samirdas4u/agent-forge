@@ -209,3 +209,17 @@
 - [ ] Scenario folder grouping — folder column in DB, folder filter/group UI on Scenarios page
 - [ ] Replay in Voice Mode button on SessionResult page
 - [ ] Persona avatar image upload in ScenarioWizard (S3 upload + avatar display on scenario cards)
+
+## v20 Sprint — Interview Feedback, Channel Filters, Landing Page Updates
+- [x] Channel filter chips (Phone/Email/Chat/All) on Scenarios page
+- [x] generateFeedback tRPC procedure in server/routers/interview.ts
+- [x] InterviewResult.tsx page — AI feedback report with score ring, dimension bars, strengths/improvements, sample answer, LinkedIn share
+- [x] InterviewSession.tsx handleEnd redirects to /interview/result with query params
+- [x] /interview/result route added to App.tsx
+- [x] Home.tsx: Video Interview feature card added to FEATURES array
+- [x] Home.tsx: 17 Languages · 3 Channels feature card added to FEATURES array
+- [x] Home.tsx: Stats row updated (38+ scenarios, 17 languages, 3 channels)
+- [x] Home.tsx: Prototype disclaimer banner (amber, top of page)
+- [x] Home.tsx: Benchmark stats section with proper attribution (comparable deployment)
+- [x] TypeScript clean (0 errors)
+- [x] All 8 tests passing

@@ -12,6 +12,18 @@ import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 
 // ── Constants ──────────────────────────────────────────────────
 const CATEGORIES = ["all", "sales", "customer_service", "interview", "negotiation", "presentation"];
+const CHANNELS = ["all", "text", "email", "phone", "voice"] as const;
+type ChannelFilter = typeof CHANNELS[number];
+const CHANNEL_FILTER_LABELS: Record<ChannelFilter, string> = {
+  all: "All channels", text: "Chat", email: "Email", phone: "Phone", voice: "Voice",
+};
+const CHANNEL_FILTER_ICONS: Record<ChannelFilter, React.ReactNode> = {
+  all: null,
+  text: <MessageSquare size={12} />,
+  email: <Mail size={12} />,
+  phone: <Phone size={12} />,
+  voice: <Mic size={12} />,
+};
 const DIFFICULTIES = ["all", "beginner", "intermediate", "advanced"];
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -212,6 +224,7 @@ export default function Scenarios() {
   const [difficulty, setDifficulty] = useState("all");
   const [language, setLanguage] = useState("all");
   const [folder, setFolder] = useState("all");
+  const [channelFilter, setChannelFilter] = useState<ChannelFilter>("all");
   const [search, setSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [groupByFolder, setGroupByFolder] = useState(true);
@@ -233,19 +246,24 @@ export default function Scenarios() {
     return Array.from(names).sort();
   }, [scenarios]);
 
-  const filtered = useMemo(() => (scenarios ?? []).filter((s: any) => {
-    const matchesSearch = search === "" ||
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.description?.toLowerCase().includes(search.toLowerCase()) ||
-      s.aiPersona?.toLowerCase().includes(search.toLowerCase());
-    const matchesLanguage = language === "all" ? true
-      : language === "none" ? !s.languageLock
-      : s.languageLock === language;
-    const matchesFolder = folder === "all" ? true
-      : folder === "none" ? !s.folder
-      : s.folder === folder;
-    return matchesSearch && matchesLanguage && matchesFolder;
-  }), [scenarios, search, language, folder]);
+  const filtered = useMemo(() => {
+    return (scenarios ?? []).filter((s: any) => {
+      const matchesSearch = search === "" ||
+        s.title.toLowerCase().includes(search.toLowerCase()) ||
+        s.description?.toLowerCase().includes(search.toLowerCase()) ||
+        s.aiPersona?.toLowerCase().includes(search.toLowerCase());
+      const matchesLanguage = language === "all" ? true
+        : language === "none" ? !s.languageLock
+        : s.languageLock === language;
+      const matchesFolder = folder === "all" ? true
+        : folder === "none" ? !s.folder
+        : s.folder === folder;
+      const matchesChannel = channelFilter === "all" ? true
+        : channelFilter === "text" ? (!s.channel || s.channel === "text")
+        : s.channel === channelFilter;
+      return matchesSearch && matchesLanguage && matchesFolder && matchesChannel;
+    });
+  }, [scenarios, search, language, folder, channelFilter]);
 
   // Group by folder when enabled
   const grouped = useMemo(() => {
@@ -319,6 +337,24 @@ export default function Scenarios() {
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-8 pr-3 py-2 text-sm border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-ring"
               />
+            </div>
+
+            {/* Channel filter chips */}
+            <div className="hidden sm:flex items-center gap-1 flex-wrap">
+              {CHANNELS.map((ch) => (
+                <button
+                  key={ch}
+                  onClick={() => setChannelFilter(ch)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                  style={channelFilter === ch
+                    ? { background: "oklch(0.51 0.23 264)", color: "white" }
+                    : { background: "oklch(0.97 0.005 264)", color: "oklch(0.40 0.025 260)", border: "1px solid oklch(0.905 0.012 260)" }
+                  }
+                >
+                  {CHANNEL_FILTER_ICONS[ch]}
+                  {CHANNEL_FILTER_LABELS[ch]}
+                </button>
+              ))}
             </div>
 
             {/* Category pills — desktop */}

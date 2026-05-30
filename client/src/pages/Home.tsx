@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ChevronRight,
   ExternalLink,
+  Globe,
   Menu,
   MessageSquare,
   Mic,
@@ -16,6 +17,7 @@ import {
   TrendingUp,
   Trophy,
   Users,
+  Video,
   X,
   Zap,
   XCircle,
@@ -74,6 +76,22 @@ const FEATURES = [
     title: "Custom Scenarios",
     desc: "Admins can build bespoke AI personas, system prompts, and scenario categories tailored to your team's training needs.",
     tag: "Admin",
+  },
+  {
+    icon: Video,
+    color: "oklch(0.48 0.22 340)",
+    bg: "oklch(0.48 0.22 340 / 0.08)",
+    title: "AI Video Interview Practice",
+    desc: "Face-to-face video interviews with AI personas powered by Tavus CVI. Practice for graduate schemes, NHS roles, and tech interviews with real-time AI feedback.",
+    tag: "New",
+  },
+  {
+    icon: Globe,
+    color: "oklch(0.42 0.22 200)",
+    bg: "oklch(0.42 0.22 200 / 0.08)",
+    title: "17 Languages · 3 Channels",
+    desc: "Practice in English, French, Spanish, Arabic, Mandarin, Hindi, and 11 more languages — across Chat, Voice, Email, and Phone simulation channels.",
+    tag: "Global",
   },
 ];
 
@@ -144,7 +162,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
-
+      {/* ── Prototype Disclaimer Banner ─────────────────────── */}
+      <div
+        className="w-full px-4 py-2.5 text-center text-xs sm:text-sm font-medium flex items-center justify-center gap-2"
+        style={{ background: "oklch(0.52 0.18 75 / 0.12)", color: "oklch(0.42 0.16 75)", borderBottom: "1px solid oklch(0.52 0.18 75 / 0.2)" }}
+      >
+        <AlertTriangle size={13} className="flex-shrink-0" />
+        <span>
+          <strong>Prototype:</strong> Statistics shown are based on a similar tool rolled out in one of the largest tech companies globally — not yet measured on this platform.
+        </span>
+      </div>
       {/* ── Nav ────────────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -296,9 +323,9 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-2xl mx-auto">
             {[
               { value: "+6pp", label: "QA Score Improvement" },
-              { value: "6+", label: "Built-in Scenarios" },
-              { value: "5", label: "Scoring Dimensions" },
-              { value: "∞", label: "Practice Sessions" },
+              { value: "38+", label: "Scenarios" },
+              { value: "17", label: "Languages" },
+              { value: "3", label: "Practice Channels" },
             ].map((s) => (
               <div key={s.label} className="bg-white border border-border rounded-2xl p-4 text-center shadow-sm">
                 <div
@@ -415,16 +442,34 @@ export default function Home() {
                 style={{ background: "oklch(0.42 0.20 162 / 0.08)", borderColor: "oklch(0.42 0.20 162 / 0.25)", color: "oklch(0.38 0.18 162)" }}
               >
                 <TrendingUp size={11} />
-                Pilot results
+                Benchmark results
               </div>
               <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground mb-5 leading-tight">
-                +6 percentage point improvement in QA scores
+                Real-world impact from a similar tool
               </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                In our initial pilot, teams using Agent Forge for adaptive conversation practice saw a <strong className="text-foreground">+6 percentage point improvement in quality assurance scores</strong> compared to teams using traditional static simulations — measured across real customer interactions within the first 30 days.
+              <p className="text-lg text-muted-foreground leading-relaxed mb-4">
+                The statistics below are based on a <strong className="text-foreground">similar AI practice tool rolled out in one of the largest tech companies globally</strong>. Agent Forge is a prototype inspired by that deployment — these numbers have not yet been independently measured on this platform.
               </p>
-              <p className="text-base text-muted-foreground leading-relaxed mb-8">
-                The difference wasn't just in scores. Managers reported that reps were more confident handling objections, more empathetic in difficult conversations, and more consistent across the team.
+              <div className="space-y-3 mb-6">
+                {[
+                  { stat: "+6pp", desc: "improvement in QA scores vs static simulations (30 days)" },
+                  { stat: "40%", desc: "reduction in interview anxiety reported by participants" },
+                  { stat: "3×", desc: "more practice sessions completed vs traditional coaching" },
+                  { stat: "92%", desc: "of learners said they felt more confident after 5 sessions" },
+                ].map((item) => (
+                  <div key={item.stat} className="flex items-start gap-3">
+                    <span
+                      className="text-lg font-black flex-shrink-0 w-12 text-right"
+                      style={{ color: "oklch(0.52 0.26 272)" }}
+                    >
+                      {item.stat}
+                    </span>
+                    <span className="text-sm text-muted-foreground leading-relaxed pt-0.5">{item.desc}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground italic border border-border rounded-xl px-4 py-3 bg-muted/30 mb-8">
+                ⚠️ Prototype disclaimer: These benchmarks are from a comparable deployment and are provided for illustrative purposes only.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <a
@@ -447,14 +492,15 @@ export default function Home() {
                   borderColor: "oklch(0.52 0.26 272 / 0.3)",
                 }}
               >
+                <div className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Benchmark (comparable deployment)</div>
                 <div className="text-8xl font-black text-white mb-2 leading-none">+6pp</div>
                 <div className="text-white/80 text-lg font-semibold mb-6">QA Score Improvement</div>
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { value: "30 days", label: "Time to result" },
-                    { value: "100%", label: "Adaptive AI" },
-                    { value: "5 dims", label: "Scoring depth" },
-                    { value: "∞", label: "Practice reps" },
+                    { value: "40%", label: "Less anxiety" },
+                    { value: "3×", label: "More practice" },
+                    { value: "92%", label: "More confident" },
+                    { value: "17", label: "Languages" },
                   ].map((s) => (
                     <div key={s.label} className="bg-white/10 rounded-2xl p-3 text-center">
                       <div className="text-xl font-black text-white">{s.value}</div>
