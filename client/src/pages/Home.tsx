@@ -568,9 +568,18 @@ export default function Home() {
               </div>
             ))}
           </div>
+          {/* Cost callout */}
+          <div
+            className="mt-10 rounded-2xl px-6 py-5 text-center"
+            style={{ background: "oklch(0.52 0.26 272 / 0.07)", border: "1px solid oklch(0.52 0.26 272 / 0.18)" }}
+          >
+            <p className="text-sm sm:text-base font-semibold" style={{ color: "oklch(0.35 0.20 272)" }}>
+              Agent Forge synthesises these validated approaches into a single platform at zero licensing cost,{" "}
+              <span className="font-black">replacing tools that cost £21,000–£450,000 per year.</span>
+            </p>
+          </div>
         </div>
       </section>
-
       {/* ── How it works ───────────────────────────────────────── */}
       <section className="py-16 sm:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
