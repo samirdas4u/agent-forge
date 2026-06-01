@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1774193836822,
+      "tag": "0000_yummy_hemingway",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1774193960185,
+      "tag": "0001_lazy_brother_voodoo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1778668213906,
+      "tag": "0002_curved_wolfpack",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1778683484920,
+      "tag": "0003_cloudy_talisman",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1778826815627,
+      "tag": "0004_low_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1779811267982,
+      "tag": "0005_tearful_triathlon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1779815731624,
+      "tag": "0006_greedy_deathstrike",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1779817879187,
+      "tag": "0007_cute_madame_hydra",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1781360805335,
+      "tag": "0008_flowery_guardsmen",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1781590204860,
+      "tag": "0009_numerous_scream",
+      "breakpoints": true
+    }
+  ]
+}
