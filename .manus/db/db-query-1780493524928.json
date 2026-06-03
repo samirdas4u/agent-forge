@@ -1,0 +1,94 @@
+{
+  "query": "SELECT id, title, channel, difficulty, folder FROM scenarios WHERE folder = 'HeliosX — Intercom Escalation' ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute SELECT id, title, channel, difficulty, folder FROM scenarios WHERE folder = 'HeliosX — Intercom Escalation' ORDER BY id;",
+  "rows": [
+    {
+      "id": "120001",
+      "title": "High-Value Order Escalation (Chat)",
+      "channel": "chat",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120002",
+      "title": "High-Value Order Escalation (Phone)",
+      "channel": "phone",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120003",
+      "title": "High-Value Order Escalation (Email)",
+      "channel": "email",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120004",
+      "title": "Standard Process — No Escalation Needed (Chat)",
+      "channel": "chat",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120005",
+      "title": "Standard Process — No Escalation Needed (Phone)",
+      "channel": "phone",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120006",
+      "title": "Standard Process — No Escalation Needed (Email)",
+      "channel": "email",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120007",
+      "title": "Regulatory Urgency — Tampered Medication (Chat)",
+      "channel": "chat",
+      "difficulty": "advanced",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120008",
+      "title": "Regulatory Urgency — Tampered Medication (Phone)",
+      "channel": "phone",
+      "difficulty": "advanced",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120009",
+      "title": "Regulatory Urgency — Tampered Medication (Email)",
+      "channel": "email",
+      "difficulty": "advanced",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120010",
+      "title": "System Error — Ghost Delivery (Chat)",
+      "channel": "chat",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120011",
+      "title": "System Error — Ghost Delivery (Phone)",
+      "channel": "phone",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    },
+    {
+      "id": "120012",
+      "title": "System Error — Ghost Delivery (Email)",
+      "channel": "email",
+      "difficulty": "intermediate",
+      "folder": "HeliosX — Intercom Escalation"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tchannel\tdifficulty\tfolder\n120001\tHigh-Value Order Escalation (Chat)\tchat\tintermediate\tHeliosX — Intercom Escalation\n120002\tHigh-Value Order Escalation (Phone)\tphone\tintermediate\tHeliosX — Intercom Escalation\n120003\tHigh-Value Order Escalation (Email)\temail\tintermediate\tHeliosX — Intercom Escalation\n120004\tStandard Process — No Escalation Needed (Chat)\tchat\tintermediate\tHeliosX — Intercom Escalation\n120005\tStandard Process — No Escalation Needed (Phone)\tphone\tintermediate\tHeliosX — Intercom Escalation\n120006\tStandard Process — No Escalation Needed (Email)\temail\tintermediate\tHeliosX — Intercom Escalation\n120007\tRegulatory Urgency — Tampered Medication (Chat)\tchat\tadvanced\tHeliosX — Intercom Escalation\n120008\tRegulatory Urgency — Tampered Medication (Phone)\tphone\tadvanced\tHeliosX — Intercom Escalation\n120009\tRegulatory Urgency — Tampered Medication (Email)\temail\tadvanced\tHeliosX — Intercom Escalation\n120010\tSystem Error — Ghost Delivery (Chat)\tchat\tintermediate\tHeliosX — Intercom Escalation\n120011\tSystem Error — Ghost Delivery (Phone)\tphone\tintermediate\tHeliosX — Intercom Escalation\n120012\tSystem Error — Ghost Delivery (Email)\temail\tintermediate\tHeliosX — Intercom Escalation\n",
+  "stderr": "",
+  "execution_time_ms": 266
+}
