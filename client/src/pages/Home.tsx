@@ -276,7 +276,7 @@ export default function Home() {
           }}
         />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-14 sm:pb-20 text-center">
-          {/* Hackathon badge */}
+          {/* Hero badge */}
           <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
             <div
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold border"
@@ -284,13 +284,6 @@ export default function Home() {
             >
               <Sparkles size={12} />
               AI-Powered Adaptive Performance Training
-            </div>
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border"
-              style={{ background: "oklch(0.72 0.18 75 / 0.12)", borderColor: "oklch(0.62 0.18 75 / 0.35)", color: "oklch(0.45 0.16 75)" }}
-            >
-              <Trophy size={11} />
-              Meta Global Spring Hackathon 2026 — Selected Innovation
             </div>
           </div>
 

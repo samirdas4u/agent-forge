@@ -11,7 +11,6 @@ import {
   Lightbulb,
   Shield,
   Sparkles,
-  Star,
   TestTube2,
   Trophy,
   Users,
@@ -160,17 +159,6 @@ export default function GTVEvidence() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-14">
-
-        {/* ── Hackathon Recognition Banner ── */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 flex items-start gap-4">
-          <Star size={20} className="text-amber-500 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-amber-900 mb-1">Hackathon Recognition</p>
-            <p className="text-sm text-amber-800">
-              Agent Forge (alongside Learning Catalyst) was presented at <strong>Meta's Global Spring Hackathon 2026</strong> as a selected innovation, demonstrating internal recognition of the platform's technical merit and commercial potential.
-            </p>
-          </div>
-        </div>
 
         {/* ── OC1 ── */}
         <section>
@@ -366,7 +354,6 @@ export default function GTVEvidence() {
               "Multi-language support — 17 languages",
               "Video interview practice via Tavus CVI",
               "Feature flag experimentation sandbox",
-              "Presented at Meta Global Spring Hackathon 2026",
               "Zero licensing cost vs £21K–£450K commercial alternatives",
               "Registered domain: agentforge.org.uk (Samir Das)",
             ].map((item) => (
