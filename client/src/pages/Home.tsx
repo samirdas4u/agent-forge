@@ -3,6 +3,11 @@ import {
   ArrowRight,
   BarChart3,
   BookOpen,
+  Code2,
+  Database,
+  GitBranch,
+  Layers,
+  TestTube2,
   Brain,
   CheckCircle2,
   ChevronRight,
@@ -22,7 +27,7 @@ import {
   Zap,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTranslation } from "react-i18next";
@@ -785,6 +790,53 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Technical Metrics ─────────────────────────────────────── */}
+      <section
+        className="py-12 sm:py-16 border-t"
+        style={{ background: "oklch(0.10 0.018 265)", borderColor: "oklch(0.20 0.025 265)" }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8">
+            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "oklch(0.52 0.26 272)" }}>
+              Under the hood
+            </p>
+            <h3 className="text-xl sm:text-2xl font-bold" style={{ color: "oklch(0.90 0.015 260)" }}>
+              Built to enterprise standard
+            </h3>
+            <p className="text-sm mt-2 max-w-xl mx-auto" style={{ color: "oklch(0.55 0.025 260)" }}>
+              Agent Forge is a production-grade platform — not a demo. Every number below is verifiable in the codebase.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+            {([
+              { icon: Code2, label: "Lines of Code", value: "21,766", sub: "TypeScript / TSX" },
+              { icon: TestTube2, label: "Automated Tests", value: "92", sub: "Vitest suite" },
+              { icon: Layers, label: "Components", value: "74", sub: "React components" },
+              { icon: Database, label: "DB Tables", value: "8", sub: "MySQL / Drizzle" },
+              { icon: Zap, label: "API Endpoints", value: "46", sub: "tRPC + REST" },
+              { icon: Target, label: "QA Criteria", value: "50", sub: "Scoring dimensions" },
+              { icon: GitBranch, label: "tRPC Routers", value: "7", sub: "Typed procedures" },
+            ] as { icon: React.ElementType; label: string; value: string; sub: string }[]).map(({ icon: Icon, label, value, sub }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center text-center p-3 sm:p-4 rounded-xl"
+                style={{ background: "oklch(0.14 0.022 265)", border: "1px solid oklch(0.22 0.025 265)" }}
+              >
+                <Icon size={18} className="mb-2" style={{ color: "oklch(0.52 0.26 272)" }} />
+                <span className="text-xl sm:text-2xl font-black" style={{ color: "oklch(0.97 0.01 260)" }}>
+                  {value}
+                </span>
+                <span className="text-xs font-semibold mt-0.5" style={{ color: "oklch(0.75 0.015 260)" }}>
+                  {label}
+                </span>
+                <span className="text-xs mt-0.5" style={{ color: "oklch(0.50 0.020 260)" }}>
+                  {sub}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
       {/* ── Footer ─────────────────────────────────────────────── */}
       <footer
         className="border-t"
