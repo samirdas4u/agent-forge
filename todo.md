@@ -237,3 +237,22 @@
 - [x] TypeScript clean (0 errors)
 - [x] All 8 tests passing
 - [x] Mobile-responsiveness skill created as permanent standard
+
+## v26 Sprint — Agentic Dashboard
+
+- [ ] Build AgenticDashboard.tsx page matching screenshot (Agent System Health, activity metrics, Agent Activity Log, At-Risk Learners, Coaching Effectiveness, Learning Paths, Event Distribution, Engineering footer)
+- [ ] Add tRPC procedures for agentic dashboard data (agent events, learning paths, nudges, at-risk learners)
+- [ ] Add /agentic-dashboard route to App.tsx
+- [ ] Add "Agentic Dashboard" nav entry to DashboardLayout sidebar (admin only, with AI ORCHESTRATOR badge)
+- [ ] Update contact email from samird@meta.com to das.samir4u@gmail.com in Home.tsx footer and everywhere else
+- [ ] Add "16 Scenarios" metric to the Engineering footer bar on landing page (visible in screenshot)
+
+## v26 Sprint — GTV Evidence & Agentic Pages
+
+- [x] TypeScript check clean (0 errors)
+- [x] Build GTV Evidence page (/gtv-evidence) — OC1/OC2/OC3, Platform Authorship, Cost Comparison, Hackathon recognition
+- [x] Update landing page: hackathon badge, innovation claims, creator attribution
+- [x] Update Engineering footer metric counts (DB Tables: 12, tRPC Routers: 8)
+- [x] Email updated to das.samir4u@gmail.com everywhere
+- [x] All 4 new DB tables migrated (agent_events, coaching_nudges, learning_paths, difficulty_adjustments)
+- [x] Save checkpoint v26

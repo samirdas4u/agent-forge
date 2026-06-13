@@ -3,14 +3,18 @@ import { getLoginUrl } from "@/const";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
+  Bell,
   BookOpen,
   Bot,
+  Brain,
+  Crown,
   Video,
   ChevronRight,
   Cpu,
   ExternalLink,
   FlaskConical,
   Flame,
+  Gauge,
   GraduationCap,
   LayoutDashboard,
   Layers,
@@ -66,6 +70,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
     location.startsWith("/sandbox") ? "sandbox" : "training"
   );
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasNotifications] = useState(false); // will be wired to real data later
 
   // Close drawer on route change
   useEffect(() => {
@@ -83,6 +88,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
   }, [mobileOpen]);
 
   const { data: myStats } = trpc.leaderboard.myStreak.useQuery(undefined, { enabled: true });
+  const isAdmin = user?.role === "admin";
 
   if (loading) {
     return (
@@ -199,8 +205,42 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
           );
         })}
 
-        {/* Admin section */}
+        {/* Agentic Intelligence section */}
         {activeSection === "training" && (
+          <>
+            <div className="pt-4 pb-1 px-3">
+              <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-indigo-400">
+                <Brain className="w-3 h-3" /> Agentic AI
+              </div>
+            </div>
+            {[
+              { href: "/agentic-dashboard", label: "Agentic Dashboard",    icon: Brain },
+              { href: "/readiness",         label: "Readiness Predictions", icon: Gauge },
+              { href: "/why-agent-forge",   label: "Why Agent Forge?",      icon: Crown },
+            ].map(item => {
+              const active = isActive(item.href);
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    active
+                      ? "bg-indigo-500/10 text-indigo-200 border-l-2 border-indigo-400 pl-[10px]"
+                      : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]"
+                  )}
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="flex-1 truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </>
+        )}
+
+        {/* Admin section */}
+        {activeSection === "training" && isAdmin && (
           <>
             <div className="pt-4 pb-1 px-3">
               <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-orange-600">

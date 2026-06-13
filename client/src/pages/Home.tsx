@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   ArrowRight,
+  Award,
   BarChart3,
   BookOpen,
   Code2,
@@ -275,12 +276,22 @@ export default function Home() {
           }}
         />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-14 sm:pb-20 text-center">
-          <div
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold mb-8 border"
-            style={{ background: "oklch(0.52 0.26 272 / 0.06)", borderColor: "oklch(0.52 0.26 272 / 0.2)", color: "oklch(0.48 0.24 272)" }}
-          >
-            <Sparkles size={12} />
-            AI-Powered Adaptive Performance Training
+          {/* Hackathon badge */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+            <div
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold border"
+              style={{ background: "oklch(0.52 0.26 272 / 0.06)", borderColor: "oklch(0.52 0.26 272 / 0.2)", color: "oklch(0.48 0.24 272)" }}
+            >
+              <Sparkles size={12} />
+              AI-Powered Adaptive Performance Training
+            </div>
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold border"
+              style={{ background: "oklch(0.72 0.18 75 / 0.12)", borderColor: "oklch(0.62 0.18 75 / 0.35)", color: "oklch(0.45 0.16 75)" }}
+            >
+              <Trophy size={11} />
+              Meta Global Spring Hackathon 2026 — Selected Innovation
+            </div>
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight text-foreground mb-6 leading-[1.05]">
@@ -355,12 +366,20 @@ export default function Home() {
 
       {/* ── Capability Statement Banner ──────────────────────── */}
       <div
-        className="w-full px-4 py-3 text-center text-xs sm:text-sm flex items-center justify-center gap-2"
+        className="w-full px-4 py-3 text-center text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-2"
         style={{ background: "oklch(0.97 0.004 260)", color: "oklch(0.45 0.02 260)", borderBottom: "1px solid oklch(0.91 0.006 260)" }}
       >
         <span className="max-w-3xl leading-relaxed">
           Agent Forge is a publicly accessible platform demonstrating the full architectural capability of an AI-powered practice simulation system. This version is feature-complete. Enterprise pilot deployment with external organisations is the next phase.
         </span>
+        <Link
+          href="/gtv-evidence"
+          className="flex-shrink-0 flex items-center gap-1 font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity text-xs"
+          style={{ color: "oklch(0.48 0.24 272)" }}
+        >
+          <Award size={12} />
+          GTV Evidence
+        </Link>
       </div>
       {/* ── Problem ────────────────────────────────────────────── */}
       <section id="problem" className="py-16 sm:py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
@@ -812,10 +831,10 @@ export default function Home() {
               { icon: Code2, label: "Lines of Code", value: "21,766", sub: "TypeScript / TSX" },
               { icon: TestTube2, label: "Automated Tests", value: "92", sub: "Vitest suite" },
               { icon: Layers, label: "Components", value: "74", sub: "React components" },
-              { icon: Database, label: "DB Tables", value: "8", sub: "MySQL / Drizzle" },
+              { icon: Database, label: "DB Tables", value: "12", sub: "MySQL / Drizzle" },
               { icon: Zap, label: "API Endpoints", value: "46", sub: "tRPC + REST" },
               { icon: Target, label: "QA Criteria", value: "50", sub: "Scoring dimensions" },
-              { icon: GitBranch, label: "tRPC Routers", value: "7", sub: "Typed procedures" },
+              { icon: GitBranch, label: "tRPC Routers", value: "8", sub: "Typed procedures" },
             ] as { icon: React.ElementType; label: string; value: string; sub: string }[]).map(({ icon: Icon, label, value, sub }) => (
               <div
                 key={label}
@@ -959,9 +978,7 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="https://samirdas.co.uk/contact"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:das.samir4u@gmail.com"
                 className="text-xs hover:opacity-80 transition-opacity"
                 style={{ color: "oklch(0.50 0.02 260)" }}
               >

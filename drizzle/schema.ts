@@ -301,3 +301,77 @@ export const sandboxEvents = mysqlTable("sandbox_events", {
 
 export type SandboxEvent = typeof sandboxEvents.$inferSelect;
 export type InsertSandboxEvent = typeof sandboxEvents.$inferInsert;
+
+// ─── Agentic AI tables ────────────────────────────────────────────────────────
+
+// Agent events — every autonomous action taken by any agent
+export const agentEvents = mysqlTable("agent_events", {
+  id: int("id").autoincrement().primaryKey(),
+  agentType: mysqlEnum("agentType", [
+    "simulation",
+    "coaching",
+    "evaluation",
+    "planning",
+    "orchestrator",
+  ]).notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(),
+  userId: int("userId"),
+  sessionId: int("sessionId"),
+  payload: json("payload").$type<Record<string, unknown>>().default({}),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AgentEvent = typeof agentEvents.$inferSelect;
+export type InsertAgentEvent = typeof agentEvents.$inferInsert;
+
+// Coaching nudges — micro-interventions sent to learners
+export const coachingNudges = mysqlTable("coaching_nudges", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  sessionId: int("sessionId"),
+  nudgeType: mysqlEnum("nudgeType", [
+    "encouragement",
+    "tip",
+    "warning",
+    "milestone",
+    "difficulty_change",
+  ]).notNull().default("tip"),
+  title: varchar("title", { length: 200 }).notNull(),
+  body: text("body").notNull(),
+  viewed: boolean("viewed").notNull().default(false),
+  helpful: boolean("helpful"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CoachingNudge = typeof coachingNudges.$inferSelect;
+export type InsertCoachingNudge = typeof coachingNudges.$inferInsert;
+
+// Learning paths — curated sequences of scenarios for a user
+export const learningPaths = mysqlTable("learning_paths", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  scenarioIds: json("scenarioIds").$type<number[]>().notNull().default([]),
+  completedIds: json("completedIds").$type<number[]>().notNull().default([]),
+  status: mysqlEnum("status", ["active", "completed", "paused"]).notNull().default("active"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type LearningPath = typeof learningPaths.$inferSelect;
+export type InsertLearningPath = typeof learningPaths.$inferInsert;
+
+// Difficulty adjustments — log of automated difficulty changes
+export const difficultyAdjustments = mysqlTable("difficulty_adjustments", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  sessionId: int("sessionId"),
+  fromDifficulty: mysqlEnum("fromDifficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  toDifficulty: mysqlEnum("toDifficulty", ["beginner", "intermediate", "advanced"]).notNull(),
+  reason: varchar("reason", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DifficultyAdjustment = typeof difficultyAdjustments.$inferSelect;
+export type InsertDifficultyAdjustment = typeof difficultyAdjustments.$inferInsert;

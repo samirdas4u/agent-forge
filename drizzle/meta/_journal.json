@@ -57,6 +57,13 @@
       "when": 1779817879187,
       "tag": "0007_cute_madame_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1781360805335,
+      "tag": "0008_flowery_guardsmen",
+      "breakpoints": true
     }
   ]
 }

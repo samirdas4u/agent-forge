@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_
 import { coursesRouter } from "./routers/courses";
 import { interviewRouter } from "./routers/interview";
 import { sandboxRouter } from "./routers/sandbox";
+import { agenticRouter } from "./routers/agentic";
 import { invokeLLM } from "./_core/llm";
 import {
   addMessage,
@@ -742,6 +743,7 @@ Return JSON with: {
   courses: coursesRouter,
   sandbox: sandboxRouter,
   interview: interviewRouter,
+  agentic: agenticRouter,
 });
 
 export type AppRouter = typeof appRouter;

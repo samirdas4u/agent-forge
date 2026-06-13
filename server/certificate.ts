@@ -200,7 +200,7 @@ export function buildCertificateHtml(data: CertificateData): string {
     <div class="footer-sig">
       <div class="footer-sig-line"></div>
       <div class="footer-sig-name">Samir Das</div>
-      <div class="footer-sig-title">Creator, Agent Forge · samirdas.co.uk</div>
+      <div class="footer-sig-title">Creator, Agent Forge · das.samir4u@gmail.com</div>
     </div>
     <div class="footer-date">Issued: ${formattedDate}<br/>agentforge.org.uk</div>
   </div>

@@ -23,6 +23,10 @@ import InterviewPractice from "./pages/InterviewPractice";
 import UserManagement from "./pages/UserManagement";
 import InterviewSession from "./pages/InterviewSession";
 import InterviewResult from "./pages/InterviewResult";
+import AgenticDashboard from "./pages/AgenticDashboard";
+import ReadinessPredictions from "./pages/ReadinessPredictions";
+import WhyAgentForge from "./pages/WhyAgentForge";
+import GTVEvidence from "./pages/GTVEvidence";
 import AppLayout from "./components/AppLayout";
 import SandboxHub from "./pages/sandbox/SandboxHub";
 import FeatureFlags from "./pages/sandbox/FeatureFlags";
@@ -113,6 +117,15 @@ function Router() {
       <Route path="/sandbox/events">
         <EventLog />
       </Route>
+      {/* Agentic & Reports routes */}
+      <Route path="/agentic-dashboard">
+        <AgenticDashboard />
+      </Route>
+      <Route path="/readiness">
+        <ReadinessPredictions />
+      </Route>
+      <Route path="/why-agent-forge" component={WhyAgentForge} />
+      <Route path="/gtv-evidence" component={GTVEvidence} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
