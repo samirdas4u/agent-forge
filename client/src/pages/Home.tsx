@@ -305,7 +305,7 @@ export default function Home() {
             Traditional training simulations are static. They follow scripts. Real people don't.
           </p>
           <p className="text-base sm:text-xl font-semibold text-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
-            Agent Forge uses AI agents to create dynamic, adaptive performance scenarios — so your team practises the real thing, not a rehearsed version of it.
+            Agent Forge uses AI agents to create dynamic, adaptive performance scenarios — for enterprise support teams, students preparing for graduate schemes, and anyone who wants to practise the real thing, not a rehearsed version of it.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
@@ -319,6 +319,17 @@ export default function Home() {
             >
               <Zap size={18} />
               Start practising free
+            </a>
+            <a
+              href="/career-prep"
+              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, oklch(0.48 0.22 340), oklch(0.62 0.22 300))",
+                boxShadow: "0 8px 32px oklch(0.48 0.22 340 / 0.30)",
+              }}
+            >
+              <Video size={18} />
+              Career Prep &amp; Interview Practice
             </a>
             <a
               href="#pilot"
