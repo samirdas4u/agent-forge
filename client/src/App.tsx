@@ -27,6 +27,7 @@ import AgenticDashboard from "./pages/AgenticDashboard";
 import ReadinessPredictions from "./pages/ReadinessPredictions";
 import WhyAgentForge from "./pages/WhyAgentForge";
 import GTVEvidence from "./pages/GTVEvidence";
+import CareerPrep from "./pages/CareerPrep";
 import AppLayout from "./components/AppLayout";
 import SandboxHub from "./pages/sandbox/SandboxHub";
 import FeatureFlags from "./pages/sandbox/FeatureFlags";
@@ -91,6 +92,9 @@ function Router() {
       {/* Interview Practice routes */}
       <Route path="/interview">
         <InterviewPractice />
+      </Route>
+      <Route path="/career-prep">
+        <CareerPrep />
       </Route>
       <Route path="/interview/session/:conversationId">
         {(params) => <InterviewSession />}
