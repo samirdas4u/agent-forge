@@ -18,7 +18,6 @@ import {
   MessageSquare,
   Mic,
   Sparkles,
-  Star,
   Target,
   TrendingUp,
   Trophy,
@@ -140,26 +139,7 @@ const HOW_IT_WORKS = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    name: "Sarah K.",
-    role: "Sales Manager",
-    text: "Agent Forge replaced our Solidroad subscription. The AI personas are incredibly realistic and the feedback is actionable.",
-    rating: 5,
-  },
-  {
-    name: "James T.",
-    role: "L&D Director",
-    text: "The walkthrough module is exactly what we needed. Our onboarding time dropped by 40% in the first month.",
-    rating: 5,
-  },
-  {
-    name: "Priya M.",
-    role: "Customer Success Lead",
-    text: "The voice input feature is a game changer. Reps actually practice speaking, not just typing.",
-    rating: 5,
-  },
-];
+
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
@@ -643,38 +623,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Testimonials ───────────────────────────────────────── */}
-      <section className="py-16 sm:py-24" style={{ background: "oklch(0.975 0.003 260)" }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-14">
-            <h2 className="text-4xl font-black tracking-tight text-foreground mb-4">Loved by learners</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-            {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-white border border-border rounded-2xl p-6 shadow-sm">
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} size={14} fill="oklch(0.72 0.18 75)" style={{ color: "oklch(0.72 0.18 75)" }} />
-                  ))}
-                </div>
-                <p className="text-sm text-foreground leading-relaxed mb-5 font-medium">"{t.text}"</p>
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                    style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
-                  >
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── Partners ───────────────────────────────────────────── */}
       <section id="partners" className="py-16 sm:py-24 bg-white">
