@@ -95,8 +95,8 @@ const FEATURES = [
     icon: Globe,
     color: "oklch(0.42 0.22 200)",
     bg: "oklch(0.42 0.22 200 / 0.08)",
-    title: "17 Languages · 3 Channels",
-    desc: "Practice in English, French, Spanish, Arabic, Mandarin, Hindi, and 11 more languages — across Chat, Voice, Email, and Phone simulation channels.",
+    title: "35 Languages · 3 Channels",
+    desc: "Chat, Email & Phone: 35 languages including English, French, Spanish, Arabic, Mandarin, Hindi, and 29 more. Video AI Interview: 17 languages (Tavus platform). Practice in your language, get feedback in your language.",
     tag: "Global",
   },
 ];
@@ -344,7 +344,7 @@ export default function Home() {
             {[
               { value: "+6pp", label: "QA Score Improvement" },
               { value: "38+", label: "Scenarios" },
-              { value: "17", label: "Languages" },
+              { value: "35", label: "Languages" },
               { value: "3", label: "Practice Channels" },
             ].map((s) => (
               <div key={s.label} className="bg-white border border-border rounded-2xl p-4 text-center shadow-sm">
@@ -537,7 +537,7 @@ export default function Home() {
                     { value: "40%", label: "Less anxiety" },
                     { value: "3×", label: "More practice" },
                     { value: "92%", label: "More confident" },
-                    { value: "17", label: "Languages" },
+                    { value: "35", label: "Languages" },
                   ].map((s) => (
                     <div key={s.label} className="bg-white/10 rounded-2xl p-3 text-center">
                       <div className="text-xl font-black text-white">{s.value}</div>

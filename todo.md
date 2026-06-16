@@ -256,3 +256,20 @@
 - [x] Email updated to das.samir4u@gmail.com everywhere
 - [x] All 4 new DB tables migrated (agent_events, coaching_nudges, learning_paths, difficulty_adjustments)
 - [x] Save checkpoint v26
+
+## v30 Sprint — Multilingual System (Genuine Implementation)
+
+- [x] Created `shared/languages.ts` with 35 languages (Tier 1: 17 all channels incl. video, Tier 2: 18 chat/email/phone only)
+- [x] Added `language` column (varchar 10, default 'en') to `sessions` DB table in schema.ts
+- [x] Applied migration `0009_numerous_scream.sql` (ALTER TABLE sessions ADD language varchar(10) DEFAULT 'en' NOT NULL)
+- [x] Built `LanguageSelector.tsx` component with search, tier badges, channel disclaimer, RTL support
+- [x] Added `language` param to `sessions.create` tRPC procedure (z.string().default("en"))
+- [x] Updated `createSession` DB helper to accept and persist `language` param
+- [x] Added `buildLanguageInstruction` import from `@shared/languages` to server/routers.ts
+- [x] Updated `sendMessage` procedure: language priority = scenario.languageLock > session.language > input.language > "en"
+- [x] Wired `LanguageSelector` into Scenarios page (desktop + mobile) as `practiceLanguage` state
+- [x] `handleStart` passes `language: practiceLanguage` to `createSession.mutate`
+- [x] `SimulationSession` reads `session.language` from loaded session data, passes to `sendMessage` and `transcribeVoice`
+- [x] TypeScript: 0 errors
+- [x] Tests: 8/8 passing
+- [x] Checkpoint v30 saved

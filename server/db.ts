@@ -94,10 +94,10 @@ export async function createScenario(data: typeof scenarios.$inferInsert) {
 }
 
 // ── Sessions ─────────────────────────────────────────────────
-export async function createSession(userId: number, scenarioId: number) {
+export async function createSession(userId: number, scenarioId: number, language = "en") {
   const db = await getDb();
   if (!db) throw new Error("DB not available");
-  const result = await db.insert(sessions).values({ userId, scenarioId });
+  const result = await db.insert(sessions).values({ userId, scenarioId, language });
   const id = (result as any)[0]?.insertId ?? (result as any).insertId;
   return id as number;
 }

@@ -99,6 +99,9 @@ export default function SimulationSession({ sessionId }: Props) {
   );
 
   const { i18n } = useTranslation();
+  // sessionLanguage: derived from session data once loaded; falls back to i18n.language
+  // This is the language the AI will respond in (set when the session was created)
+  const sessionLanguage = (data?.session as any)?.language ?? i18n.language;
 
   const sendMessage = trpc.sessions.sendMessage.useMutation({
     onMutate: () => setIsTyping(true),
@@ -190,7 +193,7 @@ export default function SimulationSession({ sessionId }: Props) {
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = (reader.result as string).split(",")[1];
-          transcribeVoice.mutate({ audioBase64: base64, mimeType: "audio/webm", language: i18n.language });
+          transcribeVoice.mutate({ audioBase64: base64, mimeType: "audio/webm", language: sessionLanguage });
         };
         reader.readAsDataURL(blob);
       };
@@ -225,7 +228,7 @@ export default function SimulationSession({ sessionId }: Props) {
     if (!input.trim() || sendMessage.isPending) return;
     const content = input.trim();
     setInput("");
-    sendMessage.mutate({ sessionId, content, language: i18n.language });
+    sendMessage.mutate({ sessionId, content, language: sessionLanguage });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

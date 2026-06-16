@@ -9,6 +9,7 @@ import {
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 // ── Constants ──────────────────────────────────────────────────
 const CATEGORIES = ["all", "sales", "customer_service", "interview", "negotiation", "presentation"];
@@ -228,6 +229,8 @@ export default function Scenarios() {
   const [search, setSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [groupByFolder, setGroupByFolder] = useState(true);
+  // practiceLanguage: the language the AI will use in the session (separate from the scenario filter)
+  const [practiceLanguage, setPracticeLanguage] = useState("en");
 
   const { data: scenarios, isLoading } = trpc.scenarios.list.useQuery(
     { category: category !== "all" ? category : undefined, difficulty: difficulty !== "all" ? difficulty as any : undefined },
@@ -282,7 +285,7 @@ export default function Scenarios() {
   }, [filtered, groupByFolder, folders]);
 
   const handleStart = (scenarioId: number) => {
-    createSession.mutate({ scenarioId });
+    createSession.mutate({ scenarioId, language: practiceLanguage });
   };
 
   return (
@@ -413,6 +416,15 @@ export default function Scenarios() {
               </select>
             )}
 
+            {/* Practice language selector */}
+            <div className="hidden sm:block">
+              <LanguageSelector
+                value={practiceLanguage}
+                onChange={setPracticeLanguage}
+                className="w-48"
+              />
+            </div>
+
             {/* Mobile filter toggle */}
             <button
               onClick={() => setShowFilters((v) => !v)}
@@ -460,6 +472,18 @@ export default function Scenarios() {
               </div>
             </div>
           )}
+
+          {/* Mobile: practice language selector */}
+          <div className="sm:hidden mt-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground shrink-0">Practice in</span>
+              <LanguageSelector
+                value={practiceLanguage}
+                onChange={setPracticeLanguage}
+                className="flex-1"
+              />
+            </div>
+          </div>
         </div>
 
         {/* ── Table ── */}

@@ -1,4 +1,5 @@
 import { COOKIE_NAME } from "@shared/const";
+import { buildLanguageInstruction } from "@shared/languages";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
@@ -205,11 +206,11 @@ export const appRouter = router({
   // ── Sessions ───────────────────────────────────────────────
   sessions: router({
     create: publicProcedure
-      .input(z.object({ scenarioId: z.number() }))
+      .input(z.object({ scenarioId: z.number(), language: z.string().default("en") }))
       .mutation(async ({ input, ctx }) => {
         const scenario = await getScenarioById(input.scenarioId);
         if (!scenario) throw new TRPCError({ code: "NOT_FOUND" });
-        const sessionId = await createSession((ctx.user?.id ?? 0), input.scenarioId);
+        const sessionId = await createSession((ctx.user?.id ?? 0), input.scenarioId, input.language);
         return { sessionId };
       }),
 
@@ -247,18 +248,9 @@ export const appRouter = router({
         // Get conversation history
         const history = await getSessionMessages(input.sessionId);
 
-        // Build language instruction if a non-English language is requested
-        const LANGUAGE_NAMES: Record<string, string> = {
-          fr: "French", es: "Spanish", ar: "Arabic", zh: "Mandarin Chinese",
-          de: "German", pt: "Portuguese", it: "Italian", ja: "Japanese", ko: "Korean",
-          hi: "Hindi", nl: "Dutch", tr: "Turkish", pl: "Polish", sv: "Swedish",
-          bn: "Bengali", sw: "Swahili",
-        };
-        // scenario.languageLock overrides the user's UI language preference
-        const langCode = scenario.languageLock ?? input.language ?? "en";
-        const langInstruction = langCode !== "en" && LANGUAGE_NAMES[langCode]
-          ? `\n\nIMPORTANT: You MUST respond entirely in ${LANGUAGE_NAMES[langCode]}. Do not use English.`
-          : "";
+        // Build language instruction — priority: scenario.languageLock > session.language > input.language > "en"
+        const langCode = scenario.languageLock ?? session.language ?? input.language ?? "en";
+        const langInstruction = buildLanguageInstruction(langCode);
 
         // Build messages for LLM
         const llmMessages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [

@@ -77,6 +77,7 @@ export const sessions = mysqlTable("sessions", {
   strengths: json("strengths").$type<string[]>().default([]),
   improvements: json("improvements").$type<string[]>().default([]),
   durationSeconds: int("durationSeconds"),
+  language: varchar("language", { length: 10 }).default("en").notNull(),
   startedAt: timestamp("startedAt").defaultNow().notNull(),
   completedAt: timestamp("completedAt"),
 });
