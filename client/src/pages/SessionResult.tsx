@@ -58,6 +58,10 @@ export default function SessionResult({ sessionId }: Props) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const ttsMutation = trpc.sessions.speakText.useMutation();
+  const createSession = trpc.sessions.create.useMutation({
+    onSuccess: (d) => navigate(`/simulate/${d.sessionId}`),
+    onError: () => toast.error("Could not start a new session. Please try again."),
+  });
 
   const stopReplay = useCallback(() => {
     setIsReplaying(false);
@@ -185,11 +189,18 @@ export default function SessionResult({ sessionId }: Props) {
                 </button>
               )}
               <button
-                onClick={() => navigate("/simulate")}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                onClick={() => {
+                  if (session?.scenarioId) {
+                    createSession.mutate({ scenarioId: session.scenarioId, language: (session as any).language ?? "en" });
+                  } else {
+                    navigate("/simulate");
+                  }
+                }}
+                disabled={createSession.isPending}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
                 style={{ background: INDIGO }}
               >
-                <Play size={12} /> Practice Again
+                <Play size={12} /> {createSession.isPending ? "Starting…" : "Practice Again"}
               </button>
             </div>
           </div>

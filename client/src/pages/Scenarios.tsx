@@ -4,26 +4,27 @@ import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import {
   ArrowRight, Brain, ChevronDown, ChevronRight, Folder, FolderOpen,
-  Mail, MessageSquare, Mic, Phone, Play, Plus, Search, SlidersHorizontal, Zap
+  LogIn, Mail, MessageSquare, Mic, Phone, Play, Plus, Search, SlidersHorizontal, Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 // ── Constants ──────────────────────────────────────────────────
 const CATEGORIES = ["all", "sales", "customer_service", "interview", "negotiation", "presentation"];
-const CHANNELS = ["all", "text", "email", "phone", "voice"] as const;
+const CHANNELS = ["all", "text", "email", "phone"] as const;
 type ChannelFilter = typeof CHANNELS[number];
 const CHANNEL_FILTER_LABELS: Record<ChannelFilter, string> = {
-  all: "All channels", text: "Chat", email: "Email", phone: "Phone", voice: "Voice",
+  all: "All channels", text: "Chat", email: "Email", phone: "Phone",
 };
 const CHANNEL_FILTER_ICONS: Record<ChannelFilter, React.ReactNode> = {
   all: null,
   text: <MessageSquare size={12} />,
   email: <Mail size={12} />,
   phone: <Phone size={12} />,
-  voice: <Mic size={12} />,
 };
 const DIFFICULTIES = ["all", "beginner", "intermediate", "advanced"];
 
@@ -232,6 +233,7 @@ export default function Scenarios() {
   // practiceLanguage: the language the AI will use in the session (separate from the scenario filter)
   const [practiceLanguage, setPracticeLanguage] = useState("en");
 
+  const { isAuthenticated } = useAuth();
   const { data: scenarios, isLoading } = trpc.scenarios.list.useQuery(
     { category: category !== "all" ? category : undefined, difficulty: difficulty !== "all" ? difficulty as any : undefined },
     { staleTime: 60_000 }
@@ -285,13 +287,31 @@ export default function Scenarios() {
   }, [filtered, groupByFolder, folders]);
 
   const handleStart = (scenarioId: number) => {
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl("/simulate");
+      return;
+    }
     createSession.mutate({ scenarioId, language: practiceLanguage });
   };
 
   return (
-    <AppLayout>
+     <AppLayout>
           <div className="flex-1 flex flex-col min-h-0">
-
+        {/* ── Login prompt banner ── */}
+        {!isAuthenticated && (
+          <div className="shrink-0 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-indigo-50 border-b border-indigo-100">
+            <div className="flex items-center gap-2 text-sm text-indigo-800">
+              <LogIn size={15} className="text-indigo-500 shrink-0" />
+              <span><strong>Sign in</strong> to start a simulation — you can browse all scenarios without an account.</span>
+            </div>
+            <a
+              href={getLoginUrl("/simulate")}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+            >
+              <LogIn size={12} /> Continue with Google
+            </a>
+          </div>
+        )}
         {/* ── Page header ── */}
         <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b bg-white" style={{ borderColor: 'oklch(0.905 0.012 260)' }}>
           <div className="flex items-center justify-between gap-4 mb-4">
