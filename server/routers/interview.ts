@@ -144,11 +144,58 @@ export const interviewRouter = router({
       const personaDesc = persona?.description ?? "a general UK job interview";
       const role = input.jobTitle ?? persona?.role ?? "the applied role";
       const candidate = input.candidateName ?? (ctx.user as any).name ?? "the candidate";
-      const durationMins = Math.max(1, Math.round(input.durationSeconds / 60));
+      const durationMins = Math.round(input.durationSeconds / 60);
 
-      const prompt = `You are an expert UK interview coach. A candidate just completed a ${durationMins}-minute AI video interview for "${role}" with ${persona?.name ?? "an AI interviewer"}. The interview context was: "${personaDesc}".
+      // Guard: if the session was too short to contain any real content, return a
+      // zero-score result immediately without calling the LLM.
+      if (input.durationSeconds < 30) {
+        return {
+          overallScore: 0,
+          starScore: 0,
+          starFeedback: "No responses were recorded — the session ended before any answers could be given.",
+          clarityScore: 0,
+          clarityFeedback: "No speech was detected during this session.",
+          competencyScore: 0,
+          competencyFeedback: "No competency evidence was provided.",
+          confidenceScore: 0,
+          confidenceFeedback: "No verbal content was available to assess confidence.",
+          strengths: [],
+          improvements: [
+            "Complete a full interview session to receive meaningful feedback.",
+            "Ensure your microphone is enabled before starting.",
+            "Try to answer each question in full before ending the session.",
+          ],
+          sampleAnswer: "Please complete a full interview session to see an example of a strong answer.",
+          summary: `No content was recorded for this session. The interview ended after less than 30 seconds. Please try again and ensure your microphone is active.`,
+          noContent: true,
+          personaName: persona?.name ?? "AI Interviewer",
+          role,
+          candidateName: candidate,
+          durationMins,
+        };
+      }
 
-Generate a detailed, constructive post-interview feedback report for ${candidate}. Include all required fields. Be specific and actionable. Respond in JSON only.`;
+      // IMPORTANT: We do not have access to the actual transcript from Tavus.
+      // The feedback below is based solely on session metadata (duration, persona, role).
+      // Scores must be conservative and the summary must be honest about this limitation.
+      const prompt = `You are an expert UK interview coach reviewing a completed AI video interview session.
+
+IMPORTANT CONSTRAINT: You do NOT have access to the actual transcript or recording of this interview. You only know:
+- Candidate name: ${candidate}
+- Role being practised: ${role}
+- Interview type: ${personaDesc}
+- Session duration: ${durationMins} minute(s)
+
+Because you have no transcript, you MUST:
+1. Set all dimension scores (starScore, clarityScore, competencyScore, confidenceScore) to between 0 and 40 — reflecting that performance cannot be verified
+2. Set overallScore to between 0 and 35
+3. In every feedback field, explicitly state: "Transcript not available — this score is a placeholder. Complete a full session with microphone enabled for accurate feedback."
+4. Leave strengths as an empty array []
+5. In improvements, include 3 actionable tips for interview preparation
+6. In summary, clearly state that transcript analysis is not available for this session and the candidate should try again
+7. In sampleAnswer, provide a strong example answer for a typical question for this role
+
+Respond in JSON only.`;
 
       const result = await invokeLLM({
         messages: [

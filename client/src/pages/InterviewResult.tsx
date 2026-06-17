@@ -5,7 +5,7 @@ import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
   Award, ChevronLeft, Lightbulb, Linkedin, RefreshCw,
-  Star, ThumbsUp, TrendingUp, User, Clock
+  Star, ThumbsUp, TrendingUp, User, Clock, AlertTriangle, Info
 } from "lucide-react";
 
 // ── Score ring component ─────────────────────────────────────────────────────
@@ -189,6 +189,26 @@ export default function InterviewResult() {
           </Button>
         </div>
 
+        {/* No-content banner */}
+        {feedback.noContent && (
+          <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-950/30 px-4 py-3 text-sm text-red-300">
+            <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0 text-red-400" />
+            <div>
+              <span className="font-semibold text-red-200">No interview content detected.</span>{" "}
+              The session ended too quickly for any answers to be recorded. Please try again, ensure your microphone is enabled, and complete at least a few questions before ending.
+            </div>
+          </div>
+        )}
+        {/* Transcript disclaimer banner */}
+        {!feedback.noContent && (
+          <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-950/20 px-4 py-3 text-sm text-amber-300/80">
+            <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
+            <span>
+              <span className="font-semibold text-amber-200">Transcript not available.</span>{" "}
+              Video interview feedback is based on session metadata only — not your actual spoken answers. Scores shown are conservative placeholders. For detailed transcript-based feedback, use the <strong>Chat</strong> or <strong>Phone</strong> simulation channels.
+            </span>
+          </div>
+        )}
         {/* Hero card */}
         <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-950/60 to-[#0d0d1a] p-6 md:p-8">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
