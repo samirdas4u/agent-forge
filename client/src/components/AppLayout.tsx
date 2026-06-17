@@ -310,15 +310,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             >
               YouTube
             </a>
-            <span className="text-slate-700 text-[9px]">·</span>
-            <a
-              href="https://www.mentoring-club.com/profiles/samir-das#mentor-profile"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[9px] text-slate-500 hover:text-violet-400 transition-colors"
-            >
-              Mentoring
-            </a>
+
           </div>
         </div>
       </div>

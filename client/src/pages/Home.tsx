@@ -860,7 +860,6 @@ export default function Home() {
                   { label: "LinkedIn", href: "https://www.linkedin.com/in/samir-lifelonglearner/", desc: "Professional profile" },
                   { label: "YouTube — Sam's Digital Academy", href: "https://www.youtube.com/@samsdigitalacademy", desc: "Educational content" },
                   { label: "Facebook", href: "https://www.facebook.com/samsdigital/", desc: "Community updates" },
-                  { label: "Mentoring Club", href: "https://www.mentoring-club.com/profiles/samir-das#mentor-profile", desc: "1:1 mentorship" },
                 ].map(({ label, href, desc }) => (
                   <a
                     key={href}
