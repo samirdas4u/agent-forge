@@ -533,7 +533,10 @@ export default function CareerPrep() {
                     )}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-2">
-                    Camera & microphone required
+                    Camera &amp; microphone required
+                  </p>
+                  <p className="text-xs text-muted-foreground/70 text-center">
+                    Sign in with Google via Manus to begin
                   </p>
                 </div>
               </div>

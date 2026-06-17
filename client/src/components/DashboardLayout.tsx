@@ -65,7 +65,7 @@ export default function DashboardLayout({
               Sign in to continue
             </h1>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Access to this dashboard requires authentication. Continue to launch the login flow.
+              Sign in with Google via Manus — no separate account needed.
             </p>
           </div>
           <Button
@@ -75,7 +75,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            Sign in
+            Continue with Google via Manus
           </Button>
         </div>
       </div>

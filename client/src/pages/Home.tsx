@@ -192,6 +192,7 @@ export default function Home() {
                   <a
                     href="/dashboard"
                     className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    title="Sign in with Google via Manus"
                   >
                     Sign in
                   </a>
@@ -289,28 +290,34 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16">
-            <a
-              href="/dashboard"
-              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5"
-              style={{
-                background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))",
-                boxShadow: "0 8px 32px oklch(0.52 0.26 272 / 0.35)",
-              }}
-            >
-              <Zap size={18} />
-              Start practising free
-            </a>
-            <a
-              href="/career-prep"
-              className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
-              style={{
-                background: "linear-gradient(135deg, oklch(0.48 0.22 340), oklch(0.62 0.22 300))",
-                boxShadow: "0 8px 32px oklch(0.48 0.22 340 / 0.30)",
-              }}
-            >
-              <Video size={18} />
-              Career Prep &amp; Interview Practice
-            </a>
+            <div className="flex flex-col items-center gap-1">
+              <a
+                href="/dashboard"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-bold text-white transition-all hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5"
+                style={{
+                  background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))",
+                  boxShadow: "0 8px 32px oklch(0.52 0.26 272 / 0.35)",
+                }}
+              >
+                <Zap size={18} />
+                Start practising free
+              </a>
+              <span className="text-xs text-muted-foreground">Continue with Google via Manus</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <a
+                href="/career-prep"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+                style={{
+                  background: "linear-gradient(135deg, oklch(0.48 0.22 340), oklch(0.62 0.22 300))",
+                  boxShadow: "0 8px 32px oklch(0.48 0.22 340 / 0.30)",
+                }}
+              >
+                <Video size={18} />
+                Career Prep &amp; Interview Practice
+              </a>
+              <span className="text-xs text-muted-foreground">Sign in with Google via Manus</span>
+            </div>
             <a
               href="#pilot"
               className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-foreground border border-border hover:bg-muted transition-all"

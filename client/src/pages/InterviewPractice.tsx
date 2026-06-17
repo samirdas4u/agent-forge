@@ -250,6 +250,7 @@ export default function InterviewPractice() {
 
                 <div className="text-xs text-muted-foreground text-center space-y-1">
                   <p>Your browser will ask for camera and microphone access.</p>
+                  <p className="text-muted-foreground/70">Sign in with Google via Manus to begin</p>
                   <p className="text-amber-400/80">Free tier: 25 min/month total</p>
                 </div>
               </CardContent>
