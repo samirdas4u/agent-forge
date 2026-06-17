@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import AppLayout from "@/components/AppLayout";
 import { trpc } from "@/lib/trpc";
@@ -30,6 +33,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 
 export default function InterviewPractice() {
   const [, navigate] = useLocation();
+  const { isAuthenticated } = useAuth();
   const [selectedPersonaId, setSelectedPersonaId] = useState<string | null>(null);
   const [jobTitle, setJobTitle] = useState("");
   const [candidateName, setCandidateName] = useState("");
@@ -47,6 +51,10 @@ export default function InterviewPractice() {
 
   const handleStart = async () => {
     if (!selectedPersonaId) return;
+    if (!isAuthenticated) {
+      window.location.href = getLoginUrl();
+      return;
+    }
     setStarting(true);
     try {
       const session = await createSession.mutateAsync({
@@ -55,8 +63,15 @@ export default function InterviewPractice() {
         jobTitle: jobTitle || undefined,
       });
       navigate(`/interview/session/${session.conversationId}?url=${encodeURIComponent(session.conversationUrl)}&persona=${selectedPersonaId}`);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      const msg = e?.message ?? "";
+      if (msg.includes("UNAUTHORIZED") || msg.includes("401")) {
+        toast.error("Please sign in to start a video interview.");
+        setTimeout(() => { window.location.href = getLoginUrl(); }, 1500);
+      } else {
+        toast.error("Could not start the interview. Please try again.");
+      }
       setStarting(false);
     }
   };
