@@ -15,10 +15,6 @@ import Analytics from "./pages/Analytics";
 import SessionReplay from "./pages/SessionReplay";
 import Leaderboard from "./pages/Leaderboard";
 import AdminScenarios from "./pages/AdminScenarios";
-import Courses from "./pages/Courses";
-import CourseCreate from "./pages/CourseCreate";
-import CourseEditor from "./pages/CourseEditor";
-import LearnCourse from "./pages/LearnCourse";
 import InterviewPractice from "./pages/InterviewPractice";
 import UserManagement from "./pages/UserManagement";
 import InterviewSession from "./pages/InterviewSession";
@@ -76,18 +72,6 @@ function Router() {
       </Route>
       <Route path="/admin/users">
         <UserManagement />
-      </Route>
-      <Route path="/courses">
-        <Courses />
-      </Route>
-      <Route path="/courses/new">
-        <CourseCreate />
-      </Route>
-      <Route path="/courses/:id/edit">
-        {(params) => <CourseEditor />}
-      </Route>
-      <Route path="/learn/:slug">
-        {(params) => <LearnCourse />}
       </Route>
       {/* Interview Practice routes */}
       <Route path="/interview">

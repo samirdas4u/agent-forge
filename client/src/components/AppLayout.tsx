@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import {
   BarChart3,
   Bell,
-  BookOpen,
   Bot,
   Brain,
   Crown,
@@ -47,7 +46,6 @@ const TRAINING_NAV_KEYS = [
   { href: "/dashboard",    key: "nav_dashboard",    icon: LayoutDashboard },
   { href: "/simulate",     key: "nav_simulate",     icon: MessageSquare },
   { href: "/walkthroughs", key: "nav_walkthroughs", icon: Layers },
-  { href: "/courses",      key: "nav_courses",      icon: BookOpen },
   { href: "/analytics",    key: "nav_analytics",    icon: BarChart3 },
   { href: "/leaderboard",  key: "nav_leaderboard",  icon: Trophy },
   { href: "/interview",     key: "nav_interview",    icon: Video },
