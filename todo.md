@@ -273,3 +273,20 @@
 - [x] TypeScript: 0 errors
 - [x] Tests: 8/8 passing
 - [x] Checkpoint v30 saved
+
+## D-ID Integration Sprint — Video & Voice
+
+- [x] Audited D-ID Agents API: listed existing agents (Alex, Emma, Jack, Lila), understood chat/transcript endpoints
+- [x] Created 7 new D-ID agents for Agent Forge personas (Benjamin, Anna Graduate, Mary NHS, Sophie HR, David Sales, Priya NHS, Rachel Career)
+- [x] Updated D-ID client key allowed domains to include Agent Forge production URL
+- [x] Created `shared/didAgents.ts` with INTERVIEW_AGENTS and SIMULATION_AGENTS maps
+- [x] Installed @d-id/client-sdk npm package
+- [x] Built `DIDAgentSession.tsx` component with WebRTC SDK, mute/unmute, talking indicator, transcript collection
+- [x] Rewrote `server/routers/interview.ts` to use D-ID agent sessions instead of Tavus
+- [x] Updated `generateFeedback` procedure to accept real transcript and score accurately
+- [x] Rewrote `InterviewSession.tsx` to embed DIDAgentSession, collect transcript, pass to result page
+- [x] Updated `InterviewResult.tsx` to read transcript from sessionStorage and pass to generateFeedback
+- [x] Updated `CareerPrep.tsx` to use D-ID agent IDs instead of Tavus persona IDs
+- [x] Integrated DIDAgentSession into SimulationSession voice mode (pre-session prompt → live avatar → transcript scoring)
+- [x] TypeScript: 0 errors
+- [x] Tests: 8/8 passing

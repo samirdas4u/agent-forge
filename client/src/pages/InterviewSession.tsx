@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { PhoneOff, Mic, MicOff, Video, VideoOff, ChevronLeft, Clock, AlertCircle } from "lucide-react";
+import { PhoneOff, ChevronLeft, Clock, AlertCircle } from "lucide-react";
+import DIDAgentSession, { type DIDMessage } from "@/components/DIDAgentSession";
 
 export default function InterviewSession() {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -10,56 +11,23 @@ export default function InterviewSession() {
 
   // Parse query params
   const searchParams = new URLSearchParams(window.location.search);
-  const conversationUrl = searchParams.get("url") ?? "";
+  const agentId = searchParams.get("agentId") ?? "";
   const personaId = searchParams.get("persona") ?? "";
   const jobTitle = searchParams.get("jobTitle") ?? "";
   const candidateName = searchParams.get("candidateName") ?? "";
 
   const [elapsed, setElapsed] = useState(0);
   const [ended, setEnded] = useState(false);
-  const [micEnabled, setMicEnabled] = useState(true);
-  const [camEnabled, setCamEnabled] = useState(true);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [sessionError, setSessionError] = useState<string>("");
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const selfViewRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const transcriptRef = useRef<DIDMessage[]>([]);
 
-  const endSession = trpc.interview.endSession.useMutation();
-
-  // Timer
-  useEffect(() => {
+  // Start timer when component mounts
+  useState(() => {
     timerRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, []);
-
-  // Self-view webcam
-  useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        streamRef.current = stream;
-        if (selfViewRef.current) {
-          selfViewRef.current.srcObject = stream;
-        }
-      })
-      .catch(() => {
-        // Permission denied — self-view won't show but interview still works via iframe
-      });
-    return () => {
-      streamRef.current?.getTracks().forEach((t) => t.stop());
-    };
-  }, []);
-
-  const toggleMic = () => {
-    streamRef.current?.getAudioTracks().forEach((t) => { t.enabled = !t.enabled; });
-    setMicEnabled((v) => !v);
-  };
-
-  const toggleCam = () => {
-    streamRef.current?.getVideoTracks().forEach((t) => { t.enabled = !t.enabled; });
-    setCamEnabled((v) => !v);
-  };
+  });
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -67,26 +35,37 @@ export default function InterviewSession() {
     return `${m}:${sec.toString().padStart(2, "0")}`;
   };
 
-  const handleEnd = async () => {
+  const handleMessage = (msg: DIDMessage) => {
+    transcriptRef.current.push(msg);
+  };
+
+  const handleEnd = (transcript: DIDMessage[]) => {
     if (timerRef.current) clearInterval(timerRef.current);
     setEnded(true);
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    try {
-      await endSession.mutateAsync({ conversationId });
-    } catch (_) { /* ignore */ }
-    const resultParams = new URLSearchParams({ personaId, durationSeconds: String(elapsed) });
+    // Navigate to result page with transcript encoded in sessionStorage
+    const transcriptKey = `interview_transcript_${conversationId}`;
+    sessionStorage.setItem(transcriptKey, JSON.stringify(transcript));
+    const resultParams = new URLSearchParams({
+      personaId,
+      durationSeconds: String(elapsed),
+      transcriptKey,
+    });
     if (jobTitle) resultParams.set("jobTitle", jobTitle);
     if (candidateName) resultParams.set("candidateName", candidateName);
     navigate(`/interview/result?${resultParams.toString()}`);
   };
 
-  if (!conversationUrl) {
+  const handleError = (err: string) => {
+    setSessionError(err);
+  };
+
+  if (!agentId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <AlertCircle className="w-12 h-12 text-destructive mx-auto" />
-          <p className="text-muted-foreground">No conversation URL found. Please start a new session.</p>
-          <Button onClick={() => navigate("/interview")}>Back to Interview Practice</Button>
+          <p className="text-muted-foreground">No agent ID found. Please start a new session.</p>
+          <Button onClick={() => navigate("/career-prep")}>Back to Career Prep</Button>
         </div>
       </div>
     );
@@ -106,7 +85,9 @@ export default function InterviewSession() {
         <div className="flex items-center gap-2 text-sm font-mono text-white/80">
           <Clock className="w-4 h-4 text-green-400" />
           <span className={elapsed > 1500 ? "text-amber-400" : "text-green-400"}>{formatTime(elapsed)}</span>
-          {elapsed > 1500 && <span className="text-xs text-amber-400/70 hidden sm:inline">(25 min limit approaching)</span>}
+          {elapsed > 1500 && (
+            <span className="text-xs text-amber-400/70 hidden sm:inline">(25 min limit approaching)</span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -114,78 +95,22 @@ export default function InterviewSession() {
         </div>
       </div>
 
-      {/* Main video area */}
-      <div className="flex-1 relative flex items-center justify-center p-4">
-        {/* Tavus CVI iframe — full interview video */}
-        <div className="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden bg-black shadow-2xl border border-white/10">
-          {!iframeLoaded && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0d0d1a] gap-4">
-              <div className="w-12 h-12 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-              <p className="text-sm text-white/50">Connecting to your interviewer...</p>
-              <p className="text-xs text-white/30">Allow camera and microphone when prompted</p>
+      {/* Main area */}
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+        <div className="w-full max-w-3xl">
+          {sessionError && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+              {sessionError}
             </div>
           )}
-          <iframe
-            src={conversationUrl}
-            allow="camera; microphone; fullscreen; display-capture; autoplay"
-            className="w-full h-full"
-            style={{ border: "none" }}
-            onLoad={() => setIframeLoaded(true)}
-            title="AI Video Interviewer"
+          <DIDAgentSession
+            agentId={agentId}
+            onMessage={handleMessage}
+            onEnd={handleEnd}
+            onError={handleError}
+            className="w-full"
           />
         </div>
-
-        {/* Self-view (picture-in-picture) */}
-        <div className="absolute bottom-4 right-4 sm:bottom-8 sm:right-8 w-20 sm:w-32 md:w-44 aspect-video rounded-xl overflow-hidden border-2 border-white/20 bg-black shadow-xl">
-          <video
-            ref={selfViewRef}
-            autoPlay
-            muted
-            playsInline
-            className={`w-full h-full object-cover ${!camEnabled ? "opacity-0" : ""}`}
-          />
-          {!camEnabled && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
-              <VideoOff className="w-6 h-6 text-white/40" />
-            </div>
-          )}
-          <div className="absolute bottom-1 left-1 text-xs text-white/60 bg-black/40 px-1.5 py-0.5 rounded">You</div>
-        </div>
-      </div>
-
-      {/* Bottom controls */}
-      <div className="flex items-center justify-center gap-3 sm:gap-4 py-3 sm:py-4 border-t border-white/10 bg-black/40">
-        <button
-          onClick={toggleMic}
-          className={`p-3 rounded-full border transition-all ${
-            micEnabled
-              ? "bg-white/10 border-white/20 text-white hover:bg-white/20"
-              : "bg-red-500/20 border-red-500/40 text-red-400"
-          }`}
-          title={micEnabled ? "Mute microphone" : "Unmute microphone"}
-        >
-          {micEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-        </button>
-
-        <button
-          onClick={toggleCam}
-          className={`p-3 rounded-full border transition-all ${
-            camEnabled
-              ? "bg-white/10 border-white/20 text-white hover:bg-white/20"
-              : "bg-red-500/20 border-red-500/40 text-red-400"
-          }`}
-          title={camEnabled ? "Turn off camera" : "Turn on camera"}
-        >
-          {camEnabled ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
-        </button>
-
-        <button
-          onClick={() => setShowEndConfirm(true)}
-          className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-medium flex items-center gap-2 transition-colors shadow-lg text-sm"
-        >
-          <PhoneOff className="w-5 h-5" />
-          End Interview
-        </button>
       </div>
 
       {/* End confirm modal */}
@@ -196,7 +121,7 @@ export default function InterviewSession() {
               <PhoneOff className="w-10 h-10 text-red-400 mx-auto" />
               <h3 className="text-lg font-semibold">End Interview?</h3>
               <p className="text-sm text-muted-foreground">
-                Are you sure you want to end the session? This will disconnect from the AI interviewer.
+                Are you sure you want to end the session? Your conversation will be saved for feedback.
               </p>
               <p className="text-xs text-muted-foreground">Session time: {formatTime(elapsed)}</p>
             </div>
@@ -204,7 +129,12 @@ export default function InterviewSession() {
               <Button variant="outline" className="flex-1" onClick={() => setShowEndConfirm(false)}>
                 Continue
               </Button>
-              <Button variant="destructive" className="flex-1" onClick={handleEnd} disabled={ended}>
+              <Button
+                variant="destructive"
+                className="flex-1"
+                onClick={() => handleEnd(transcriptRef.current)}
+                disabled={ended}
+              >
                 {ended ? "Ending..." : "End Session"}
               </Button>
             </div>

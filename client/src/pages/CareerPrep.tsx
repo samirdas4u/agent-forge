@@ -32,8 +32,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-// Real Tavus persona IDs — others are placeholders not yet configured
-const REAL_TAVUS_IDS = new Set(["p00105f03c2f", "p5c154ab23bf", "p39b2c0123f2", "pdac61133ac5"]);
+// Real D-ID agent IDs — others are placeholders not yet configured
+const REAL_DID_IDS = new Set(["anna_graduate", "benjamin_tech", "mary_nhs", "general"]);
 
 // ─── Career Tracks ─────────────────────────────────────────────────────────────
 const CAREER_TRACKS = [
@@ -104,9 +104,9 @@ const CAREER_TRACKS = [
 
 // ─── Extended Personas (existing + new career prep ones) ───────────────────────
 const CAREER_PERSONAS = [
-  // Existing UK interview personas
+  // Existing UK interview personas (D-ID agent IDs)
   {
-    id: "p00105f03c2f",
+    id: "anna_graduate",
     name: "Anna — Graduate Coach",
     role: "HR Interviewer",
     company: "Top UK Graduate Employer",
@@ -118,7 +118,7 @@ const CAREER_PERSONAS = [
     avatar: "https://ui-avatars.com/api/?name=Anna&background=6366f1&color=fff&size=128",
   },
   {
-    id: "p5c154ab23bf",
+    id: "benjamin_tech",
     name: "Benjamin — Tech Coach",
     role: "Engineering Manager",
     company: "UK Tech Company",
@@ -130,7 +130,7 @@ const CAREER_PERSONAS = [
     avatar: "https://ui-avatars.com/api/?name=Benjamin&background=0ea5e9&color=fff&size=128",
   },
   {
-    id: "p39b2c0123f2",
+    id: "mary_nhs",
     name: "Mary — NHS Coach",
     role: "NHS Panel Interviewer",
     company: "NHS",
@@ -142,7 +142,7 @@ const CAREER_PERSONAS = [
     avatar: "https://ui-avatars.com/api/?name=Mary&background=10b981&color=fff&size=128",
   },
   {
-    id: "pdac61133ac5",
+    id: "general",
     name: "James — General Coach",
     role: "Senior HR Manager",
     company: "Leading UK Employer",
@@ -311,7 +311,7 @@ export default function CareerPrep() {
         jobTitle: jobTitle || selected?.role || undefined,
       });
       navigate(
-        `/interview/session/${session.conversationId}?url=${encodeURIComponent(session.conversationUrl)}&persona=${selectedId}&jobTitle=${encodeURIComponent(jobTitle || selected?.role || "")}&candidateName=${encodeURIComponent(candidateName || "")}`
+        `/interview/session/${session.conversationId}?agentId=${encodeURIComponent(session.agentId)}&persona=${selectedId}&jobTitle=${encodeURIComponent(jobTitle || selected?.role || "")}&candidateName=${encodeURIComponent(candidateName || "")}`
       );
     } catch (e: any) {
       console.error(e);
@@ -455,7 +455,7 @@ export default function CareerPrep() {
                           <h3 className="font-semibold text-foreground text-sm leading-snug">{persona.name}</h3>
                           {isSelected
                             ? <CheckCircle2 size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />
-                            : !REAL_TAVUS_IDS.has(persona.id) && (
+                            : !REAL_DID_IDS.has(persona.id) && (
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-700/60 text-slate-400 border border-slate-600/40 flex-shrink-0">
                                 Soon
                               </span>
@@ -526,7 +526,7 @@ export default function CareerPrep() {
                   </div>
                 </div>
                 <div className="flex-shrink-0 w-full sm:w-auto">
-                  {REAL_TAVUS_IDS.has(selectedId ?? "") ? (
+                  {REAL_DID_IDS.has(selectedId ?? "") ? (
                     <>
                       <Button
                         onClick={handleStart}

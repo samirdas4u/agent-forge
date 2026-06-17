@@ -108,7 +108,21 @@ export default function InterviewResult() {
       setError("Missing session data. Please complete an interview first.");
       return;
     }
-    generateFeedback.mutateAsync({ personaId, jobTitle, candidateName, durationSeconds })
+    // Read real transcript from sessionStorage if available (set by InterviewSession)
+    const transcriptKey = searchParams.get("transcriptKey") ?? "";
+    let transcript: { role: "agent" | "user"; content: string }[] | undefined;
+    if (transcriptKey) {
+      try {
+        const raw = sessionStorage.getItem(transcriptKey);
+        if (raw) {
+          transcript = JSON.parse(raw);
+          sessionStorage.removeItem(transcriptKey); // clean up
+        }
+      } catch {
+        // ignore parse errors
+      }
+    }
+    generateFeedback.mutateAsync({ personaId, jobTitle, candidateName, durationSeconds, transcript })
       .then((data) => setFeedback(data))
       .catch((err) => setError(err.message ?? "Failed to generate feedback."));
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -199,13 +213,23 @@ export default function InterviewResult() {
             </div>
           </div>
         )}
-        {/* Transcript disclaimer banner */}
-        {!feedback.noContent && (
+        {/* Transcript disclaimer banner — only show if no real transcript was used */}
+        {!feedback.noContent && !feedback.hasTranscript && (
           <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-950/20 px-4 py-3 text-sm text-amber-300/80">
             <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
             <span>
               <span className="font-semibold text-amber-200">Transcript not available.</span>{" "}
               Video interview feedback is based on session metadata only — not your actual spoken answers. Scores shown are conservative placeholders. For detailed transcript-based feedback, use the <strong>Chat</strong> or <strong>Phone</strong> simulation channels.
+            </span>
+          </div>
+        )}
+        {/* Transcript-based feedback confirmation */}
+        {!feedback.noContent && feedback.hasTranscript && (
+          <div className="flex items-start gap-3 rounded-xl border border-green-500/20 bg-green-950/20 px-4 py-3 text-sm text-green-300/80">
+            <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-400" />
+            <span>
+              <span className="font-semibold text-green-200">Real transcript analysis.</span>{" "}
+              This feedback is based on your actual spoken responses captured during the session.
             </span>
           </div>
         )}

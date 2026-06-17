@@ -9,6 +9,8 @@ import {
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import AppLayout from "@/components/AppLayout";
+import DIDAgentSession, { type DIDMessage } from "@/components/DIDAgentSession";
+import { SIMULATION_AGENTS, INTERVIEW_AGENTS } from "../../../shared/didAgents";
 
 interface Props { sessionId: number; }
 
@@ -87,6 +89,8 @@ export default function SimulationSession({ sessionId }: Props) {
   const [simulationMode, setSimulationMode] = useState<'chat' | 'voice' | 'email' | 'phone'>('chat');
   const [modeInitialised, setModeInitialised] = useState(false);
   const [emailSubject, setEmailSubject] = useState("");
+  const [didTranscript, setDidTranscript] = useState<DIDMessage[]>([]);
+  const [showDIDSession, setShowDIDSession] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -292,6 +296,21 @@ export default function SimulationSession({ sessionId }: Props) {
   const isActive = session.status === "active";
   const userMessageCount = messages.filter((m: any) => m.role === "user").length;
   const catStyle = CATEGORY_COLORS[scenario?.category ?? ""] ?? { bg: "oklch(0.95 0.05 264)", color: "oklch(0.51 0.23 264)" };
+
+  // Pick the best D-ID simulation agent for this scenario
+  const pickSimulationAgentId = (): string => {
+    const persona = (scenario?.aiPersona ?? "").toLowerCase();
+    const category = (scenario?.category ?? "").toLowerCase();
+    if (persona.includes("priya") || category.includes("nhs") || persona.includes("nhs")) {
+      return SIMULATION_AGENTS.priya_nhs.agentId;
+    }
+    if (persona.includes("sophie") || category.includes("hr") || persona.includes("hr")) {
+      return SIMULATION_AGENTS.sophie_hr.agentId;
+    }
+    // Default to david_sales for sales/general scenarios
+    return SIMULATION_AGENTS.david_sales.agentId;
+  };
+  const simulationAgentId = pickSimulationAgentId();
   // Derive which mode tabs to show based on scenario channel
   const scenarioChannel = (scenario as any)?.channel ?? "text";
   const ALL_MODES = [
@@ -578,88 +597,77 @@ export default function SimulationSession({ sessionId }: Props) {
           {isActive ? (
             <div className="shrink-0 bg-white border-t border-border">
 
-              {/* ── VOICE MODE: large central mic ── */}
+              {/* ── VOICE MODE: D-ID live avatar ── */}
               {simulationMode === 'voice' ? (
-                <div className="flex flex-col items-center justify-center py-8 px-6 gap-4">
-                  {/* Status label */}
-                  <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase">
-                    {isRecording ? 'Recording — tap to stop' : isTranscribing ? 'Transcribing…' : isSpeaking ? 'AI is speaking…' : sendMessage.isPending ? 'AI is thinking…' : 'Tap to speak'}
-                  </p>
-
-                  {/* AI speaking waveform */}
-                  {isSpeaking && (
-                    <div className="flex items-end gap-1 h-8">
-                      {[1,2,3,4,5,4,3,2,1].map((h, i) => (
-                        <div
-                          key={i}
-                          className="w-1.5 rounded-full"
-                          style={{
-                            height: `${h * 6}px`,
-                            background: 'oklch(0.51 0.23 264)',
-                            animation: `waveBar 0.8s ease-in-out ${i * 0.08}s infinite alternate`,
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Large mic button */}
-                  <button
-                    onClick={isRecording ? stopRecording : startRecording}
-                    disabled={isTranscribing || sendMessage.isPending || isSpeaking}
-                    className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all disabled:opacity-40 shadow-lg hover:shadow-xl active:scale-95"
-                    style={{
-                      background: isRecording
-                        ? 'linear-gradient(135deg, oklch(0.58 0.22 27), oklch(0.68 0.20 40))'
-                        : 'linear-gradient(135deg, oklch(0.51 0.23 264), oklch(0.62 0.22 290))',
-                      boxShadow: isRecording
-                        ? '0 0 0 8px oklch(0.58 0.22 27 / 0.15), 0 4px 20px oklch(0.58 0.22 27 / 0.4)'
-                        : '0 0 0 8px oklch(0.51 0.23 264 / 0.12), 0 4px 20px oklch(0.51 0.23 264 / 0.35)',
-                    }}
-                  >
-                    {isRecording
-                      ? <MicOff size={28} color="white" />
-                      : <Mic size={28} color="white" />
-                    }
-                    {/* Pulse ring when recording */}
-                    {isRecording && (
-                      <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'oklch(0.58 0.22 27 / 0.25)' }} />
-                    )}
-                  </button>
-
-                  {/* Recording timer */}
-                  {isRecording && (
-                    <span className="text-sm font-bold tabular-nums" style={{ color: 'oklch(0.58 0.22 27)' }}>
-                      {Math.floor(recordingTime / 60).toString().padStart(2, '0')}:{(recordingTime % 60).toString().padStart(2, '0')}
-                    </span>
-                  )}
-
-                  {/* Transcribed text preview */}
-                  {input && (
-                    <div className="w-full max-w-sm">
-                      <div className="px-3 py-2 rounded-xl text-sm bg-gray-50 border border-border text-foreground">{input}</div>
-                      <div className="flex gap-2 mt-2 justify-end">
-                        <button onClick={() => setInput('')} className="text-xs text-muted-foreground hover:underline">Clear</button>
-                        <button
-                          onClick={handleSend}
-                          disabled={sendMessage.isPending}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white disabled:opacity-50"
-                          style={{ background: 'oklch(0.51 0.23 264)' }}
-                        >
-                          <Send size={11} /> Send
-                        </button>
+                <div className="flex flex-col items-center justify-center py-4 px-4 gap-3">
+                  {!showDIDSession ? (
+                    // Pre-session prompt
+                    <div className="flex flex-col items-center gap-4 py-4 text-center max-w-sm">
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                        style={{ background: 'oklch(0.95 0.05 264)' }}
+                      >
+                        <Mic size={24} style={{ color: 'oklch(0.51 0.23 264)' }} />
                       </div>
+                      <div>
+                        <p className="text-sm font-bold text-foreground mb-1">Live Voice Practice with AI Avatar</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Speak directly with a live AI avatar. Your conversation will be recorded and scored.
+                          Camera &amp; microphone access required.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setShowDIDSession(true)}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                        style={{ background: 'oklch(0.51 0.23 264)' }}
+                      >
+                        <Mic size={15} /> Start Live Voice Session
+                      </button>
+                      <p className="text-[10px] text-muted-foreground">Continue with Google via Manus · Camera &amp; microphone required</p>
                     </div>
-                  )}
-
-                  {userMessageCount >= 3 && (
-                    <button
-                      onClick={() => setShowEndConfirm(true)}
-                      className="text-xs font-semibold hover:underline"
-                      style={{ color: 'oklch(0.51 0.23 264)' }}
-                    >
-                      Ready to finish? →
-                    </button>
+                  ) : (
+                    // D-ID live session
+                    <div className="w-full max-w-lg">
+                      <DIDAgentSession
+                        agentId={simulationAgentId}
+                        className="w-full"
+                        onMessage={(msg) => {
+                          setDidTranscript((prev) => [...prev, msg]);
+                        }}
+                        onEnd={(transcript) => {
+                          setShowDIDSession(false);
+                          setDidTranscript(transcript);
+                          // Build a summary of the transcript to show in the chat panel
+                          const summary = transcript
+                            .map((m) => `${m.role === 'user' ? 'You' : 'AI'}: ${m.content}`)
+                            .join('\n');
+                          if (summary.trim()) {
+                            toast.success('Voice session ended — scoring your conversation…');
+                            // Send transcript as a single message for scoring
+                            sendMessage.mutate({
+                              sessionId,
+                              content: `[Voice Session Transcript]\n${summary}`,
+                              language: sessionLanguage,
+                            });
+                          }
+                          setShowEndConfirm(true);
+                        }}
+                        onError={(err) => {
+                          toast.error(`Voice session error: ${err}`);
+                          setShowDIDSession(false);
+                        }}
+                      />
+                      {didTranscript.length > 0 && (
+                        <div className="mt-3 px-3 py-2 rounded-xl text-xs text-muted-foreground bg-gray-50 border border-border max-h-28 overflow-y-auto">
+                          <p className="font-semibold text-foreground mb-1">Live transcript</p>
+                          {didTranscript.slice(-5).map((m, i) => (
+                            <p key={i} className={m.role === 'user' ? 'text-foreground' : 'text-muted-foreground'}>
+                              <strong>{m.role === 'user' ? 'You' : 'AI'}:</strong> {m.content}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
