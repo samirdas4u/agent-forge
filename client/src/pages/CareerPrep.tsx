@@ -297,7 +297,7 @@ export default function CareerPrep() {
   const handleStart = async () => {
     if (!selectedId) return;
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      window.location.href = getLoginUrl("/career-prep");
       return;
     }
     setStarting(true);
@@ -315,7 +315,7 @@ export default function CareerPrep() {
       const msg = e?.message ?? "";
       if (msg.includes("UNAUTHORIZED") || msg.includes("401")) {
         toast.error("Please sign in to start a video interview.");
-        setTimeout(() => { window.location.href = getLoginUrl(); }, 1500);
+        setTimeout(() => { window.location.href = getLoginUrl("/career-prep"); }, 1500);
       } else if (msg.includes("Invalid persona_id")) {
         toast.error("This interviewer is not yet available. Please choose another.");
       } else {

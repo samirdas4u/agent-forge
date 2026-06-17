@@ -52,7 +52,7 @@ export default function InterviewPractice() {
   const handleStart = async () => {
     if (!selectedPersonaId) return;
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      window.location.href = getLoginUrl("/interview");
       return;
     }
     setStarting(true);
@@ -68,7 +68,7 @@ export default function InterviewPractice() {
       const msg = e?.message ?? "";
       if (msg.includes("UNAUTHORIZED") || msg.includes("401")) {
         toast.error("Please sign in to start a video interview.");
-        setTimeout(() => { window.location.href = getLoginUrl(); }, 1500);
+        setTimeout(() => { window.location.href = getLoginUrl("/interview"); }, 1500);
       } else {
         toast.error("Could not start the interview. Please try again.");
       }
