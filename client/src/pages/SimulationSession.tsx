@@ -83,7 +83,10 @@ export default function SimulationSession({ sessionId }: Props) {
   const [isTranscribing, setIsTranscribing] = useState(false);
   // TTS (AI voice output) state
   // Simulation mode: 'chat' | 'voice' | 'email' | 'phone'
+  // Initialised to 'chat'; overridden by scenario.channel once data loads (see useEffect below)
   const [simulationMode, setSimulationMode] = useState<'chat' | 'voice' | 'email' | 'phone'>('chat');
+  const [modeInitialised, setModeInitialised] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -215,6 +218,21 @@ export default function SimulationSession({ sessionId }: Props) {
     }
   };
 
+  // Auto-set simulation mode from scenario.channel when session data first loads
+  useEffect(() => {
+    if (modeInitialised || !data?.scenario) return;
+    const ch = (data.scenario as any).channel ?? "text";
+    const modeMap: Record<string, 'chat' | 'voice' | 'email' | 'phone'> = {
+      text: 'chat',
+      chat: 'chat',
+      email: 'email',
+      phone: 'phone',
+      voice: 'voice',
+    };
+    setSimulationMode(modeMap[ch] ?? 'chat');
+    setModeInitialised(true);
+  }, [data?.scenario, modeInitialised]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [data?.messages, isTyping]);
@@ -226,8 +244,13 @@ export default function SimulationSession({ sessionId }: Props) {
 
   const handleSend = () => {
     if (!input.trim() || sendMessage.isPending) return;
-    const content = input.trim();
+    // For email mode, prepend subject line if provided
+    const body = input.trim();
+    const content = simulationMode === 'email' && emailSubject.trim()
+      ? `Subject: ${emailSubject.trim()}\n\n${body}`
+      : body;
     setInput("");
+    if (simulationMode === 'email') setEmailSubject("");
     sendMessage.mutate({ sessionId, content, language: sessionLanguage });
   };
 
@@ -269,6 +292,19 @@ export default function SimulationSession({ sessionId }: Props) {
   const isActive = session.status === "active";
   const userMessageCount = messages.filter((m: any) => m.role === "user").length;
   const catStyle = CATEGORY_COLORS[scenario?.category ?? ""] ?? { bg: "oklch(0.95 0.05 264)", color: "oklch(0.51 0.23 264)" };
+  // Derive which mode tabs to show based on scenario channel
+  const scenarioChannel = (scenario as any)?.channel ?? "text";
+  const ALL_MODES = [
+    { id: 'chat'  as const, label: 'Chat',  icon: <MessageSquare size={13} /> },
+    { id: 'voice' as const, label: 'Voice', icon: <Mic size={13} /> },
+    { id: 'email' as const, label: 'Email', icon: <Mail size={13} /> },
+    { id: 'phone' as const, label: 'Phone', icon: <Phone size={13} /> },
+  ];
+  // Primary mode for the scenario; always show it + voice as an option
+  const primaryMode = scenarioChannel === 'email' ? 'email' : scenarioChannel === 'phone' ? 'phone' : 'chat';
+  const availableModes = ALL_MODES.filter(m =>
+    m.id === primaryMode || m.id === 'voice'
+  );
 
   return (
     <AppLayout fullscreen>
@@ -381,12 +417,7 @@ export default function SimulationSession({ sessionId }: Props) {
           {/* Mode switcher bar */}
           <div className="shrink-0 bg-white border-b border-border">
             <div className="flex items-center gap-1 px-4 py-2 overflow-x-auto">
-              {([
-                { id: 'chat',  label: 'Chat',  icon: <MessageSquare size={13} /> },
-                { id: 'voice', label: 'Voice', icon: <Mic size={13} /> },
-                { id: 'email', label: 'Email', icon: <Mail size={13} /> },
-                { id: 'phone', label: 'Phone', icon: <Phone size={13} /> },
-              ] as const).map((mode) => (
+              {availableModes.map((mode) => (
                 <button
                   key={mode.id}
                   onClick={() => setSimulationMode(mode.id)}
@@ -637,6 +668,8 @@ export default function SimulationSession({ sessionId }: Props) {
                 <div className="p-3 space-y-2">
                   <input
                     type="text"
+                    value={emailSubject}
+                    onChange={(e) => setEmailSubject(e.target.value)}
                     placeholder="Subject line…"
                     className="w-full px-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-white"
                     disabled={sendMessage.isPending}

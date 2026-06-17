@@ -32,6 +32,9 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+// Real Tavus persona IDs — others are placeholders not yet configured
+const REAL_TAVUS_IDS = new Set(["p00105f03c2f", "p5c154ab23bf", "p39b2c0123f2", "pdac61133ac5"]);
+
 // ─── Career Tracks ─────────────────────────────────────────────────────────────
 const CAREER_TRACKS = [
   {
@@ -450,7 +453,14 @@ export default function CareerPrep() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-foreground text-sm leading-snug">{persona.name}</h3>
-                          {isSelected && <CheckCircle2 size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />}
+                          {isSelected
+                            ? <CheckCircle2 size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />
+                            : !REAL_TAVUS_IDS.has(persona.id) && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-700/60 text-slate-400 border border-slate-600/40 flex-shrink-0">
+                                Soon
+                              </span>
+                            )
+                          }
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{persona.role}</p>
                         <p className="text-xs text-muted-foreground/70">{persona.company}</p>
@@ -516,28 +526,46 @@ export default function CareerPrep() {
                   </div>
                 </div>
                 <div className="flex-shrink-0 w-full sm:w-auto">
-                  <Button
-                    onClick={handleStart}
-                    disabled={starting}
-                    size="lg"
-                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white gap-2 px-8"
-                  >
-                    {starting ? (
-                      <>Connecting…</>
-                    ) : (
-                      <>
+                  {REAL_TAVUS_IDS.has(selectedId ?? "") ? (
+                    <>
+                      <Button
+                        onClick={handleStart}
+                        disabled={starting}
+                        size="lg"
+                        className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white gap-2 px-8"
+                      >
+                        {starting ? (
+                          <>Connecting…</>
+                        ) : (
+                          <>
+                            <Video size={18} />
+                            Start Interview
+                            <ArrowRight size={16} />
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        Camera &amp; microphone required
+                      </p>
+                      <p className="text-xs text-muted-foreground/70 text-center">
+                        Sign in with Google via Manus to begin
+                      </p>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Button
+                        disabled
+                        size="lg"
+                        className="w-full sm:w-auto gap-2 px-8 opacity-60 cursor-not-allowed bg-slate-700 text-slate-300"
+                      >
                         <Video size={18} />
-                        Start Interview
-                        <ArrowRight size={16} />
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-muted-foreground text-center mt-2">
-                    Camera &amp; microphone required
-                  </p>
-                  <p className="text-xs text-muted-foreground/70 text-center">
-                    Sign in with Google via Manus to begin
-                  </p>
+                        Coming Soon
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center">
+                        This AI interviewer is being configured — check back soon.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
