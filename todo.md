@@ -328,3 +328,9 @@
 - [x] D-ID is now isolated to InterviewSession only (video interview feature)
 - [x] Phone mode retains text input + mic recording + AI voice (TTS) as before
 - [x] TypeScript: 0 errors · Tests: 8/8 passing
+
+## Phone Simulation Auto-Initiation Fix
+
+- [ ] AI persona should speak first automatically when phone/voice session starts (not wait for user to type)
+- [ ] For cold call scenarios: AI opens with a greeting/answer; user responds
+- [ ] Mic button should work for voice input in phone mode

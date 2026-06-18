@@ -331,6 +331,28 @@ Return JSON with: { score: number (0-100), feedback: string (1-2 sentences), dim
         return { text: result.text };
       }),
 
+    getOpeningMessage: publicProcedure
+      .input(z.object({ sessionId: z.number(), language: z.string().optional() }))
+      .mutation(async ({ input, ctx }) => {
+        const session = await getSessionById(input.sessionId);
+        if (!session || session.userId !== (ctx.user?.id ?? 0)) throw new TRPCError({ code: "NOT_FOUND" });
+        if (session.status !== "active") throw new TRPCError({ code: "BAD_REQUEST", message: "Session is not active" });
+        const scenario = await getScenarioById(session.scenarioId);
+        if (!scenario) throw new TRPCError({ code: "NOT_FOUND" });
+        // Only generate opening if no messages yet
+        const existing = await getSessionMessages(input.sessionId);
+        if (existing.length > 0) return { aiContent: existing[0].content };
+        const langCode = scenario.languageLock ?? session.language ?? input.language ?? "en";
+        const langInstruction = buildLanguageInstruction(langCode);
+        const llmMessages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
+          { role: "system", content: scenario.systemPrompt + langInstruction + "\n\nThe conversation is just starting. Open the conversation naturally as your persona — greet the caller or answer the phone as appropriate. Keep it brief (1-2 sentences)." },
+          { role: "user", content: "[START]" },
+        ];
+        const aiResponse = await invokeLLM({ messages: llmMessages });
+        const aiContent = (typeof aiResponse.choices[0]?.message?.content === 'string' ? aiResponse.choices[0]?.message?.content : null) ?? "Hello, how can I help you today?";
+        await addMessage({ sessionId: input.sessionId, role: "assistant", content: aiContent });
+        return { aiContent };
+      }),
     speakText: publicProcedure
       .input(z.object({
         text: z.string().min(1).max(4096),

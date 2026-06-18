@@ -134,6 +134,16 @@ export default function SimulationSession({ sessionId }: Props) {
     onSuccess: () => navigate("/simulate"),
   });
 
+  const getOpeningMessage = trpc.sessions.getOpeningMessage.useMutation({
+    onSuccess: (result) => {
+      refetch().then(() => {
+        if (voiceEnabled && result.aiContent) {
+          playAIMessage(result.aiContent);
+        }
+      });
+    },
+  });
+
   const transcribeVoice = trpc.sessions.transcribeVoice.useMutation({
     onSuccess: (result) => {
       setIsTranscribing(false);
@@ -220,6 +230,8 @@ export default function SimulationSession({ sessionId }: Props) {
   };
 
   // Auto-set simulation mode from scenario.channel when session data first loads
+  // Also auto-trigger AI opening message for inbound scenarios (customer_service, interview, negotiation, presentation)
+  const [openingTriggered, setOpeningTriggered] = useState(false);
   useEffect(() => {
     if (modeInitialised || !data?.scenario) return;
     const ch = (data.scenario as any).channel ?? "text";
@@ -233,6 +245,21 @@ export default function SimulationSession({ sessionId }: Props) {
     setSimulationMode(modeMap[ch] ?? 'chat');
     setModeInitialised(true);
   }, [data?.scenario, modeInitialised]);
+
+  // Auto-trigger AI opening message for scenarios where the AI speaks first
+  // (customer_service, interview, negotiation, presentation — NOT sales cold call)
+  useEffect(() => {
+    if (openingTriggered || !data?.session || !data?.scenario || !data?.messages) return;
+    const category = data.scenario.category;
+    const aiSpeaksFirst = ['customer_service', 'interview', 'negotiation', 'presentation'].includes(category);
+    if (aiSpeaksFirst && data.messages.length === 0) {
+      setOpeningTriggered(true);
+      getOpeningMessage.mutate({ sessionId, language: sessionLanguage });
+    } else if (data.messages.length > 0) {
+      setOpeningTriggered(true); // already has messages, no need to trigger
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.session, data?.scenario, data?.messages, openingTriggered]);
 
 
   useEffect(() => {
@@ -510,11 +537,27 @@ export default function SimulationSession({ sessionId }: Props) {
                   >
                     <MessageSquare size={18} style={{ color: "oklch(0.51 0.23 264)" }} />
                   </div>
-                  <p className="text-sm font-semibold text-foreground mb-1">Ready to begin</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Type your opening message to start the conversation with{" "}
-                    <strong>{scenario?.aiPersona?.split(",")[0] ?? "the AI"}</strong>.
-                  </p>
+                  {getOpeningMessage.isPending ? (
+                    <>
+                      <p className="text-sm font-semibold text-foreground mb-1">Connecting…</p>
+                      <p className="text-xs text-muted-foreground">The AI is about to speak.</p>
+                    </>
+                  ) : ['customer_service', 'interview', 'negotiation', 'presentation'].includes(scenario?.category ?? '') ? (
+                    <>
+                      <p className="text-sm font-semibold text-foreground mb-1">Ready to begin</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        <strong>{scenario?.aiPersona?.split(",")[0] ?? "The AI"}</strong> will open the conversation. Wait for their greeting, then respond.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold text-foreground mb-1">You go first</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        You're making the call. Type or speak your opening line to start the conversation with{" "}
+                        <strong>{scenario?.aiPersona?.split(",")[0] ?? "the AI"}</strong>.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
