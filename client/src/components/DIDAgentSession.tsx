@@ -1,5 +1,12 @@
 /**
  * DIDAgentSession — embeds a D-ID streaming avatar agent via the @d-id/client-sdk.
+ *
+ * Auth strategy:
+ * - We fetch the DID_API_KEY from our server via tRPC (getDIDToken).
+ * - We pass it as { type: "basic", token: <DID_API_KEY> } to the SDK.
+ * - HTTP calls go through our /api/did-proxy which replaces the auth header.
+ * - The WebSocket to wss://notifications.d-id.com uses Basic auth directly —
+ *   this is the same credential the server uses, so it is always valid.
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -14,6 +21,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { PhoneOff, Loader2, Mic, MicOff, AlertTriangle } from "lucide-react";
+import { trpc } from "@/lib/trpc";
 
 export interface DIDMessage {
   role: "agent" | "user";
@@ -23,7 +31,8 @@ export interface DIDMessage {
 
 interface Props {
   agentId: string;
-  clientKey: string;
+  /** clientKey is kept for backwards compat but is no longer used for auth */
+  clientKey?: string;
   onMessage?: (msg: DIDMessage) => void;
   onEnd?: (transcript: DIDMessage[]) => void;
   onError?: (err: string) => void;
@@ -35,7 +44,6 @@ type UIStatus = "idle" | "connecting" | "connected" | "disconnected" | "error";
 
 export default function DIDAgentSession({
   agentId,
-  clientKey,
   onMessage,
   onEnd,
   onError,
@@ -56,6 +64,12 @@ export default function DIDAgentSession({
   const [isMuted, setIsMuted] = useState(false);
   const [isAgentTalking, setIsAgentTalking] = useState(false);
 
+  // Fetch the server-side DID token (Basic auth credential)
+  const { data: tokenData } = trpc.system.getDIDToken.useQuery(undefined, {
+    staleTime: Infinity, // token doesn't change
+    retry: 3,
+  });
+
   const handleEnd = useCallback(() => {
     agentManagerRef.current?.disconnect();
     onEnd?.(transcriptRef.current);
@@ -63,6 +77,8 @@ export default function DIDAgentSession({
 
   useEffect(() => {
     if (!autoConnect) return;
+    // Wait until we have the token
+    if (!tokenData?.token) return;
 
     let cancelled = false;
 
@@ -71,13 +87,13 @@ export default function DIDAgentSession({
       setErrorMsg("");
 
       try {
-        // Use our server-side proxy so the browser never needs the D-ID API key.
-        // The proxy at /api/did-proxy forwards requests to api.d-id.com with the real API key.
-        // We pass a dummy bearer token because the proxy ignores the Authorization header
-        // and replaces it with the server-side DID_API_KEY.
+        // HTTP calls go through our server proxy (/api/did-proxy).
+        // The proxy replaces the Authorization header with the real DID_API_KEY.
+        // The WebSocket (wss://notifications.d-id.com) uses Basic auth directly —
+        // same credential as the server, so it is always accepted.
         const proxyBase = `${window.location.origin}/api/did-proxy`;
         const options: AgentManagerOptions = {
-          auth: { type: "bearer", token: clientKey },
+          auth: { type: "basic", token: tokenData!.token },
           baseURL: proxyBase,
           callbacks: {
             onSrcObjectReady(srcObject: MediaStream) {
@@ -156,7 +172,7 @@ export default function DIDAgentSession({
       agentManagerRef.current?.disconnect();
       agentManagerRef.current = null;
     };
-  }, [agentId, clientKey, autoConnect]);
+  }, [agentId, autoConnect, tokenData]);
 
   const toggleMute = useCallback(() => {
     const stream = videoRef.current?.srcObject as MediaStream | null;
