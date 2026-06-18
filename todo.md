@@ -320,3 +320,11 @@
 - [x] Update server procedures: interview.createSession, endSession, getStatus, generateFeedback → publicProcedure
 - [x] Add soft "Sign in to save progress" nudge banner in Scenarios page for guest users
 - [x] Remove all "Coming Soon" disabled buttons in CareerPrep — all 12 personas now active
+
+## Restore Phone/Voice Simulation (Stable)
+
+- [x] Removed D-ID from SimulationSession entirely — voice mode now uses original TTS/STT approach
+- [x] Restored original large mic button UI for Voice tab in SimulationSession
+- [x] D-ID is now isolated to InterviewSession only (video interview feature)
+- [x] Phone mode retains text input + mic recording + AI voice (TTS) as before
+- [x] TypeScript: 0 errors · Tests: 8/8 passing
