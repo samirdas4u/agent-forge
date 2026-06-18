@@ -71,8 +71,14 @@ export default function DIDAgentSession({
       setErrorMsg("");
 
       try {
+        // Use our server-side proxy so the browser never needs the D-ID API key.
+        // The proxy at /api/did-proxy forwards requests to api.d-id.com with the real API key.
+        // We pass a dummy bearer token because the proxy ignores the Authorization header
+        // and replaces it with the server-side DID_API_KEY.
+        const proxyBase = `${window.location.origin}/api/did-proxy`;
         const options: AgentManagerOptions = {
-          auth: { type: "key", clientKey },
+          auth: { type: "bearer", token: clientKey },
+          baseURL: proxyBase,
           callbacks: {
             onSrcObjectReady(srcObject: MediaStream) {
               if (videoRef.current && srcObject) {

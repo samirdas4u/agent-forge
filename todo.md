@@ -304,3 +304,8 @@
 
 - [x] Voice tab in SimulationSession auto-starts D-ID session immediately on tab switch (no extra "Start Live Voice Session" button click)
 - [x] Phone mode shows a clear "Switch to Voice Call" banner/CTA to guide users toward the Voice tab
+
+## D-ID Voice Call Fix (Network request failed)
+
+- [x] Add /api/did-proxy route in Express to forward D-ID API requests with server-side API key
+- [x] Update DIDAgentSession to use { type: 'bearer', token: clientKey } auth with proxy baseURL
