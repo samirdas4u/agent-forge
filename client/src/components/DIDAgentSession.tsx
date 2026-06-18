@@ -7,6 +7,12 @@
  * - HTTP calls go through our /api/did-proxy which replaces the auth header.
  * - The WebSocket to wss://notifications.d-id.com uses Basic auth directly —
  *   this is the same credential the server uses, so it is always valid.
+ *
+ * Video fix:
+ * - onSrcObjectReady fires from a WebRTC peerConnection.ontrack event.
+ *   We store the MediaStream in state and use a useEffect to assign it to the
+ *   video element, avoiding the race condition where videoRef.current is null
+ *   when the callback fires.
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
@@ -53,6 +59,12 @@ export default function DIDAgentSession({
   const videoRef = useRef<HTMLVideoElement>(null);
   const agentManagerRef = useRef<AgentManager | null>(null);
   const transcriptRef = useRef<DIDMessage[]>([]);
+
+  // Store the MediaStream in state so we can assign it to the video element
+  // via useEffect — avoids the race condition where videoRef.current is null
+  // when onSrcObjectReady fires from the WebRTC ontrack event.
+  const [srcObject, setSrcObject] = useState<MediaStream | null>(null);
+
   // Use refs for callbacks to avoid stale closures in the SDK callbacks
   const onMessageRef = useRef(onMessage);
   const onErrorRef = useRef(onError);
@@ -61,8 +73,24 @@ export default function DIDAgentSession({
 
   const [status, setStatus] = useState<UIStatus>("idle");
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [isMuted, setIsMuted] = useState(false);
+  // Start muted for autoplay compliance; user can unmute after stream starts
+  const [isMuted, setIsMuted] = useState(true);
+  const [showUnmutePrompt, setShowUnmutePrompt] = useState(false);
   const [isAgentTalking, setIsAgentTalking] = useState(false);
+
+  // Assign srcObject to video element whenever it changes
+  useEffect(() => {
+    if (videoRef.current && srcObject) {
+      videoRef.current.srcObject = srcObject;
+      // Start muted for autoplay compliance, then show unmute prompt
+      videoRef.current.muted = true;
+      videoRef.current.play().then(() => {
+        setShowUnmutePrompt(true);
+      }).catch(() => {
+        // Autoplay blocked — not a fatal error
+      });
+    }
+  }, [srcObject]);
 
   // Fetch the server-side DID token (Basic auth credential)
   const { data: tokenData } = trpc.system.getDIDToken.useQuery(undefined, {
@@ -85,6 +113,7 @@ export default function DIDAgentSession({
     async function connect() {
       setStatus("connecting");
       setErrorMsg("");
+      setSrcObject(null);
 
       try {
         // HTTP calls go through our server proxy (/api/did-proxy).
@@ -96,10 +125,10 @@ export default function DIDAgentSession({
           auth: { type: "basic", token: tokenData!.token },
           baseURL: proxyBase,
           callbacks: {
-            onSrcObjectReady(srcObject: MediaStream) {
-              if (videoRef.current && srcObject) {
-                videoRef.current.srcObject = srcObject;
-              }
+            onSrcObjectReady(stream: MediaStream) {
+              if (cancelled) return;
+              // Store in state — useEffect above will assign to video element
+              setSrcObject(stream);
             },
             onConnectionStateChange(state: ConnectionState) {
               if (cancelled) return;
@@ -175,6 +204,9 @@ export default function DIDAgentSession({
   }, [agentId, autoConnect, tokenData]);
 
   const toggleMute = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+    }
     const stream = videoRef.current?.srcObject as MediaStream | null;
     if (stream) {
       stream.getAudioTracks().forEach((t) => {
@@ -182,21 +214,24 @@ export default function DIDAgentSession({
       });
     }
     setIsMuted((prev) => !prev);
+    setShowUnmutePrompt(false);
   }, [isMuted]);
 
   return (
     <div className={`relative flex flex-col items-center ${className}`}>
       {/* Video element */}
       <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden">
+        {/* Start muted for autoplay compliance; user unmutes via button */}
         <video
           ref={videoRef}
           autoPlay
           playsInline
+          muted
           className="w-full h-full object-cover"
         />
 
         {/* Connecting overlay */}
-        {status === "connecting" && (
+        {(status === "connecting" || status === "idle") && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-white gap-3">
             <Loader2 className="w-10 h-10 animate-spin text-indigo-400" />
             <p className="text-sm font-medium">Connecting to your AI interviewer…</p>
@@ -224,6 +259,19 @@ export default function DIDAgentSession({
         {status === "disconnected" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-white gap-2">
             <p className="text-sm font-medium">Session ended</p>
+          </div>
+        )}
+
+        {/* Unmute prompt — shown after stream starts */}
+        {status === "connected" && showUnmutePrompt && isMuted && (
+          <div
+            className="absolute inset-0 flex items-center justify-center cursor-pointer"
+            onClick={toggleMute}
+          >
+            <div className="bg-black/60 backdrop-blur-sm rounded-full px-5 py-3 flex items-center gap-2 text-white text-sm font-medium hover:bg-black/80 transition-colors">
+              <MicOff className="w-4 h-4 text-amber-400" />
+              Click to unmute audio
+            </div>
           </div>
         )}
 
