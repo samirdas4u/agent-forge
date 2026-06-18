@@ -58,13 +58,9 @@ export default function InterviewPractice() {
         candidateName: candidateName || undefined,
         jobTitle: jobTitle || undefined,
       });
-      const sessionParams = new URLSearchParams({
-        agentId: session.agentId,
-        persona: selectedPersonaId,
-      });
-      if (jobTitle) sessionParams.set("jobTitle", jobTitle);
-      if (candidateName) sessionParams.set("candidateName", candidateName);
-      navigate(`/interview/session/${session.conversationId}?${sessionParams.toString()}`);
+      navigate(
+        `/interview/session/${session.conversationId}?url=${encodeURIComponent(session.conversationUrl)}&persona=${selectedPersonaId}&jobTitle=${encodeURIComponent(jobTitle || "")}&candidateName=${encodeURIComponent(candidateName || "")}`
+      );
     } catch (e: any) {
       console.error(e);
       toast.error("Could not start the interview. Please try again.");

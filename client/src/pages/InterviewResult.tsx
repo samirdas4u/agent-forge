@@ -122,7 +122,7 @@ export default function InterviewResult() {
         // ignore parse errors
       }
     }
-    generateFeedback.mutateAsync({ personaId, jobTitle, candidateName, durationSeconds, transcript })
+    generateFeedback.mutateAsync({ personaId, jobTitle, candidateName, durationSeconds })
       .then((data) => setFeedback(data))
       .catch((err) => setError(err.message ?? "Failed to generate feedback."));
   // eslint-disable-next-line react-hooks/exhaustive-deps

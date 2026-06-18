@@ -1,31 +1,14 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { INTERVIEW_AGENTS } from "../../shared/didAgents";
 
-const DID_API_KEY = process.env.DID_API_KEY!;
-const DID_BASE = "https://api.d-id.com";
+const TAVUS_API_KEY = process.env.TAVUS_API_KEY!;
+const TAVUS_BASE = "https://tavusapi.com/v2";
 
-async function didFetch(path: string, method: string, body?: object) {
-  const res = await fetch(`${DID_BASE}${path}`, {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Basic ${DID_API_KEY}`,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `D-ID API error: ${err}` });
-  }
-  return res.json();
-}
-
-// UK interview personas — kept for display metadata (name, description, category, difficulty)
+// UK interview personas (created via Tavus API)
 export const UK_INTERVIEW_PERSONAS = [
   {
-    id: "anna_graduate",
+    id: "p00105f03c2f",
     name: "UK Graduate Interview Coach",
     role: "HR Interviewer",
     company: "Graduate Employer",
@@ -36,7 +19,7 @@ export const UK_INTERVIEW_PERSONAS = [
     avatar: "https://ui-avatars.com/api/?name=Anna&background=6366f1&color=fff&size=128",
   },
   {
-    id: "benjamin_tech",
+    id: "p5c154ab23bf",
     name: "UK Tech Interview Coach",
     role: "Engineering Manager",
     company: "UK Tech Company",
@@ -47,7 +30,7 @@ export const UK_INTERVIEW_PERSONAS = [
     avatar: "https://ui-avatars.com/api/?name=Benjamin&background=0ea5e9&color=fff&size=128",
   },
   {
-    id: "mary_nhs",
+    id: "p39b2c0123f2",
     name: "NHS Interview Coach",
     role: "NHS Panel Interviewer",
     company: "NHS",
@@ -58,7 +41,7 @@ export const UK_INTERVIEW_PERSONAS = [
     avatar: "https://ui-avatars.com/api/?name=Mary&background=10b981&color=fff&size=128",
   },
   {
-    id: "general",
+    id: "pdac61133ac5",
     name: "General Interviewer",
     role: "Senior HR Manager",
     company: "Leading UK Employer",
@@ -70,14 +53,30 @@ export const UK_INTERVIEW_PERSONAS = [
   },
 ];
 
+async function tavusFetch(path: string, method: string, body?: object) {
+  const res = await fetch(`${TAVUS_BASE}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": TAVUS_API_KEY,
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Tavus API error: ${err}` });
+  }
+  return res.json();
+}
+
 export const interviewRouter = router({
   // List available UK interview personas
   listPersonas: publicProcedure.query(async () => {
     return UK_INTERVIEW_PERSONAS;
   }),
 
-  // Create a D-ID agent chat session for a video interview
-  createSession: publicProcedure
+  // Create a Tavus CVI conversation session
+  createSession: protectedProcedure
     .input(
       z.object({
         personaId: z.string(),
@@ -86,149 +85,70 @@ export const interviewRouter = router({
       })
     )
     .mutation(async ({ input }) => {
-      // Resolve D-ID agent ID — accept both new D-ID agent keys and legacy Tavus persona IDs
-      let agentId: string;
-      let agentConfig: typeof INTERVIEW_AGENTS[string] | undefined;
+      const persona = UK_INTERVIEW_PERSONAS.find((p) => p.id === input.personaId);
+      const conversationName = `Interview - ${input.candidateName ?? "Candidate"} - ${persona?.name ?? "Coach"}`;
 
-      if (INTERVIEW_AGENTS[input.personaId]) {
-        // Direct D-ID agent key (e.g. "benjamin_tech")
-        agentConfig = INTERVIEW_AGENTS[input.personaId];
-        agentId = agentConfig.agentId;
-      } else {
-        // Check if personaId is a raw D-ID agent ID (v2_agt_...) — look it up by agentId
-        const byAgentId = Object.values(INTERVIEW_AGENTS).find((a) => a.agentId === input.personaId);
-        if (byAgentId) {
-          agentConfig = byAgentId;
-          agentId = byAgentId.agentId;
-        } else {
-          // Unknown persona — fall back to rachel_career (general interviewer)
-          agentConfig = INTERVIEW_AGENTS.rachel_career;
-          agentId = agentConfig.agentId;
-        }
-      }
-
-      // Create a D-ID agent chat session
-      const data = await didFetch(`/agents/${agentId}/chat`, "POST", {
-        name: `Interview - ${input.candidateName ?? "Candidate"} - ${agentConfig?.name ?? "Coach"}`,
+      const data = await tavusFetch("/conversations", "POST", {
+        persona_id: input.personaId,
+        conversation_name: conversationName,
+        conversational_context: input.jobTitle
+          ? `The candidate is applying for the role of: ${input.jobTitle}. Tailor your questions accordingly.`
+          : undefined,
+        properties: {
+          max_call_duration: 1800, // 30 minutes max
+          enable_recording: false,
+          apply_greenscreen: false,
+          language: "english",
+        },
       });
 
       return {
-        conversationId: data.id as string,
-        agentId: agentId as string,
-        agentName: agentConfig?.name ?? "AI Interviewer",
-        // conversationUrl is no longer used (D-ID uses SDK, not iframe)
-        conversationUrl: "",
-        status: "created",
+        conversationId: data.conversation_id as string,
+        conversationUrl: data.conversation_url as string,
+        status: data.status as string,
       };
     }),
 
-  // End a D-ID agent chat session (soft delete / close)
-  endSession: publicProcedure
-    .input(z.object({ conversationId: z.string(), agentId: z.string().optional() }))
+  // End a Tavus CVI conversation session
+  endSession: protectedProcedure
+    .input(z.object({ conversationId: z.string() }))
     .mutation(async ({ input }) => {
-      // D-ID chat sessions close automatically; no explicit end API needed.
-      // We keep this procedure for compatibility with the frontend.
+      await tavusFetch(`/conversations/${input.conversationId}/end`, "POST");
       return { success: true };
     }),
 
-  // Get session status (no-op for D-ID — sessions are stateless)
-  getStatus: publicProcedure
+  // Get conversation status
+  getStatus: protectedProcedure
     .input(z.object({ conversationId: z.string() }))
-    .query(async () => {
-      return { status: "active", conversationUrl: "" };
+    .query(async ({ input }) => {
+      const data = await tavusFetch(`/conversations/${input.conversationId}`, "GET");
+      return {
+        status: data.status as string,
+        conversationUrl: data.conversation_url as string,
+      };
     }),
 
   // Generate AI feedback report for a completed interview
-  // Now accepts an optional real transcript from the D-ID SDK for accurate scoring
-  generateFeedback: publicProcedure
+  generateFeedback: protectedProcedure
     .input(
       z.object({
         personaId: z.string(),
         jobTitle: z.string().optional(),
         candidateName: z.string().optional(),
         durationSeconds: z.number(),
-        transcript: z
-          .array(z.object({ role: z.enum(["agent", "user"]), content: z.string() }))
-          .optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       const { invokeLLM } = await import("../_core/llm");
-
-      // Resolve persona metadata — support both new D-ID keys and legacy Tavus IDs
-      const persona = UK_INTERVIEW_PERSONAS.find(
-        (p) => p.id === input.personaId
-      );
+      const persona = UK_INTERVIEW_PERSONAS.find((p) => p.id === input.personaId);
       const personaDesc = persona?.description ?? "a general UK job interview";
       const role = input.jobTitle ?? persona?.role ?? "the applied role";
-      const candidate = input.candidateName ?? "the candidate";
-      const durationMins = Math.round(input.durationSeconds / 60);
+      const candidate = input.candidateName ?? (ctx.user as any).name ?? "the candidate";
+      const durationMins = Math.max(1, Math.round(input.durationSeconds / 60));
 
-      // Guard: session too short — no real content possible
-      if (input.durationSeconds < 30) {
-        return {
-          overallScore: 0,
-          starScore: 0,
-          starFeedback: "No responses were recorded — the session ended before any answers could be given.",
-          clarityScore: 0,
-          clarityFeedback: "No speech was detected during this session.",
-          competencyScore: 0,
-          competencyFeedback: "No competency evidence was provided.",
-          confidenceScore: 0,
-          confidenceFeedback: "No verbal content was available to assess confidence.",
-          strengths: [],
-          improvements: [
-            "Complete a full interview session to receive meaningful feedback.",
-            "Ensure your microphone is enabled before starting.",
-            "Try to answer each question in full before ending the session.",
-          ],
-          sampleAnswer: "Please complete a full interview session to see an example of a strong answer.",
-          summary: `No content was recorded for this session. The interview ended after less than 30 seconds. Please try again and ensure your microphone is active.`,
-          noContent: true,
-          personaName: persona?.name ?? "AI Interviewer",
-          role,
-          candidateName: candidate,
-          durationMins,
-          hasTranscript: false,
-        };
-      }
+      const prompt = `You are an expert UK interview coach. A candidate just completed a ${durationMins}-minute AI video interview for "${role}" with ${persona?.name ?? "an AI interviewer"}. The interview context was: "${personaDesc}".
 
-      // Build feedback prompt — use real transcript if available
-      const hasTranscript = !!(input.transcript && input.transcript.length > 2);
-      const transcriptText = hasTranscript
-        ? input.transcript!
-            .map((m) => `${m.role === "user" ? "Candidate" : "Interviewer"}: ${m.content}`)
-            .join("\n")
-        : null;
-
-      const prompt = hasTranscript
-        ? `You are an expert UK interview coach reviewing a completed AI video interview session.
-Candidate: ${candidate}
-Role practised: ${role}
-Interview type: ${personaDesc}
-Session duration: ${durationMins} minute(s)
-
-FULL TRANSCRIPT:
-${transcriptText}
-
-Based on the transcript above, provide detailed, accurate, and constructive feedback. Score each dimension honestly from 0-100 based on actual performance shown in the transcript. Be specific — reference what the candidate actually said. Provide a strong sample answer for the most important question asked.
-Respond in JSON only.`
-        : `You are an expert UK interview coach reviewing a completed AI video interview session.
-IMPORTANT CONSTRAINT: You do NOT have access to the actual transcript or recording of this interview. You only know:
-- Candidate name: ${candidate}
-- Role being practised: ${role}
-- Interview type: ${personaDesc}
-- Session duration: ${durationMins} minute(s)
-
-Because you have no transcript, you MUST:
-1. Set all dimension scores (starScore, clarityScore, competencyScore, confidenceScore) to between 0 and 40 — reflecting that performance cannot be verified
-2. Set overallScore to between 0 and 35
-3. In every feedback field, explicitly state: "Transcript not available — this score is a placeholder. Complete a full session with microphone enabled for accurate feedback."
-4. Leave strengths as an empty array []
-5. In improvements, include 3 actionable tips for interview preparation
-6. In summary, clearly state that transcript analysis is not available for this session and the candidate should try again
-7. In sampleAnswer, provide a strong example answer for a typical question for this role
-Respond in JSON only.`;
+Generate a detailed, constructive post-interview feedback report for ${candidate}. Include all required fields. Be specific and actionable. Respond in JSON only.`;
 
       const result = await invokeLLM({
         messages: [
@@ -257,13 +177,7 @@ Respond in JSON only.`;
                 sampleAnswer: { type: "string" },
                 summary: { type: "string" },
               },
-              required: [
-                "overallScore", "starScore", "starFeedback",
-                "clarityScore", "clarityFeedback",
-                "competencyScore", "competencyFeedback",
-                "confidenceScore", "confidenceFeedback",
-                "strengths", "improvements", "sampleAnswer", "summary",
-              ],
+              required: ["overallScore","starScore","starFeedback","clarityScore","clarityFeedback","competencyScore","competencyFeedback","confidenceScore","confidenceFeedback","strengths","improvements","sampleAnswer","summary"],
               additionalProperties: false,
             },
           },
@@ -278,7 +192,6 @@ Respond in JSON only.`;
         role,
         candidateName: candidate,
         durationMins,
-        hasTranscript,
       };
     }),
 });
