@@ -144,16 +144,25 @@ export default function SimulationSession({ sessionId }: Props) {
     },
   });
 
+  // In voice mode, auto-send after transcription (no manual Send click needed)
+  const autoSendRef = useRef(false);
+
   const transcribeVoice = trpc.sessions.transcribeVoice.useMutation({
     onSuccess: (result) => {
       setIsTranscribing(false);
       if (result.text) {
-        setInput((prev) => (prev ? prev + " " + result.text : result.text));
-        toast.success("Voice transcribed — review and send!");
+        if (autoSendRef.current) {
+          // Voice mode: send immediately without showing in input box
+          autoSendRef.current = false;
+          sendMessage.mutate({ sessionId, content: result.text, language: sessionLanguage });
+        } else {
+          setInput((prev) => (prev ? prev + " " + result.text : result.text));
+        }
       }
     },
     onError: () => {
       setIsTranscribing(false);
+      autoSendRef.current = false;
       toast.error("Transcription failed. Please try again.");
     },
   });
@@ -650,7 +659,14 @@ export default function SimulationSession({ sessionId }: Props) {
                   )}
                   {/* Large mic button */}
                   <button
-                    onClick={isRecording ? stopRecording : startRecording}
+                    onClick={() => {
+                      if (isRecording) {
+                        autoSendRef.current = true; // auto-send after transcription in voice mode
+                        stopRecording();
+                      } else {
+                        startRecording();
+                      }
+                    }}
                     disabled={isTranscribing || sendMessage.isPending || isSpeaking}
                     className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all disabled:opacity-40 shadow-lg hover:shadow-xl active:scale-95"
                     style={{
