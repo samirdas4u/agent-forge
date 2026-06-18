@@ -1,6 +1,8 @@
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { useState, useRef, useCallback } from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 import {
   ArrowLeft, BarChart3, CheckCircle2, Clock, Linkedin, MessageSquare,
   Mic, MicOff, Play, RotateCcw, ThumbsDown, ThumbsUp, TrendingUp, Volume2, VolumeX
@@ -51,6 +53,7 @@ function ScoreRing({ score, size = 120 }: { score: number; size?: number }) {
 
 export default function SessionResult({ sessionId }: Props) {
   const [, navigate] = useLocation();
+  const { user } = useAuth();
   const { data, isLoading } = trpc.sessions.get.useQuery({ sessionId });
   const [isReplaying, setIsReplaying] = useState(false);
   const [replayIndex, setReplayIndex] = useState(0);
@@ -207,6 +210,21 @@ export default function SessionResult({ sessionId }: Props) {
         </div>
 
         <div className="max-w-5xl mx-auto px-6 py-6 space-y-6">
+          {/* Guest sign-in nudge */}
+          {!user && (
+            <div className="flex items-center justify-between gap-4 px-5 py-4 rounded-2xl bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border border-violet-500/20">
+              <div>
+                <p className="text-sm font-bold text-foreground">Save your results &amp; track progress</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Sign in to keep your session history, streaks, and leaderboard ranking.</p>
+              </div>
+              <a
+                href={getLoginUrl("/simulate")}
+                className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+              >
+                Sign in to save
+              </a>
+            </div>
+          )}
           {/* Top row: Score + stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Overall score card */}

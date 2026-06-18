@@ -309,3 +309,14 @@
 
 - [x] Add /api/did-proxy route in Express to forward D-ID API requests with server-side API key
 - [x] Update DIDAgentSession to use { type: 'bearer', token: clientKey } auth with proxy baseURL
+
+## Guest Mode (Option 2 — No Login Required)
+
+- [x] Audit all auth gates: identified Scenarios, CareerPrep, InterviewPractice as blocking login redirects
+- [x] Remove login requirement from: Scenarios (handleStart), CareerPrep (handleStart), InterviewPractice
+- [x] Keep login requirement for: saving results, history, profile, dashboard (no change needed — already optional)
+- [x] AppLayout already shows "Guest" for unauthenticated users — no blocking gate
+- [x] Add "Save your results" sign-in CTA in SessionResult.tsx for guest users
+- [x] Update server procedures: interview.createSession, endSession, getStatus, generateFeedback → publicProcedure
+- [x] Add soft "Sign in to save progress" nudge banner in Scenarios page for guest users
+- [x] Remove all "Coming Soon" disabled buttons in CareerPrep — all 12 personas now active

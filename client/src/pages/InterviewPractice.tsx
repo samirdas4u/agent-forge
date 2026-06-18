@@ -51,10 +51,6 @@ export default function InterviewPractice() {
 
   const handleStart = async () => {
     if (!selectedPersonaId) return;
-    if (!isAuthenticated) {
-      window.location.href = getLoginUrl("/interview");
-      return;
-    }
     setStarting(true);
     try {
       const session = await createSession.mutateAsync({
@@ -62,16 +58,16 @@ export default function InterviewPractice() {
         candidateName: candidateName || undefined,
         jobTitle: jobTitle || undefined,
       });
-      navigate(`/interview/session/${session.conversationId}?url=${encodeURIComponent(session.conversationUrl)}&persona=${selectedPersonaId}`);
+      const sessionParams = new URLSearchParams({
+        agentId: session.agentId,
+        persona: selectedPersonaId,
+      });
+      if (jobTitle) sessionParams.set("jobTitle", jobTitle);
+      if (candidateName) sessionParams.set("candidateName", candidateName);
+      navigate(`/interview/session/${session.conversationId}?${sessionParams.toString()}`);
     } catch (e: any) {
       console.error(e);
-      const msg = e?.message ?? "";
-      if (msg.includes("UNAUTHORIZED") || msg.includes("401")) {
-        toast.error("Please sign in to start a video interview.");
-        setTimeout(() => { window.location.href = getLoginUrl("/interview"); }, 1500);
-      } else {
-        toast.error("Could not start the interview. Please try again.");
-      }
+      toast.error("Could not start the interview. Please try again.");
       setStarting(false);
     }
   };

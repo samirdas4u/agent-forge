@@ -12,6 +12,7 @@ import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { Button } from "@/components/ui/button";
 
 // ── Constants ──────────────────────────────────────────────────
 const CATEGORIES = ["all", "sales", "customer_service", "interview", "negotiation", "presentation"];
@@ -287,29 +288,27 @@ export default function Scenarios() {
   }, [filtered, groupByFolder, folders]);
 
   const handleStart = (scenarioId: number) => {
-    if (!isAuthenticated) {
-      window.location.href = getLoginUrl("/simulate");
-      return;
-    }
     createSession.mutate({ scenarioId, language: practiceLanguage });
   };
 
   return (
      <AppLayout>
           <div className="flex-1 flex flex-col min-h-0">
-        {/* ── Login prompt banner ── */}
+        {/* ── Guest sign-in nudge ── */}
         {!isAuthenticated && (
-          <div className="shrink-0 flex items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-indigo-50 border-b border-indigo-100">
-            <div className="flex items-center gap-2 text-sm text-indigo-800">
-              <LogIn size={15} className="text-indigo-500 shrink-0" />
-              <span><strong>Sign in</strong> to start a simulation — you can browse all scenarios without an account.</span>
+          <div className="shrink-0 flex items-center justify-between gap-3 px-4 sm:px-6 py-2.5 bg-violet-50 border-b border-violet-100">
+            <div className="flex items-center gap-2 text-sm text-violet-800">
+              <LogIn size={14} className="text-violet-500 shrink-0" />
+              <span className="text-xs"><strong>Sign in</strong> to save your results and track progress.</span>
             </div>
-            <a
-              href={getLoginUrl("/simulate")}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+            <Button
+              size="sm"
+              variant="outline"
+              className="shrink-0 text-xs h-7 px-3 border-violet-300 text-violet-700 hover:bg-violet-100"
+              onClick={() => { window.location.href = getLoginUrl("/simulate"); }}
             >
-              <LogIn size={12} /> Continue with Google
-            </a>
+              Sign in
+            </Button>
           </div>
         )}
         {/* ── Page header ── */}

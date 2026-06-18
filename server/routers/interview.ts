@@ -77,7 +77,7 @@ export const interviewRouter = router({
   }),
 
   // Create a D-ID agent chat session for a video interview
-  createSession: protectedProcedure
+  createSession: publicProcedure
     .input(
       z.object({
         personaId: z.string(),
@@ -123,7 +123,7 @@ export const interviewRouter = router({
     }),
 
   // End a D-ID agent chat session (soft delete / close)
-  endSession: protectedProcedure
+  endSession: publicProcedure
     .input(z.object({ conversationId: z.string(), agentId: z.string().optional() }))
     .mutation(async ({ input }) => {
       // D-ID chat sessions close automatically; no explicit end API needed.
@@ -132,7 +132,7 @@ export const interviewRouter = router({
     }),
 
   // Get session status (no-op for D-ID — sessions are stateless)
-  getStatus: protectedProcedure
+  getStatus: publicProcedure
     .input(z.object({ conversationId: z.string() }))
     .query(async () => {
       return { status: "active", conversationUrl: "" };
@@ -140,7 +140,7 @@ export const interviewRouter = router({
 
   // Generate AI feedback report for a completed interview
   // Now accepts an optional real transcript from the D-ID SDK for accurate scoring
-  generateFeedback: protectedProcedure
+  generateFeedback: publicProcedure
     .input(
       z.object({
         personaId: z.string(),
@@ -161,7 +161,7 @@ export const interviewRouter = router({
       );
       const personaDesc = persona?.description ?? "a general UK job interview";
       const role = input.jobTitle ?? persona?.role ?? "the applied role";
-      const candidate = input.candidateName ?? (ctx.user as any).name ?? "the candidate";
+      const candidate = input.candidateName ?? "the candidate";
       const durationMins = Math.round(input.durationSeconds / 60);
 
       // Guard: session too short — no real content possible

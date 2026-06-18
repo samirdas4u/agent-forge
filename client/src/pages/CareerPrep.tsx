@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import AppLayout from "@/components/AppLayout";
 import { trpc } from "@/lib/trpc";
@@ -31,9 +30,6 @@ import {
   CheckCircle2,
   ArrowRight,
 } from "lucide-react";
-
-// Real D-ID agent IDs — others are placeholders not yet configured
-const REAL_DID_IDS = new Set(["anna_graduate", "benjamin_tech", "mary_nhs", "general"]);
 
 // ─── Career Tracks ─────────────────────────────────────────────────────────────
 const CAREER_TRACKS = [
@@ -282,7 +278,8 @@ const FEATURES = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function CareerPrep() {
   const [, navigate] = useLocation();
-  const { isAuthenticated } = useAuth();
+  // useAuth for future save-results prompt
+  const { user: _authUser } = useAuth();
   const [activeTrack, setActiveTrack] = useState("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [jobTitle, setJobTitle] = useState("");
@@ -299,10 +296,6 @@ export default function CareerPrep() {
 
   const handleStart = async () => {
     if (!selectedId) return;
-    if (!isAuthenticated) {
-      window.location.href = getLoginUrl("/career-prep");
-      return;
-    }
     setStarting(true);
     try {
       const session = await createSession.mutateAsync({
@@ -310,20 +303,16 @@ export default function CareerPrep() {
         candidateName: candidateName || undefined,
         jobTitle: jobTitle || selected?.role || undefined,
       });
-      navigate(
-        `/interview/session/${session.conversationId}?agentId=${encodeURIComponent(session.agentId)}&persona=${selectedId}&jobTitle=${encodeURIComponent(jobTitle || selected?.role || "")}&candidateName=${encodeURIComponent(candidateName || "")}`
-      );
+      const sessionParams = new URLSearchParams({
+        agentId: session.agentId,
+        persona: selectedId,
+      });
+      if (jobTitle || selected?.role) sessionParams.set("jobTitle", jobTitle || selected?.role || "");
+      if (candidateName) sessionParams.set("candidateName", candidateName);
+      navigate(`/interview/session/${session.conversationId}?${sessionParams.toString()}`);
     } catch (e: any) {
       console.error(e);
-      const msg = e?.message ?? "";
-      if (msg.includes("UNAUTHORIZED") || msg.includes("401")) {
-        toast.error("Please sign in to start a video interview.");
-        setTimeout(() => { window.location.href = getLoginUrl("/career-prep"); }, 1500);
-      } else if (msg.includes("Invalid persona_id")) {
-        toast.error("This interviewer is not yet available. Please choose another.");
-      } else {
-        toast.error("Could not start the interview. Please try again.");
-      }
+      toast.error("Could not start the interview. Please try again.");
       setStarting(false);
     }
   };
@@ -453,14 +442,9 @@ export default function CareerPrep() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-foreground text-sm leading-snug">{persona.name}</h3>
-                          {isSelected
-                            ? <CheckCircle2 size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />
-                            : !REAL_DID_IDS.has(persona.id) && (
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-700/60 text-slate-400 border border-slate-600/40 flex-shrink-0">
-                                Soon
-                              </span>
-                            )
-                          }
+                          {isSelected && (
+                            <CheckCircle2 size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{persona.role}</p>
                         <p className="text-xs text-muted-foreground/70">{persona.company}</p>
@@ -526,46 +510,25 @@ export default function CareerPrep() {
                   </div>
                 </div>
                 <div className="flex-shrink-0 w-full sm:w-auto">
-                  {REAL_DID_IDS.has(selectedId ?? "") ? (
-                    <>
-                      <Button
-                        onClick={handleStart}
-                        disabled={starting}
-                        size="lg"
-                        className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white gap-2 px-8"
-                      >
-                        {starting ? (
-                          <>Connecting…</>
-                        ) : (
-                          <>
-                            <Video size={18} />
-                            Start Interview
-                            <ArrowRight size={16} />
-                          </>
-                        )}
-                      </Button>
-                      <p className="text-xs text-muted-foreground text-center mt-2">
-                        Camera &amp; microphone required
-                      </p>
-                      <p className="text-xs text-muted-foreground/70 text-center">
-                        Sign in with Google via Manus to begin
-                      </p>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <Button
-                        disabled
-                        size="lg"
-                        className="w-full sm:w-auto gap-2 px-8 opacity-60 cursor-not-allowed bg-slate-700 text-slate-300"
-                      >
+                  <Button
+                    onClick={handleStart}
+                    disabled={starting}
+                    size="lg"
+                    className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white gap-2 px-8"
+                  >
+                    {starting ? (
+                      <>Connecting…</>
+                    ) : (
+                      <>
                         <Video size={18} />
-                        Coming Soon
-                      </Button>
-                      <p className="text-xs text-muted-foreground text-center">
-                        This AI interviewer is being configured — check back soon.
-                      </p>
-                    </div>
-                  )}
+                        Start Interview
+                        <ArrowRight size={16} />
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    Camera &amp; microphone required
+                  </p>
                 </div>
               </div>
             </div>
