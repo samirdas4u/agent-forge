@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { PhoneOff, ChevronLeft, Clock, AlertCircle } from "lucide-react";
 import DIDAgentSession, { type DIDMessage } from "@/components/DIDAgentSession";
+import { INTERVIEW_AGENTS } from "../../../shared/didAgents";
 
 export default function InterviewSession() {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -12,6 +13,8 @@ export default function InterviewSession() {
   // Parse query params
   const searchParams = new URLSearchParams(window.location.search);
   const agentId = searchParams.get("agentId") ?? "";
+  // Look up the clientKey for this agentId from the INTERVIEW_AGENTS map
+  const clientKey = Object.values(INTERVIEW_AGENTS).find((a) => a.agentId === agentId)?.clientKey ?? "";
   const personaId = searchParams.get("persona") ?? "";
   const jobTitle = searchParams.get("jobTitle") ?? "";
   const candidateName = searchParams.get("candidateName") ?? "";
@@ -105,6 +108,7 @@ export default function InterviewSession() {
           )}
           <DIDAgentSession
             agentId={agentId}
+            clientKey={clientKey}
             onMessage={handleMessage}
             onEnd={handleEnd}
             onError={handleError}

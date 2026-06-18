@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { INTERVIEW_AGENTS, TAVUS_TO_DID_MAP } from "../../shared/didAgents";
+import { INTERVIEW_AGENTS } from "../../shared/didAgents";
 
 const DID_API_KEY = process.env.DID_API_KEY!;
 const DID_BASE = "https://api.d-id.com";
@@ -94,14 +94,17 @@ export const interviewRouter = router({
         // Direct D-ID agent key (e.g. "benjamin_tech")
         agentConfig = INTERVIEW_AGENTS[input.personaId];
         agentId = agentConfig.agentId;
-      } else if (TAVUS_TO_DID_MAP[input.personaId]) {
-        // Legacy Tavus persona ID — map to D-ID agent
-        agentId = TAVUS_TO_DID_MAP[input.personaId];
-        agentConfig = Object.values(INTERVIEW_AGENTS).find((a) => a.agentId === agentId);
       } else {
-        // Unknown persona — fall back to general interviewer
-        agentConfig = INTERVIEW_AGENTS.general;
-        agentId = agentConfig.agentId;
+        // Check if personaId is a raw D-ID agent ID (v2_agt_...) — look it up by agentId
+        const byAgentId = Object.values(INTERVIEW_AGENTS).find((a) => a.agentId === input.personaId);
+        if (byAgentId) {
+          agentConfig = byAgentId;
+          agentId = byAgentId.agentId;
+        } else {
+          // Unknown persona — fall back to rachel_career (general interviewer)
+          agentConfig = INTERVIEW_AGENTS.rachel_career;
+          agentId = agentConfig.agentId;
+        }
       }
 
       // Create a D-ID agent chat session
@@ -154,7 +157,7 @@ export const interviewRouter = router({
 
       // Resolve persona metadata — support both new D-ID keys and legacy Tavus IDs
       const persona = UK_INTERVIEW_PERSONAS.find(
-        (p) => p.id === input.personaId || TAVUS_TO_DID_MAP[input.personaId]
+        (p) => p.id === input.personaId
       );
       const personaDesc = persona?.description ?? "a general UK job interview";
       const role = input.jobTitle ?? persona?.role ?? "the applied role";

@@ -298,19 +298,23 @@ export default function SimulationSession({ sessionId }: Props) {
   const catStyle = CATEGORY_COLORS[scenario?.category ?? ""] ?? { bg: "oklch(0.95 0.05 264)", color: "oklch(0.51 0.23 264)" };
 
   // Pick the best D-ID simulation agent for this scenario
-  const pickSimulationAgentId = (): string => {
+  const pickSimulationAgent = () => {
     const persona = (scenario?.aiPersona ?? "").toLowerCase();
     const category = (scenario?.category ?? "").toLowerCase();
     if (persona.includes("priya") || category.includes("nhs") || persona.includes("nhs")) {
-      return SIMULATION_AGENTS.priya_nhs.agentId;
+      return SIMULATION_AGENTS.nhs;
     }
     if (persona.includes("sophie") || category.includes("hr") || persona.includes("hr")) {
-      return SIMULATION_AGENTS.sophie_hr.agentId;
+      return SIMULATION_AGENTS.hr;
     }
-    // Default to david_sales for sales/general scenarios
-    return SIMULATION_AGENTS.david_sales.agentId;
+    if (persona.includes("sales") || category.includes("sales")) {
+      return SIMULATION_AGENTS.sales;
+    }
+    return SIMULATION_AGENTS.default;
   };
-  const simulationAgentId = pickSimulationAgentId();
+  const simulationAgent = pickSimulationAgent();
+  const simulationAgentId = simulationAgent.agentId;
+  const simulationClientKey = simulationAgent.clientKey;
   // Derive which mode tabs to show based on scenario channel
   const scenarioChannel = (scenario as any)?.channel ?? "text";
   const ALL_MODES = [
@@ -630,6 +634,7 @@ export default function SimulationSession({ sessionId }: Props) {
                     <div className="w-full max-w-lg">
                       <DIDAgentSession
                         agentId={simulationAgentId}
+                        clientKey={simulationClientKey}
                         className="w-full"
                         onMessage={(msg) => {
                           setDidTranscript((prev) => [...prev, msg]);

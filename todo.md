@@ -290,3 +290,12 @@
 - [x] Integrated DIDAgentSession into SimulationSession voice mode (pre-session prompt → live avatar → transcript scoring)
 - [x] TypeScript: 0 errors
 - [x] Tests: 8/8 passing
+
+## D-ID Per-Agent clientKey Fix Sprint
+
+- [x] Updated `shared/didAgents.ts` to use per-agent clientKey (removed shared DID_CLIENT_KEY)
+- [x] Fixed `SimulationSession.tsx`: updated `pickSimulationAgent()` to return full agent config (agentId + clientKey), updated SIMULATION_AGENTS key references from `priya_nhs`/`sophie_hr`/`david_sales` to `nhs`/`hr`/`sales`/`default`, passed `clientKey` to DIDAgentSession
+- [x] Fixed `InterviewSession.tsx`: imported INTERVIEW_AGENTS, looked up clientKey by matching agentId, passed `clientKey` to DIDAgentSession
+- [x] Fixed `server/routers/interview.ts`: removed `TAVUS_TO_DID_MAP` import, replaced legacy Tavus lookup with direct INTERVIEW_AGENTS lookup by agentId, updated `generateFeedback` persona lookup
+- [x] TypeScript: 0 errors
+- [x] Tests: 8/8 passing

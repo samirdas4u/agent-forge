@@ -11,7 +11,7 @@ import {
   ConnectionState,
   AgentActivityState,
 } from "@d-id/client-sdk";
-import { DID_CLIENT_KEY } from "../../../shared/didAgents";
+
 import { Button } from "@/components/ui/button";
 import { PhoneOff, Loader2, Mic, MicOff, AlertTriangle } from "lucide-react";
 
@@ -23,6 +23,7 @@ export interface DIDMessage {
 
 interface Props {
   agentId: string;
+  clientKey: string;
   onMessage?: (msg: DIDMessage) => void;
   onEnd?: (transcript: DIDMessage[]) => void;
   onError?: (err: string) => void;
@@ -34,6 +35,7 @@ type UIStatus = "idle" | "connecting" | "connected" | "disconnected" | "error";
 
 export default function DIDAgentSession({
   agentId,
+  clientKey,
   onMessage,
   onEnd,
   onError,
@@ -70,7 +72,7 @@ export default function DIDAgentSession({
 
       try {
         const options: AgentManagerOptions = {
-          auth: { type: "key", clientKey: DID_CLIENT_KEY },
+          auth: { type: "key", clientKey },
           callbacks: {
             onSrcObjectReady(srcObject: MediaStream) {
               if (videoRef.current && srcObject) {
@@ -148,7 +150,7 @@ export default function DIDAgentSession({
       agentManagerRef.current?.disconnect();
       agentManagerRef.current = null;
     };
-  }, [agentId, autoConnect]);
+  }, [agentId, clientKey, autoConnect]);
 
   const toggleMute = useCallback(() => {
     const stream = videoRef.current?.srcObject as MediaStream | null;
