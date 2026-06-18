@@ -237,6 +237,18 @@ export default function SimulationSession({ sessionId }: Props) {
     setModeInitialised(true);
   }, [data?.scenario, modeInitialised]);
 
+  // Auto-open D-ID session whenever the user switches to Voice mode
+  useEffect(() => {
+    if (simulationMode === 'voice' && !showDIDSession) {
+      setShowDIDSession(true);
+    }
+    // When leaving voice mode, close the D-ID session
+    if (simulationMode !== 'voice' && showDIDSession) {
+      setShowDIDSession(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simulationMode]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [data?.messages, isTyping]);
@@ -676,6 +688,79 @@ export default function SimulationSession({ sessionId }: Props) {
                   )}
                 </div>
 
+              ) : simulationMode === 'phone' ? (
+                /* ── PHONE MODE: text input + voice call CTA ── */
+                <div className="p-3">
+                  {/* Voice call upgrade banner */}
+                  <div
+                    className="flex items-center gap-3 mb-3 px-3 py-2.5 rounded-xl text-xs"
+                    style={{ background: 'oklch(0.95 0.05 264 / 0.5)', border: '1px solid oklch(0.88 0.08 264)' }}
+                  >
+                    <Phone size={13} style={{ color: 'oklch(0.51 0.23 264)', flexShrink: 0 }} />
+                    <span style={{ color: 'oklch(0.38 0.18 264)' }}>
+                      <strong>Phone mode:</strong> type what you'd say, or{" "}
+                    </span>
+                    <button
+                      onClick={() => setSimulationMode('voice')}
+                      className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-white shrink-0"
+                      style={{ background: 'oklch(0.51 0.23 264)' }}
+                    >
+                      <Mic size={11} /> Switch to Voice Call
+                    </button>
+                  </div>
+                  {isRecording && (
+                    <div
+                      className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
+                      style={{ background: 'oklch(0.97 0.04 25)', border: '1px solid oklch(0.9 0.06 25)' }}
+                    >
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      <span style={{ color: 'oklch(0.5 0.18 25)' }}>Recording… {Math.floor(recordingTime / 60).toString().padStart(2, '0')}:{(recordingTime % 60).toString().padStart(2, '0')}</span>
+                      <span className="ml-auto text-muted-foreground font-normal">Tap mic to stop</span>
+                    </div>
+                  )}
+                  {isTranscribing && (
+                    <div
+                      className="flex items-center gap-2 mb-2 px-3 py-2 rounded-xl text-xs font-semibold"
+                      style={{ background: 'oklch(0.95 0.05 264 / 0.5)', border: '1px solid oklch(0.88 0.08 264)' }}
+                    >
+                      <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: 'oklch(0.51 0.23 264)' }} />
+                      <span style={{ color: 'oklch(0.38 0.18 264)' }}>Transcribing your voice…</span>
+                    </div>
+                  )}
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      ref={textareaRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder={isRecording ? 'Recording… tap mic to stop' : 'Type what you would say on the call…'}
+                      rows={2}
+                      className="flex-1 resize-none px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
+                      disabled={sendMessage.isPending || isRecording || isTranscribing}
+                    />
+                    <button
+                      onClick={isRecording ? stopRecording : startRecording}
+                      disabled={isTranscribing || sendMessage.isPending}
+                      title={isRecording ? 'Stop recording' : 'Record voice'}
+                      className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-40"
+                      style={{
+                        background: isRecording ? 'oklch(0.58 0.22 27)' : 'oklch(0.95 0.03 264)',
+                        border: isRecording ? '2px solid oklch(0.58 0.22 27)' : '1px solid oklch(0.88 0.06 264)',
+                      }}
+                    >
+                      {isRecording ? <MicOff size={15} color="white" /> : <Mic size={15} style={{ color: 'oklch(0.51 0.23 264)' }} />}
+                    </button>
+                    <button
+                      onClick={handleSend}
+                      disabled={!input.trim() || sendMessage.isPending || isRecording || isTranscribing}
+                      className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-opacity hover:opacity-90 disabled:opacity-40"
+                      style={{ background: 'oklch(0.51 0.23 264)' }}
+                    >
+                      <Send size={15} color="white" />
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-1.5 text-center">Enter to send · Shift+Enter for new line · Mic to speak</p>
+                </div>
               ) : simulationMode === 'email' ? (
                 /* ── EMAIL MODE: subject + body ── */
                 <div className="p-3 space-y-2">
@@ -711,7 +796,7 @@ export default function SimulationSession({ sessionId }: Props) {
                 </div>
 
               ) : (
-                /* ── CHAT / PHONE MODE: standard text + mic ── */
+                /* ── CHAT MODE: standard text + mic ── */
                 <div className="p-3">
                   {isRecording && (
                     <div
@@ -752,7 +837,7 @@ export default function SimulationSession({ sessionId }: Props) {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder={isRecording ? 'Recording… tap mic to stop' : simulationMode === 'phone' ? 'Type what you would say on the call…' : 'Type your response…'}
+                      placeholder={isRecording ? 'Recording… tap mic to stop' : 'Type your response…'}
                       rows={2}
                       className="flex-1 resize-none px-3.5 py-2.5 text-sm border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring bg-white"
                       disabled={sendMessage.isPending || isRecording || isTranscribing}

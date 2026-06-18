@@ -299,3 +299,8 @@
 - [x] Fixed `server/routers/interview.ts`: removed `TAVUS_TO_DID_MAP` import, replaced legacy Tavus lookup with direct INTERVIEW_AGENTS lookup by agentId, updated `generateFeedback` persona lookup
 - [x] TypeScript: 0 errors
 - [x] Tests: 8/8 passing
+
+## Voice Mode UX Fix
+
+- [x] Voice tab in SimulationSession auto-starts D-ID session immediately on tab switch (no extra "Start Live Voice Session" button click)
+- [x] Phone mode shows a clear "Switch to Voice Call" banner/CTA to guide users toward the Voice tab
