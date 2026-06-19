@@ -960,6 +960,15 @@ export default function Home() {
                 Mentorship
               </a>
               <a
+                href="https://github.com/samirdas4u/agent-forge"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs hover:opacity-80 transition-opacity"
+                style={{ color: "oklch(0.50 0.02 260)" }}
+              >
+                GitHub
+              </a>
+              <a
                 href="/architecture"
                 className="text-xs hover:opacity-80 transition-opacity"
                 style={{ color: "oklch(0.50 0.02 260)" }}
