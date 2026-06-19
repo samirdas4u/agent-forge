@@ -36,6 +36,7 @@ import { getDb } from "./db";
 import { users } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { textToSpeech } from "./_core/tts";
+import { elevenLabsTTS, pickVoiceForPersona } from "./_core/elevenLabsTTS";
 import { storagePut } from "./storage";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
@@ -358,19 +359,39 @@ Return JSON with: { score: number (0-100), feedback: string (1-2 sentences), dim
         text: z.string().min(1).max(4096),
         voice: z.enum(["alloy", "echo", "fable", "onyx", "nova", "shimmer"]).optional(),
         speed: z.number().min(0.25).max(4.0).optional(),
+        // ElevenLabs persona context — used to pick the right voice
+        aiPersona: z.string().optional(),
+        scenarioCategory: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        // Truncate very long AI responses to keep TTS snappy
-        const truncated = input.text.length > 600
-          ? input.text.substring(0, 600) + "..."
+        // Truncate very long AI responses to keep TTS snappy (ElevenLabs charges per char)
+        const truncated = input.text.length > 500
+          ? input.text.substring(0, 500) + "..."
           : input.text;
+
+        // Try ElevenLabs first (high-quality, persona-specific voice)
+        const { ENV } = await import("./_core/env");
+        if (ENV.elevenLabsApiKey) {
+          try {
+            const voiceId = pickVoiceForPersona(
+              input.aiPersona ?? "",
+              input.scenarioCategory ?? ""
+            );
+            const audioBuffer = await elevenLabsTTS({ text: truncated, voiceId });
+            return { audioBase64: audioBuffer.toString("base64"), mimeType: "audio/mpeg", provider: "elevenlabs" };
+          } catch (err) {
+            // ElevenLabs failed (quota exceeded, network error, etc.) — fall through to built-in TTS
+            console.warn("[ElevenLabs TTS] Falling back to built-in TTS:", (err as Error).message);
+          }
+        }
+
+        // Fallback: built-in Forge TTS
         const audioBuffer = await textToSpeech({
           text: truncated,
           voice: input.voice ?? "nova",
           speed: input.speed ?? 1.0,
         });
-        // Return as base64 so the browser can play it directly without a separate fetch
-        return { audioBase64: audioBuffer.toString("base64"), mimeType: "audio/mpeg" };
+        return { audioBase64: audioBuffer.toString("base64"), mimeType: "audio/mpeg", provider: "forge" };
       }),
 
     complete: publicProcedure

@@ -334,3 +334,13 @@
 - [ ] AI persona should speak first automatically when phone/voice session starts (not wait for user to type)
 - [ ] For cold call scenarios: AI opens with a greeting/answer; user responds
 - [ ] Mic button should work for voice input in phone mode
+
+## ElevenLabs TTS Integration (v42)
+- [x] ELEVENLABS_API_KEY added as secure environment variable
+- [x] @elevenlabs/elevenlabs-js SDK installed
+- [x] elevenLabsTTS helper created (server/_core/elevenLabsTTS.ts) with persona voice mapping
+- [x] pickVoiceForPersona() maps scenario personas to specific ElevenLabs voice IDs
+- [x] speakText tRPC procedure updated to use ElevenLabs with automatic fallback to built-in TTS
+- [x] SimulationSession passes aiPersona + scenarioCategory context to speakText for voice selection
+- [x] Vitest tests for ElevenLabs integration (12/12 passing)
+- [x] TypeScript: 0 errors

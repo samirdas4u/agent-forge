@@ -195,7 +195,10 @@ export default function SimulationSession({ sessionId }: Props) {
     // Strip markdown for cleaner speech
     const clean = text.replace(/[*_`#>\[\]]/g, "").replace(/\n+/g, " ").trim();
     if (clean.length === 0) return;
-    speakText.mutate({ text: clean });
+    // Pass persona context so the server can pick the right ElevenLabs voice
+    const aiPersona = (data as any)?.scenario?.aiPersona ?? "";
+    const scenarioCategory = (data as any)?.scenario?.category ?? "";
+    speakText.mutate({ text: clean, aiPersona, scenarioCategory });
   };
 
   const startRecording = async () => {
