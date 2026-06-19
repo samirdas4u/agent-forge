@@ -23,6 +23,7 @@ import AgenticDashboard from "./pages/AgenticDashboard";
 import ReadinessPredictions from "./pages/ReadinessPredictions";
 import WhyAgentForge from "./pages/WhyAgentForge";
 import GTVEvidence from "./pages/GTVEvidence";
+import Architecture from "./pages/Architecture";
 import CareerPrep from "./pages/CareerPrep";
 import AppLayout from "./components/AppLayout";
 import SandboxHub from "./pages/sandbox/SandboxHub";
@@ -114,6 +115,7 @@ function Router() {
       </Route>
       <Route path="/why-agent-forge" component={WhyAgentForge} />
       <Route path="/gtv-evidence" component={GTVEvidence} />
+      <Route path="/architecture" component={Architecture} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

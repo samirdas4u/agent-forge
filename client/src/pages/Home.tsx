@@ -175,6 +175,7 @@ export default function Home() {
             <a href="#pilot" className="hover:text-foreground transition-colors">Pilot Results</a>
             <a href="#features" className="hover:text-foreground transition-colors">Features</a>
             <a href="#partners" className="hover:text-foreground transition-colors">Partners</a>
+            <a href="/architecture" className="hover:text-foreground transition-colors">Architecture</a>
           </div>
           <div className="flex items-center gap-2">
             <LanguageSwitcher variant="compact" className="hidden md:flex" />
@@ -237,6 +238,13 @@ export default function Home() {
                 {["The Problem", "Pilot Results", "Features", "Partners"][i]}
               </a>
             ))}
+            <a
+              href="/architecture"
+              onClick={() => setMobileNavOpen(false)}
+              className="block px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
+              Architecture
+            </a>
           </div>
         )}
       </nav>
@@ -950,6 +958,20 @@ export default function Home() {
                 style={{ color: "oklch(0.50 0.02 260)" }}
               >
                 Mentorship
+              </a>
+              <a
+                href="/architecture"
+                className="text-xs hover:opacity-80 transition-opacity"
+                style={{ color: "oklch(0.50 0.02 260)" }}
+              >
+                Architecture
+              </a>
+              <a
+                href="/gtv-evidence"
+                className="text-xs hover:opacity-80 transition-opacity"
+                style={{ color: "oklch(0.50 0.02 260)" }}
+              >
+                GTV Evidence
               </a>
             </div>
           </div>

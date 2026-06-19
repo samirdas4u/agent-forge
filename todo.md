@@ -357,3 +357,10 @@
 - [x] Auto-restart listening after AI finishes speaking
 - [x] Phone mode: "Switch to Voice Call" banner for quick upgrade
 - [x] TypeScript clean (0 errors), 12/12 tests passing
+
+## Technical Architecture Page (v30)
+- [x] /architecture public page — system diagram, voice data flow, tech stack table, 6 design decisions, DB schema, 7 modules, security model, agentic system
+- [x] Architecture link added to landing page desktop nav and mobile nav
+- [x] Architecture link added to footer bottom bar alongside GTV Evidence
+- [x] /architecture route registered in App.tsx
+- [x] TypeScript clean (0 errors), 12/12 tests passing
