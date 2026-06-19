@@ -344,3 +344,16 @@
 - [x] SimulationSession passes aiPersona + scenarioCategory context to speakText for voice selection
 - [x] Vitest tests for ElevenLabs integration (12/12 passing)
 - [x] TypeScript: 0 errors
+
+## Seamless Voice Call UX (v29)
+- [x] ElevenLabs TTS integration — persona-matched voices, server-side, fallback to built-in TTS
+- [x] Web Speech API real-time STT in voice mode — no manual record/stop/send steps
+- [x] Auto-silence detection (1.5s pause) → auto-sends transcript to AI
+- [x] 5-state call machine: idle → listening → processing → thinking → speaking
+- [x] Animated orb UI — green pulse when listening, amber when processing, indigo waveform when AI speaks
+- [x] Live transcript bubble shows what user is saying in real time
+- [x] Interrupt button to cut AI off mid-sentence
+- [x] End Call button after 2+ messages
+- [x] Auto-restart listening after AI finishes speaking
+- [x] Phone mode: "Switch to Voice Call" banner for quick upgrade
+- [x] TypeScript clean (0 errors), 12/12 tests passing

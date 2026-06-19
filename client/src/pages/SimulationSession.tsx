@@ -1,15 +1,14 @@
 import { trpc } from "@/lib/trpc";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import {
   AlertCircle, CheckCircle2, ChevronRight, Clock,
-  Lightbulb, Mail, MessageSquare, Mic, MicOff, Phone, Send, Sparkles, Volume2, VolumeX, X, Zap
+  Lightbulb, Mail, MessageSquare, Mic, MicOff, Phone, Send, Sparkles, Volume2, VolumeX, X, Zap, PhoneOff
 } from "lucide-react";
 import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import AppLayout from "@/components/AppLayout";
-
 
 interface Props { sessionId: number; }
 
@@ -71,6 +70,25 @@ function DimBar({ label, value }: { label: string; value: number }) {
   );
 }
 
+// ── Voice call state machine ─────────────────────────────────────────────────
+type CallState = 'idle' | 'listening' | 'processing' | 'thinking' | 'speaking';
+
+const CALL_STATE_LABELS: Record<CallState, string> = {
+  idle:       'Tap the mic to speak',
+  listening:  'Listening…',
+  processing: 'Understanding you…',
+  thinking:   'AI is thinking…',
+  speaking:   'AI is speaking…',
+};
+
+const CALL_STATE_COLORS: Record<CallState, string> = {
+  idle:       'oklch(0.51 0.23 264)',
+  listening:  'oklch(0.48 0.18 160)',  // green — live
+  processing: 'oklch(0.62 0.18 47)',   // amber — working
+  thinking:   'oklch(0.51 0.23 264)',  // indigo — AI
+  speaking:   'oklch(0.51 0.23 264)',  // indigo — AI
+};
+
 export default function SimulationSession({ sessionId }: Props) {
   const [, navigate] = useLocation();
   const [input, setInput] = useState("");
@@ -78,24 +96,33 @@ export default function SimulationSession({ sessionId }: Props) {
   const [latestFeedback, setLatestFeedback] = useState<FeedbackData | null>(null);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [sessionTime, setSessionTime] = useState(0);
-  // Voice recording state
+
+  // Voice recording state (for chat/phone mic button fallback)
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [isTranscribing, setIsTranscribing] = useState(false);
-  // TTS (AI voice output) state
-  // Simulation mode: 'chat' | 'voice' | 'email' | 'phone'
-  // Initialised to 'chat'; overridden by scenario.channel once data loads (see useEffect below)
+
+  // Simulation mode
   const [simulationMode, setSimulationMode] = useState<'chat' | 'voice' | 'email' | 'phone'>('chat');
   const [modeInitialised, setModeInitialised] = useState(false);
   const [emailSubject, setEmailSubject] = useState("");
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // ── Voice call state machine ─────────────────────────────────────────────
+  const [callState, setCallState] = useState<CallState>('idle');
+  const [liveTranscript, setLiveTranscript] = useState(""); // real-time partial transcript
+  const [finalTranscript, setFinalTranscript] = useState(""); // committed transcript
+  const speechRecognitionRef = useRef<SpeechRecognition | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const callActiveRef = useRef(false); // tracks if voice call mode is active
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { data, isLoading, refetch } = trpc.sessions.get.useQuery(
     { sessionId },
@@ -103,25 +130,93 @@ export default function SimulationSession({ sessionId }: Props) {
   );
 
   const { i18n } = useTranslation();
-  // sessionLanguage: derived from session data once loaded; falls back to i18n.language
-  // This is the language the AI will respond in (set when the session was created)
   const sessionLanguage = (data?.session as any)?.language ?? i18n.language;
 
+  // ── Stop AI audio helper ─────────────────────────────────────────────────
+  const stopAIAudio = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setIsSpeaking(false);
+  }, []);
+
+  // ── Play AI message via ElevenLabs TTS ──────────────────────────────────
+  const speakText = trpc.sessions.speakText.useMutation({
+    onSuccess: (result) => {
+      try {
+        stopAIAudio();
+        const src = `data:${result.mimeType};base64,${result.audioBase64}`;
+        const audio = new Audio(src);
+        audioRef.current = audio;
+        setIsSpeaking(true);
+        setCallState('speaking');
+        audio.onended = () => {
+          setIsSpeaking(false);
+          // After AI finishes speaking, auto-restart listening in voice mode
+          if (callActiveRef.current) {
+            setCallState('idle');
+            // Small delay so user knows AI is done
+            setTimeout(() => {
+              if (callActiveRef.current) startListening();
+            }, 600);
+          } else {
+            setCallState('idle');
+          }
+        };
+        audio.onerror = () => {
+          setIsSpeaking(false);
+          setCallState('idle');
+          if (callActiveRef.current) setTimeout(() => startListening(), 600);
+        };
+        audio.play().catch(() => {
+          setIsSpeaking(false);
+          setCallState('idle');
+        });
+      } catch {
+        setIsSpeaking(false);
+        setCallState('idle');
+      }
+    },
+    onError: () => {
+      setIsSpeaking(false);
+      setCallState('idle');
+      if (callActiveRef.current) setTimeout(() => startListening(), 600);
+    },
+  });
+
+  const playAIMessage = useCallback((text: string) => {
+    if (!voiceEnabled) return;
+    const clean = text.replace(/[*_`#>\[\]]/g, "").replace(/\n+/g, " ").trim();
+    if (clean.length === 0) return;
+    const aiPersona = (data as any)?.scenario?.aiPersona ?? "";
+    const scenarioCategory = (data as any)?.scenario?.category ?? "";
+    speakText.mutate({ text: clean, aiPersona, scenarioCategory });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceEnabled, data]);
+
   const sendMessage = trpc.sessions.sendMessage.useMutation({
-    onMutate: () => setIsTyping(true),
+    onMutate: () => {
+      setIsTyping(true);
+      setCallState('thinking');
+    },
     onSuccess: (result) => {
       setIsTyping(false);
       if (result.feedback) setLatestFeedback(result.feedback as FeedbackData);
       refetch().then(() => {
-        // Auto-play AI response if voice is enabled
         if (voiceEnabled && result.aiContent) {
           playAIMessage(result.aiContent);
+        } else {
+          setCallState('idle');
+          if (callActiveRef.current) setTimeout(() => startListening(), 600);
         }
       });
     },
     onError: () => {
       setIsTyping(false);
+      setCallState('idle');
       toast.error("Failed to send message. Please try again.");
+      if (callActiveRef.current) setTimeout(() => startListening(), 600);
     },
   });
 
@@ -144,15 +239,13 @@ export default function SimulationSession({ sessionId }: Props) {
     },
   });
 
-  // In voice mode, auto-send after transcription (no manual Send click needed)
+  // ── Whisper fallback transcription (for chat/phone mic button) ───────────
   const autoSendRef = useRef(false);
-
   const transcribeVoice = trpc.sessions.transcribeVoice.useMutation({
     onSuccess: (result) => {
       setIsTranscribing(false);
       if (result.text) {
         if (autoSendRef.current) {
-          // Voice mode: send immediately without showing in input box
           autoSendRef.current = false;
           sendMessage.mutate({ sessionId, content: result.text, language: sessionLanguage });
         } else {
@@ -167,38 +260,159 @@ export default function SimulationSession({ sessionId }: Props) {
     },
   });
 
-  const speakText = trpc.sessions.speakText.useMutation({
-    onSuccess: (result) => {
-      if (!voiceEnabled) return;
-      try {
-        // Stop any currently playing audio
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
-        const src = `data:${result.mimeType};base64,${result.audioBase64}`;
-        const audio = new Audio(src);
-        audioRef.current = audio;
-        setIsSpeaking(true);
-        audio.onended = () => setIsSpeaking(false);
-        audio.onerror = () => setIsSpeaking(false);
-        audio.play().catch(() => setIsSpeaking(false));
-      } catch {
-        setIsSpeaking(false);
-      }
-    },
-    onError: () => setIsSpeaking(false),
-  });
+  // ── Web Speech API — real-time STT for voice call mode ──────────────────
+  const startListening = useCallback(() => {
+    if (!callActiveRef.current) return;
 
-  const playAIMessage = (text: string) => {
-    if (!voiceEnabled) return;
-    // Strip markdown for cleaner speech
-    const clean = text.replace(/[*_`#>\[\]]/g, "").replace(/\n+/g, " ").trim();
-    if (clean.length === 0) return;
-    // Pass persona context so the server can pick the right ElevenLabs voice
-    const aiPersona = (data as any)?.scenario?.aiPersona ?? "";
-    const scenarioCategory = (data as any)?.scenario?.category ?? "";
-    speakText.mutate({ text: clean, aiPersona, scenarioCategory });
+    const SpeechRecognitionAPI =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionAPI) {
+      // Fallback: use MediaRecorder + Whisper
+      toast("Using microphone recording — tap again to stop and send.", { duration: 3000 });
+      startRecordingFallback();
+      return;
+    }
+
+    // Stop any existing recognition
+    if (speechRecognitionRef.current) {
+      try { speechRecognitionRef.current.stop(); } catch {}
+      speechRecognitionRef.current = null;
+    }
+
+    const recognition = new SpeechRecognitionAPI() as SpeechRecognition;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = sessionLanguage || "en-US";
+    recognition.maxAlternatives = 1;
+
+    setLiveTranscript("");
+    setFinalTranscript("");
+    setCallState('listening');
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let interim = "";
+      let final = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += t + " ";
+        } else {
+          interim += t;
+        }
+      }
+      if (final) {
+        setFinalTranscript((prev) => prev + final);
+      }
+      setLiveTranscript(interim);
+
+      // Reset silence timer on any speech
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = setTimeout(() => {
+        // 1.5s silence after final result → auto-send
+        setFinalTranscript((prev) => {
+          const text = prev.trim();
+          if (text.length > 2 && callActiveRef.current) {
+            recognition.stop();
+            setLiveTranscript("");
+            setCallState('processing');
+            sendMessage.mutate({ sessionId, content: text, language: sessionLanguage });
+          }
+          return "";
+        });
+      }, 1500);
+    };
+
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      if (event.error === "no-speech") {
+        // No speech detected — restart listening
+        if (callActiveRef.current) {
+          setTimeout(() => startListening(), 300);
+        }
+        return;
+      }
+      if (event.error === "aborted") return;
+      console.warn("Speech recognition error:", event.error);
+      setCallState('idle');
+    };
+
+    recognition.onend = () => {
+      speechRecognitionRef.current = null;
+      // If still in listening state and call is active, restart
+      if (callActiveRef.current && callState === 'listening') {
+        setTimeout(() => startListening(), 200);
+      }
+    };
+
+    speechRecognitionRef.current = recognition;
+    try {
+      recognition.start();
+    } catch (e) {
+      console.warn("Could not start recognition:", e);
+      setCallState('idle');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, sessionLanguage]);
+
+  const stopListening = useCallback(() => {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (speechRecognitionRef.current) {
+      try { speechRecognitionRef.current.stop(); } catch {}
+      speechRecognitionRef.current = null;
+    }
+    setLiveTranscript("");
+    setFinalTranscript("");
+  }, []);
+
+  // ── Start / end voice call ───────────────────────────────────────────────
+  const startVoiceCall = useCallback(() => {
+    callActiveRef.current = true;
+    setCallState('idle');
+    setTimeout(() => startListening(), 300);
+  }, [startListening]);
+
+  const endVoiceCall = useCallback(() => {
+    callActiveRef.current = false;
+    stopListening();
+    stopAIAudio();
+    setCallState('idle');
+    setLiveTranscript("");
+    setFinalTranscript("");
+  }, [stopListening, stopAIAudio]);
+
+  // ── MediaRecorder fallback (for browsers without Web Speech API) ─────────
+  const startRecordingFallback = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      audioChunksRef.current = [];
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+        if (blob.size > 16 * 1024 * 1024) {
+          toast.error("Recording too long. Please keep it under 2 minutes.");
+          return;
+        }
+        setIsTranscribing(true);
+        setCallState('processing');
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(",")[1];
+          autoSendRef.current = true;
+          transcribeVoice.mutate({ audioBase64: base64, mimeType: "audio/webm", language: sessionLanguage });
+        };
+        reader.readAsDataURL(blob);
+      };
+      mediaRecorderRef.current = recorder;
+      recorder.start();
+      setIsRecording(true);
+      setCallState('listening');
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => setRecordingTime((t) => t + 1), 1000);
+    } catch {
+      toast.error("Microphone access denied. Please allow microphone access.");
+    }
   };
 
   const startRecording = async () => {
@@ -210,7 +424,6 @@ export default function SimulationSession({ sessionId }: Props) {
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-        // Check size (16MB limit)
         if (blob.size > 16 * 1024 * 1024) {
           toast.error("Recording too long. Please keep it under 2 minutes.");
           return;
@@ -241,25 +454,19 @@ export default function SimulationSession({ sessionId }: Props) {
     }
   };
 
-  // Auto-set simulation mode from scenario.channel when session data first loads
-  // Also auto-trigger AI opening message for inbound scenarios (customer_service, interview, negotiation, presentation)
+  // ── Auto-set simulation mode from scenario channel ───────────────────────
   const [openingTriggered, setOpeningTriggered] = useState(false);
   useEffect(() => {
     if (modeInitialised || !data?.scenario) return;
     const ch = (data.scenario as any).channel ?? "text";
     const modeMap: Record<string, 'chat' | 'voice' | 'email' | 'phone'> = {
-      text: 'chat',
-      chat: 'chat',
-      email: 'email',
-      phone: 'phone',
-      voice: 'voice',
+      text: 'chat', chat: 'chat', email: 'email', phone: 'phone', voice: 'voice',
     };
     setSimulationMode(modeMap[ch] ?? 'chat');
     setModeInitialised(true);
   }, [data?.scenario, modeInitialised]);
 
-  // Auto-trigger AI opening message for scenarios where the AI speaks first
-  // (customer_service, interview, negotiation, presentation — NOT sales cold call)
+  // ── Auto-trigger AI opening message ─────────────────────────────────────
   useEffect(() => {
     if (openingTriggered || !data?.session || !data?.scenario || !data?.messages) return;
     const category = data.scenario.category;
@@ -268,11 +475,34 @@ export default function SimulationSession({ sessionId }: Props) {
       setOpeningTriggered(true);
       getOpeningMessage.mutate({ sessionId, language: sessionLanguage });
     } else if (data.messages.length > 0) {
-      setOpeningTriggered(true); // already has messages, no need to trigger
+      setOpeningTriggered(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.session, data?.scenario, data?.messages, openingTriggered]);
 
+  // ── Auto-start voice call when switching to voice mode ───────────────────
+  useEffect(() => {
+    if (simulationMode === 'voice' && data?.session?.status === 'active') {
+      // Small delay to let the UI render first
+      const t = setTimeout(() => {
+        if (!callActiveRef.current) startVoiceCall();
+      }, 500);
+      return () => clearTimeout(t);
+    } else {
+      endVoiceCall();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [simulationMode]);
+
+  // ── Cleanup on unmount ───────────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      callActiveRef.current = false;
+      stopListening();
+      stopAIAudio();
+      if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    };
+  }, [stopListening, stopAIAudio]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -285,7 +515,6 @@ export default function SimulationSession({ sessionId }: Props) {
 
   const handleSend = () => {
     if (!input.trim() || sendMessage.isPending) return;
-    // For email mode, prepend subject line if provided
     const body = input.trim();
     const content = simulationMode === 'email' && emailSubject.trim()
       ? `Subject: ${emailSubject.trim()}\n\n${body}`
@@ -334,7 +563,6 @@ export default function SimulationSession({ sessionId }: Props) {
   const userMessageCount = messages.filter((m: any) => m.role === "user").length;
   const catStyle = CATEGORY_COLORS[scenario?.category ?? ""] ?? { bg: "oklch(0.95 0.05 264)", color: "oklch(0.51 0.23 264)" };
 
-  // Derive which mode tabs to show based on scenario channel
   const scenarioChannel = (scenario as any)?.channel ?? "text";
   const ALL_MODES = [
     { id: 'chat'  as const, label: 'Chat',  icon: <MessageSquare size={13} /> },
@@ -342,27 +570,27 @@ export default function SimulationSession({ sessionId }: Props) {
     { id: 'email' as const, label: 'Email', icon: <Mail size={13} /> },
     { id: 'phone' as const, label: 'Phone', icon: <Phone size={13} /> },
   ];
-  // Primary mode for the scenario; always show it + voice as an option
   const primaryMode = scenarioChannel === 'email' ? 'email' : scenarioChannel === 'phone' ? 'phone' : 'chat';
   const availableModes = ALL_MODES.filter(m =>
     m.id === primaryMode || m.id === 'voice'
   );
 
+  const orbColor = CALL_STATE_COLORS[callState];
+  const isCallBusy = callState === 'processing' || callState === 'thinking' || callState === 'speaking';
+  const displayTranscript = liveTranscript || finalTranscript;
+
   return (
     <AppLayout fullscreen>
-      {/* 3-panel layout: context | chat | scoring */}
       <div className="flex h-full overflow-hidden">
 
         {/* ── LEFT PANEL: Scenario context ── */}
         <div className="hidden lg:flex w-72 xl:w-80 flex-col border-r border-border bg-white overflow-y-auto shrink-0">
-          {/* Panel header */}
           <div className="px-4 py-3.5 border-b border-border">
             <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Scenario</div>
             <h2 className="text-sm font-bold text-foreground leading-snug">{scenario?.title}</h2>
           </div>
 
           <div className="p-4 space-y-4 flex-1">
-            {/* Category + difficulty */}
             <div className="flex gap-1.5 flex-wrap">
               <span
                 className="text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wide"
@@ -381,10 +609,8 @@ export default function SimulationSession({ sessionId }: Props) {
               </span>
             </div>
 
-            {/* Description */}
             <p className="text-xs text-muted-foreground leading-relaxed">{scenario?.description}</p>
 
-            {/* AI Persona card */}
             {scenario?.aiPersona && (
               <div className="rounded-xl border border-border p-3" style={{ background: "oklch(0.97 0.005 264)" }}>
                 <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">AI Persona</div>
@@ -405,7 +631,6 @@ export default function SimulationSession({ sessionId }: Props) {
               </div>
             )}
 
-            {/* Objective */}
             {scenario?.systemPrompt && (
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Your Objective</div>
@@ -415,14 +640,12 @@ export default function SimulationSession({ sessionId }: Props) {
               </div>
             )}
 
-            {/* Session timer */}
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "oklch(0.97 0.005 264)" }}>
               <Clock size={13} style={{ color: "oklch(0.51 0.23 264)" }} />
               <span className="text-xs font-semibold text-foreground tabular-nums">{formatTime(sessionTime)}</span>
               <span className="text-xs text-muted-foreground ml-auto">{userMessageCount} messages</span>
             </div>
 
-            {/* Tips */}
             <div>
               <div className="flex items-center gap-1.5 mb-2">
                 <Lightbulb size={12} style={{ color: "oklch(0.62 0.18 47)" }} />
@@ -439,7 +662,6 @@ export default function SimulationSession({ sessionId }: Props) {
             </div>
           </div>
 
-          {/* End session button */}
           {isActive && (
             <div className="p-4 border-t border-border">
               <button
@@ -474,17 +696,12 @@ export default function SimulationSession({ sessionId }: Props) {
                 </button>
               ))}
               <div className="ml-auto flex items-center gap-2">
-                {/* AI voice toggle — only relevant in chat/phone modes */}
-                {(simulationMode === 'chat' || simulationMode === 'phone') && (
+                {simulationMode !== 'voice' && (
                   <button
                     onClick={() => {
                       const next = !voiceEnabled;
                       setVoiceEnabled(next);
-                      if (!next && audioRef.current) {
-                        audioRef.current.pause();
-                        audioRef.current = null;
-                        setIsSpeaking(false);
-                      }
+                      if (!next) stopAIAudio();
                     }}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all"
                     style={voiceEnabled
@@ -592,7 +809,6 @@ export default function SimulationSession({ sessionId }: Props) {
                   ) : (
                     <div className="chat-bubble-user">{msg.content}</div>
                   )}
-                  {/* Inline feedback for user messages */}
                   {msg.feedback && msg.role === "user" && (
                     <div
                       className="flex items-start gap-2 px-3 py-2 rounded-xl text-xs leading-relaxed"
@@ -632,102 +848,167 @@ export default function SimulationSession({ sessionId }: Props) {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input area — mode-aware */}
+          {/* ── INPUT AREA ── */}
           {isActive ? (
             <div className="shrink-0 bg-white border-t border-border">
 
-              {/* ── VOICE MODE: D-ID live avatar ── */}
+              {/* ══════════════════════════════════════════════════════════
+                  VOICE MODE — Seamless live call interface
+                  No buttons between speaking and AI response.
+                  States: idle → listening → processing → thinking → speaking → idle
+              ══════════════════════════════════════════════════════════ */}
               {simulationMode === 'voice' ? (
-                /* ── VOICE MODE: large mic button + TTS playback ── */
-                <div className="flex flex-col items-center justify-center py-8 px-6 gap-4">
-                  {/* Status label */}
-                  <p className="text-xs font-semibold text-muted-foreground tracking-wide uppercase">
-                    {isRecording ? 'Recording — tap to stop' : isTranscribing ? 'Transcribing…' : isSpeaking ? 'AI is speaking…' : sendMessage.isPending ? 'AI is thinking…' : 'Tap to speak'}
-                  </p>
-                  {/* AI speaking waveform */}
-                  {isSpeaking && (
-                    <div className="flex items-end gap-1 h-8">
-                      {[1,2,3,4,5,4,3,2,1].map((h, i) => (
-                        <div
-                          key={i}
-                          className="w-1.5 rounded-full"
+                <div className="flex flex-col items-center justify-center py-6 px-4 gap-4">
+
+                  {/* ── Live transcript bubble (shows what user is saying) ── */}
+                  <div className="w-full max-w-md min-h-[44px] flex items-center justify-center">
+                    {displayTranscript ? (
+                      <div
+                        className="px-4 py-2.5 rounded-2xl text-sm text-center leading-relaxed fade-in-up"
+                        style={{
+                          background: 'oklch(0.96 0.04 264 / 0.7)',
+                          border: '1px solid oklch(0.88 0.08 264)',
+                          color: 'oklch(0.30 0.12 264)',
+                          maxWidth: '100%',
+                        }}
+                      >
+                        {displayTranscript}
+                        {liveTranscript && (
+                          <span className="ml-1 opacity-50">…</span>
+                        )}
+                      </div>
+                    ) : (
+                      <p
+                        className="text-sm font-medium tracking-wide"
+                        style={{ color: callState === 'idle' ? 'oklch(0.65 0.04 264)' : orbColor }}
+                      >
+                        {CALL_STATE_LABELS[callState]}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── Central orb — the heart of the call interface ── */}
+                  <div className="relative flex items-center justify-center">
+                    {/* Outer pulse rings — only when listening */}
+                    {callState === 'listening' && (
+                      <>
+                        <span
+                          className="absolute rounded-full animate-ping"
                           style={{
-                            height: `${h * 6}px`,
-                            background: 'oklch(0.51 0.23 264)',
-                            animation: `waveBar 0.8s ease-in-out ${i * 0.08}s infinite alternate`,
+                            width: 120, height: 120,
+                            background: `${orbColor} / 0.12`,
+                            backgroundColor: `oklch(0.48 0.18 160 / 0.12)`,
+                            animationDuration: '1.5s',
                           }}
                         />
-                      ))}
-                    </div>
-                  )}
-                  {/* Large mic button */}
-                  <button
-                    onClick={() => {
-                      if (isRecording) {
-                        autoSendRef.current = true; // auto-send after transcription in voice mode
-                        stopRecording();
-                      } else {
-                        startRecording();
-                      }
-                    }}
-                    disabled={isTranscribing || sendMessage.isPending || isSpeaking}
-                    className="relative w-20 h-20 rounded-full flex items-center justify-center transition-all disabled:opacity-40 shadow-lg hover:shadow-xl active:scale-95"
-                    style={{
-                      background: isRecording
-                        ? 'linear-gradient(135deg, oklch(0.58 0.22 27), oklch(0.68 0.20 40))'
-                        : 'linear-gradient(135deg, oklch(0.51 0.23 264), oklch(0.62 0.22 290))',
-                      boxShadow: isRecording
-                        ? '0 0 0 8px oklch(0.58 0.22 27 / 0.15), 0 4px 20px oklch(0.58 0.22 27 / 0.4)'
-                        : '0 0 0 8px oklch(0.51 0.23 264 / 0.12), 0 4px 20px oklch(0.51 0.23 264 / 0.35)',
-                    }}
-                  >
-                    {isRecording
-                      ? <MicOff size={28} color="white" />
-                      : <Mic size={28} color="white" />
-                    }
-                    {/* Pulse ring when recording */}
-                    {isRecording && (
-                      <span className="absolute inset-0 rounded-full animate-ping" style={{ background: 'oklch(0.58 0.22 27 / 0.25)' }} />
+                        <span
+                          className="absolute rounded-full animate-ping"
+                          style={{
+                            width: 100, height: 100,
+                            backgroundColor: 'oklch(0.48 0.18 160 / 0.18)',
+                            animationDuration: '1.5s',
+                            animationDelay: '0.3s',
+                          }}
+                        />
+                      </>
                     )}
-                  </button>
-                  {/* Recording timer */}
-                  {isRecording && (
-                    <span className="text-sm font-bold tabular-nums" style={{ color: 'oklch(0.58 0.22 27)' }}>
-                      {Math.floor(recordingTime / 60).toString().padStart(2, '0')}:{(recordingTime % 60).toString().padStart(2, '0')}
-                    </span>
-                  )}
-                  {/* Transcribed text preview */}
-                  {input && (
-                    <div className="w-full max-w-sm">
-                      <div className="px-3 py-2 rounded-xl text-sm bg-gray-50 border border-border text-foreground">{input}</div>
-                      <div className="flex gap-2 mt-2 justify-end">
-                        <button onClick={() => setInput('')} className="text-xs text-muted-foreground hover:underline">Clear</button>
-                        <button
-                          onClick={handleSend}
-                          disabled={sendMessage.isPending}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-white disabled:opacity-50"
-                          style={{ background: 'oklch(0.51 0.23 264)' }}
-                        >
-                          <Send size={11} /> Send
-                        </button>
+
+                    {/* AI speaking waveform ring */}
+                    {callState === 'speaking' && (
+                      <div
+                        className="absolute rounded-full flex items-center justify-center"
+                        style={{ width: 110, height: 110 }}
+                      >
+                        <div className="flex items-end gap-1">
+                          {[3,5,7,9,7,5,3,5,7,5,3].map((h, i) => (
+                            <div
+                              key={i}
+                              className="rounded-full"
+                              style={{
+                                width: 3,
+                                height: `${h * 3}px`,
+                                background: 'oklch(0.51 0.23 264 / 0.5)',
+                                animation: `waveBar 0.7s ease-in-out ${i * 0.07}s infinite alternate`,
+                              }}
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {userMessageCount >= 3 && (
-                    <button
-                      onClick={() => setShowEndConfirm(true)}
-                      className="text-xs font-semibold hover:underline"
-                      style={{ color: 'oklch(0.51 0.23 264)' }}
+                    )}
+
+                    {/* Main orb */}
+                    <div
+                      className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-xl transition-all duration-300"
+                      style={{
+                        background: callState === 'listening'
+                          ? 'linear-gradient(135deg, oklch(0.42 0.18 160), oklch(0.55 0.20 160))'
+                          : callState === 'processing' || callState === 'thinking'
+                          ? 'linear-gradient(135deg, oklch(0.55 0.18 47), oklch(0.68 0.18 60))'
+                          : callState === 'speaking'
+                          ? 'linear-gradient(135deg, oklch(0.51 0.23 264), oklch(0.62 0.22 290))'
+                          : 'linear-gradient(135deg, oklch(0.51 0.23 264), oklch(0.62 0.22 290))',
+                        boxShadow: callState === 'listening'
+                          ? '0 0 0 6px oklch(0.48 0.18 160 / 0.2), 0 8px 32px oklch(0.48 0.18 160 / 0.4)'
+                          : '0 0 0 6px oklch(0.51 0.23 264 / 0.15), 0 8px 32px oklch(0.51 0.23 264 / 0.35)',
+                        transform: callState === 'listening' ? 'scale(1.05)' : 'scale(1)',
+                      }}
                     >
-                      Ready to finish? →
-                    </button>
-                  )}
+                      {callState === 'listening' ? (
+                        <Mic size={30} color="white" />
+                      ) : callState === 'processing' || callState === 'thinking' ? (
+                        <div className="flex items-end gap-1">
+                          <span className="typing-dot" style={{ background: 'white' }} />
+                          <span className="typing-dot" style={{ background: 'white' }} />
+                          <span className="typing-dot" style={{ background: 'white' }} />
+                        </div>
+                      ) : callState === 'speaking' ? (
+                        <Volume2 size={28} color="white" className="animate-pulse" />
+                      ) : (
+                        <Mic size={30} color="white" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ── Action row ── */}
+                  <div className="flex items-center gap-4">
+                    {/* Interrupt / mute AI button — only when speaking */}
+                    {callState === 'speaking' && (
+                      <button
+                        onClick={() => {
+                          stopAIAudio();
+                          setCallState('idle');
+                          setTimeout(() => { if (callActiveRef.current) startListening(); }, 400);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:bg-gray-50"
+                        style={{ borderColor: 'oklch(0.88 0.06 264)', color: 'oklch(0.51 0.23 264)' }}
+                      >
+                        <MicOff size={13} /> Interrupt
+                      </button>
+                    )}
+
+                    {/* End call button */}
+                    {userMessageCount >= 2 && (
+                      <button
+                        onClick={() => { endVoiceCall(); setShowEndConfirm(true); }}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+                        style={{ background: 'oklch(0.97 0.04 25)', color: 'oklch(0.48 0.20 27)', border: '1px solid oklch(0.90 0.06 25)' }}
+                      >
+                        <PhoneOff size={13} /> End Call
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ── Subtle hint ── */}
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    {callState === 'idle' ? 'Speak naturally — the AI will respond automatically' :
+                     callState === 'listening' ? 'Pause briefly when you\'re done speaking' :
+                     callState === 'speaking' ? 'Tap Interrupt to cut in' : ''}
+                  </p>
                 </div>
 
               ) : simulationMode === 'phone' ? (
-                /* ── PHONE MODE: text input + voice call CTA ── */
+                /* ── PHONE MODE ── */
                 <div className="p-3">
-                  {/* Voice call upgrade banner */}
                   <div
                     className="flex items-center gap-3 mb-3 px-3 py-2.5 rounded-xl text-xs"
                     style={{ background: 'oklch(0.95 0.05 264 / 0.5)', border: '1px solid oklch(0.88 0.08 264)' }}
@@ -797,8 +1078,9 @@ export default function SimulationSession({ sessionId }: Props) {
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1.5 text-center">Enter to send · Shift+Enter for new line · Mic to speak</p>
                 </div>
+
               ) : simulationMode === 'email' ? (
-                /* ── EMAIL MODE: subject + body ── */
+                /* ── EMAIL MODE ── */
                 <div className="p-3 space-y-2">
                   <input
                     type="text"
@@ -832,7 +1114,7 @@ export default function SimulationSession({ sessionId }: Props) {
                 </div>
 
               ) : (
-                /* ── CHAT MODE: standard text + mic ── */
+                /* ── CHAT MODE ── */
                 <div className="p-3">
                   {isRecording && (
                     <div
@@ -864,7 +1146,7 @@ export default function SimulationSession({ sessionId }: Props) {
                         ))}
                       </div>
                       <span style={{ color: 'oklch(0.38 0.18 264)' }}>AI is speaking…</span>
-                      <button onClick={() => { audioRef.current?.pause(); setIsSpeaking(false); }} className="ml-auto text-muted-foreground hover:text-foreground"><X size={12} /></button>
+                      <button onClick={() => { stopAIAudio(); }} className="ml-auto text-muted-foreground hover:text-foreground"><X size={12} /></button>
                     </div>
                   )}
                   <div className="flex items-end gap-2">
@@ -936,7 +1218,6 @@ export default function SimulationSession({ sessionId }: Props) {
 
           {latestFeedback ? (
             <div className="p-4 space-y-5">
-              {/* Score ring */}
               <div className="flex items-center gap-3">
                 <div className="relative shrink-0">
                   <svg width="60" height="60" className="rotate-[-90deg]">
@@ -972,7 +1253,6 @@ export default function SimulationSession({ sessionId }: Props) {
                 </div>
               </div>
 
-              {/* Coaching note */}
               <div
                 className="flex items-start gap-2 p-3 rounded-xl text-xs leading-relaxed"
                 style={{ background: "oklch(0.97 0.05 47 / 0.5)", border: "1px solid oklch(0.9 0.06 47)" }}
@@ -981,7 +1261,6 @@ export default function SimulationSession({ sessionId }: Props) {
                 <p style={{ color: "oklch(0.35 0.1 47)" }}>{latestFeedback.feedback}</p>
               </div>
 
-              {/* Dimension bars */}
               <div className="space-y-3">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Score Breakdown</div>
                 {DIMENSIONS.map(({ key, label }) => {
@@ -1014,7 +1293,6 @@ export default function SimulationSession({ sessionId }: Props) {
             </div>
           )}
 
-          {/* Running session stats */}
           {userMessageCount > 0 && (
             <div className="p-4 border-t border-border mt-auto">
               <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Session Stats</div>
