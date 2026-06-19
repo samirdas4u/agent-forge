@@ -490,7 +490,7 @@ export default function Architecture() {
               View on GitHub
             </a>
             <a
-              href="https://www.samirdas.co.uk"
+              href="https://samirdas.co.uk/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 border border-white/20 text-white font-semibold px-6 py-3 rounded-xl text-sm hover:bg-white/10 transition-colors"
