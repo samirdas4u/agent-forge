@@ -1,7 +1,6 @@
 import {
   AlertTriangle,
   ArrowRight,
-  Award,
   BarChart3,
   BookOpen,
   Code2,
@@ -372,12 +371,11 @@ export default function Home() {
           Agent Forge is a publicly accessible platform demonstrating the full architectural capability of an AI-powered practice simulation system. This version is feature-complete. Enterprise pilot deployment with external organisations is the next phase.
         </span>
         <Link
-          href="/gtv-evidence"
+          href="/architecture"
           className="flex-shrink-0 flex items-center gap-1 font-semibold underline underline-offset-2 hover:opacity-80 transition-opacity text-xs"
           style={{ color: "oklch(0.48 0.24 272)" }}
         >
-          <Award size={12} />
-          GTV Evidence
+          Architecture →
         </Link>
       </div>
       {/* ── Problem ────────────────────────────────────────────── */}
