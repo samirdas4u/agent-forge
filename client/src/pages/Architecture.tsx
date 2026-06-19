@@ -191,7 +191,6 @@ export default function Architecture() {
         </Link>
         <div className="flex items-center gap-4 text-sm">
           <Link href="/" className="text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">← Home</Link>
-          <Link href="/gtv-evidence" className="text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">GTV Evidence</Link>
           <a
             href="https://github.com/samirdas4u/agent-forge"
             target="_blank"
