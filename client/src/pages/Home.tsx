@@ -975,13 +975,7 @@ export default function Home() {
               >
                 Architecture
               </a>
-              <a
-                href="/gtv-evidence"
-                className="text-xs hover:opacity-80 transition-opacity"
-                style={{ color: "oklch(0.50 0.02 260)" }}
-              >
-                GTV Evidence
-              </a>
+
             </div>
           </div>
         </div>
