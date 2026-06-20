@@ -322,6 +322,7 @@ export default function Home() {
               >
                 <Video size={18} />
                 Career Prep &amp; Interview Practice
+                <span className="ml-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-1.5 py-0.5 rounded-full">Beta</span>
               </a>
               <span className="text-xs text-muted-foreground">Sign in with Google via Manus</span>
             </div>

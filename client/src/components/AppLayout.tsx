@@ -49,7 +49,7 @@ const TRAINING_NAV_KEYS = [
   { href: "/analytics",    key: "nav_analytics",    icon: BarChart3 },
   { href: "/leaderboard",  key: "nav_leaderboard",  icon: Trophy },
   { href: "/interview",     key: "nav_interview",    icon: Video },
-  { href: "/career-prep",   key: "Career Prep",      icon: GraduationCap },
+  { href: "/career-prep",   key: "Career Prep",      icon: GraduationCap, beta: true },
 ];
 
 const SANDBOX_NAV_KEYS = [
@@ -110,6 +110,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
   const navItems = (activeSection === "training" ? TRAINING_NAV_KEYS : SANDBOX_NAV_KEYS).map(item => ({
     ...item,
     label: item.key.startsWith("nav_") ? t(item.key) : item.key,
+    beta: (item as { beta?: boolean }).beta ?? false,
   }));
   const accentClass = activeSection === "training"
     ? "bg-violet-500/10 text-violet-200 border-l-2 border-violet-400"
@@ -199,6 +200,11 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
               <span className="flex-1 truncate">{item.label}</span>
+              {item.beta && (
+                <span className="text-[9px] font-bold uppercase tracking-wider bg-violet-500/20 text-violet-300 px-1.5 py-0.5 rounded-full border border-violet-500/30">
+                  Beta
+                </span>
+              )}
               {active && <ChevronRight className="w-3 h-3 opacity-40" />}
             </Link>
           );

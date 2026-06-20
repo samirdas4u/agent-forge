@@ -333,12 +333,15 @@ export default function CareerPrep() {
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
               <div className="flex-1 space-y-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5">
                     <Sparkles size={12} /> AI Video Avatar Interviews
                   </span>
                   <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-semibold px-3 py-1 rounded-full">
                     Free · No sign-up required
+                  </span>
+                  <span className="bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Beta
                   </span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
