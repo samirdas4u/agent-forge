@@ -1,5 +1,4 @@
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -17,7 +16,6 @@ import {
   GraduationCap,
   LayoutDashboard,
   Layers,
-  LogOut,
   Menu,
   MessageSquare,
   Microscope,
@@ -62,7 +60,7 @@ const SANDBOX_NAV_KEYS = [
 ];
 
 export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
-  const { user, loading, isAuthenticated, logout } = useAuth();
+  const { user, loading } = useAuth();
   const { t } = useTranslation();
   const [location] = useLocation();
   const [activeSection, setActiveSection] = useState<"training" | "sandbox">(() =>
@@ -338,15 +336,7 @@ export default function AppLayout({ children, fullscreen }: AppLayoutProps) {
             <div className="text-xs font-semibold text-slate-200 truncate">{user?.name ?? "Guest"}</div>
             <div className="text-[10px] text-slate-500 capitalize">{user ? user.role : "visitor"}</div>
           </div>
-          {user && (
-            <button
-              onClick={() => logout()}
-              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-slate-500 hover:text-red-400"
-              title="Sign out"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-            </button>
-          )}
+
         </div>
       </div>
     </>

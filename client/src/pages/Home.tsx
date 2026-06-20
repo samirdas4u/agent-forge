@@ -28,7 +28,6 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
@@ -141,7 +140,6 @@ const HOW_IT_WORKS = [
 
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
@@ -179,40 +177,21 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher variant="compact" className="hidden md:flex" />
             <div className="hidden md:flex items-center gap-3">
-              {isAuthenticated ? (
-                <Link
-                  href="/dashboard"
+                <a
+                  href="/simulate"
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
                   style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
                 >
-                  Go to Dashboard <ArrowRight size={14} />
-                </Link>
-              ) : (
-                <>
-                  <a
-                    href="/dashboard"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    title="Sign in with Google via Manus"
-                  >
-                    Sign in
-                  </a>
-                  <a
-                    href="/dashboard"
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
-                    style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
-                  >
-                    Get started free <ArrowRight size={14} />
-                  </a>
-                </>
-              )}
+                  Start practising free <ArrowRight size={14} />
+                </a>
             </div>
             {/* Mobile CTA */}
             <a
-              href="/dashboard"
+              href="/simulate"
               className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white"
               style={{ background: "linear-gradient(135deg, oklch(0.52 0.26 272), oklch(0.65 0.22 300))" }}
             >
-              Go to Dashboard
+              Start free
             </a>
             {/* Hamburger */}
             <button
@@ -309,7 +288,7 @@ export default function Home() {
                 <Zap size={18} />
                 Start practising free
               </a>
-              <span className="text-xs text-muted-foreground">Continue with Google via Manus</span>
+              <span className="text-xs text-muted-foreground">No sign-up required</span>
             </div>
             <div className="flex flex-col items-center gap-1">
               <a
@@ -324,7 +303,7 @@ export default function Home() {
                 Career Prep &amp; Interview Practice
                 <span className="ml-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-1.5 py-0.5 rounded-full">Beta</span>
               </a>
-              <span className="text-xs text-muted-foreground">Sign in with Google via Manus</span>
+              <span className="text-xs text-muted-foreground">Free · No account needed</span>
             </div>
             <a
               href="#pilot"

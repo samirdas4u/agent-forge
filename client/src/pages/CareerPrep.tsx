@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { useLocation } from "wouter";
 import AppLayout from "@/components/AppLayout";
 import { trpc } from "@/lib/trpc";
@@ -282,7 +280,6 @@ const FEATURES = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function CareerPrep() {
   const [, navigate] = useLocation();
-  const { isAuthenticated } = useAuth();
   const [activeTrack, setActiveTrack] = useState("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [jobTitle, setJobTitle] = useState("");
@@ -312,10 +309,7 @@ export default function CareerPrep() {
     } catch (e: any) {
       console.error(e);
       const msg = e?.message ?? "";
-      if (msg.includes("UNAUTHORIZED") || msg.includes("401")) {
-        toast.error("Please sign in to start a video interview.");
-        setTimeout(() => { window.location.href = getLoginUrl("/career-prep"); }, 1500);
-      } else if (msg.includes("Invalid persona_id")) {
+      if (msg.includes("Invalid persona_id")) {
         toast.error("This interviewer is not yet available. Please choose another.");
       } else {
         toast.error("Could not start the interview. Please try again.");

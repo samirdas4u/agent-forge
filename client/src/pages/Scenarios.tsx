@@ -4,14 +4,13 @@ import { useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import {
   ArrowRight, Brain, ChevronDown, ChevronRight, Folder, FolderOpen,
-  LogIn, Mail, MessageSquare, Mic, Phone, Play, Plus, Search, SlidersHorizontal, Zap
+  Mail, MessageSquare, Mic, Phone, Play, Plus, Search, SlidersHorizontal, Zap
 } from "lucide-react";
 import { toast } from "sonner";
 import AppLayout from "@/components/AppLayout";
 import { SUPPORTED_LANGUAGES } from "@/lib/i18n";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 
 // ── Constants ──────────────────────────────────────────────────
@@ -234,7 +233,6 @@ export default function Scenarios() {
   // practiceLanguage: the language the AI will use in the session (separate from the scenario filter)
   const [practiceLanguage, setPracticeLanguage] = useState("en");
 
-  const { isAuthenticated } = useAuth();
   const { data: scenarios, isLoading } = trpc.scenarios.list.useQuery(
     { category: category !== "all" ? category : undefined, difficulty: difficulty !== "all" ? difficulty as any : undefined },
     { staleTime: 60_000 }
@@ -294,23 +292,7 @@ export default function Scenarios() {
   return (
      <AppLayout>
           <div className="flex-1 flex flex-col min-h-0">
-        {/* ── Guest sign-in nudge ── */}
-        {!isAuthenticated && (
-          <div className="shrink-0 flex items-center justify-between gap-3 px-4 sm:px-6 py-2.5 bg-violet-50 border-b border-violet-100">
-            <div className="flex items-center gap-2 text-sm text-violet-800">
-              <LogIn size={14} className="text-violet-500 shrink-0" />
-              <span className="text-xs"><strong>Sign in</strong> to save your results and track progress.</span>
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="shrink-0 text-xs h-7 px-3 border-violet-300 text-violet-700 hover:bg-violet-100"
-              onClick={() => { window.location.href = getLoginUrl("/simulate"); }}
-            >
-              Sign in
-            </Button>
-          </div>
-        )}
+
         {/* ── Page header ── */}
         <div className="shrink-0 px-4 sm:px-6 py-4 sm:py-5 border-b bg-white" style={{ borderColor: 'oklch(0.905 0.012 260)' }}>
           <div className="flex items-center justify-between gap-4 mb-4">

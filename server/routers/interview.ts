@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { protectedProcedure, publicProcedure, router } from "../_core/trpc";
+import { publicProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 
 const TAVUS_API_KEY = process.env.TAVUS_API_KEY!;
@@ -76,7 +76,7 @@ export const interviewRouter = router({
   }),
 
   // Create a Tavus CVI conversation session
-  createSession: protectedProcedure
+  createSession: publicProcedure
     .input(
       z.object({
         personaId: z.string(),
@@ -110,7 +110,7 @@ export const interviewRouter = router({
     }),
 
   // End a Tavus CVI conversation session
-  endSession: protectedProcedure
+  endSession: publicProcedure
     .input(z.object({ conversationId: z.string() }))
     .mutation(async ({ input }) => {
       await tavusFetch(`/conversations/${input.conversationId}/end`, "POST");
@@ -118,7 +118,7 @@ export const interviewRouter = router({
     }),
 
   // Get conversation status
-  getStatus: protectedProcedure
+  getStatus: publicProcedure
     .input(z.object({ conversationId: z.string() }))
     .query(async ({ input }) => {
       const data = await tavusFetch(`/conversations/${input.conversationId}`, "GET");
@@ -129,7 +129,7 @@ export const interviewRouter = router({
     }),
 
   // Generate AI feedback report for a completed interview
-  generateFeedback: protectedProcedure
+  generateFeedback: publicProcedure
     .input(
       z.object({
         personaId: z.string(),
@@ -138,12 +138,12 @@ export const interviewRouter = router({
         durationSeconds: z.number(),
       })
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const { invokeLLM } = await import("../_core/llm");
       const persona = UK_INTERVIEW_PERSONAS.find((p) => p.id === input.personaId);
       const personaDesc = persona?.description ?? "a general UK job interview";
       const role = input.jobTitle ?? persona?.role ?? "the applied role";
-      const candidate = input.candidateName ?? (ctx.user as any).name ?? "the candidate";
+      const candidate = input.candidateName ?? "the candidate";
       const durationMins = Math.max(1, Math.round(input.durationSeconds / 60));
 
       const prompt = `You are an expert UK interview coach. A candidate just completed a ${durationMins}-minute AI video interview for "${role}" with ${persona?.name ?? "an AI interviewer"}. The interview context was: "${personaDesc}".
