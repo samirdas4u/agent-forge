@@ -32,7 +32,7 @@ Agent Forge uses a multi-agent AI system to generate scenarios that adapt in rea
 | **Session analytics** | Every session scored across communication clarity, empathy, problem-solving, and professionalism. Scores feed a readiness prediction model. |
 | **Video interview practice** | Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share. |
 | **eLearning course builder** | AI generates structured courses from uploaded documents — lessons, quizzes, flashcards. |
-| **Career prep module** | Industry-specific question banks, live AI interviewer, post-session feedback report. |
+| **Career prep module** `Beta` | Industry-specific question banks, live AI interviewer, post-session feedback report. Voice experience actively improving — feedback welcome. |
 | **Agentic dashboard** | Real-time view of the AI agent system — active agents, inter-agent messages, task queue, orchestration events. |
 | **Feature experimentation sandbox** | LaunchDarkly-style feature flags with statistical confidence measurement, built into the platform. |
 | **17-language support** | Full UI and simulation localisation. |
