@@ -29,7 +29,8 @@ Agent Forge uses a multi-agent AI system to generate scenarios that adapt in rea
 | **ElevenLabs persona voices** | Each AI persona has a matched ElevenLabs voice ID. Language switching is automatic — 32 languages handled by `eleven_multilingual_v2`. |
 | **Multi-agent AI orchestration** | Five autonomous agents (Simulation, Coaching, Evaluation, Planning, Orchestrator) operate independently and pass context between each other. |
 | **Adaptive difficulty engine** | Scenario complexity adjusts in real time — modifying persona emotional state, objection intensity, and technical complexity based on learner performance. |
-| **Session analytics** | Every session scored across communication clarity, empathy, problem-solving, and professionalism. Scores feed a readiness prediction model. |
+| **50-point competency rubric** | Every session scored across 6 domains (Decision Quality, Process Adherence, Communication, Tool Proficiency, Documentation, Time Efficiency) by the Evaluation Agent. |
+| **Session analytics** | Scores feed a Predictive Readiness Score (PRS) model that estimates time-to-production-threshold across 5 weighted signals. |
 | **Video interview practice** | Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share. |
 | **eLearning course builder** | AI generates structured courses from uploaded documents — lessons, quizzes, flashcards. |
 | **Career prep module** `Beta` | Industry-specific question banks, live AI interviewer, post-session feedback report. Voice experience actively improving — feedback welcome. |
@@ -72,6 +73,81 @@ graph TD
 
 ---
 
+## Learning Science Foundations
+
+Agent Forge's architecture is grounded in three evidence-based learning science frameworks. Each framework directly informs a distinct technical component — the connection between pedagogy and engineering is explicit, not incidental.
+
+### 01 — Ericsson's Deliberate Practice Theory
+**Informs:** Unlimited Repetition with Immediate Feedback
+
+Expert-level performance is not the result of innate talent but of sustained, focused practice with immediate feedback. Agent Forge implements this through unlimited repetition of targeted scenarios with real-time coaching interventions — the digital equivalent of Rapid Cycle Deliberate Practice (RCDP) used in medical simulation training.
+
+### 02 — Vygotsky's Zone of Proximal Development
+**Informs:** Adaptive Difficulty Calibration
+
+Learning occurs most effectively in the zone between what a learner can accomplish independently and what they can achieve with guidance. The Adaptive Difficulty Agent functions as a digital scaffold, continuously calibrating challenge levels to maintain each learner within their personal ZPD — never so easy that learning stalls, never so difficult that confidence collapses.
+
+### 03 — Bloom's Revised Taxonomy
+**Informs:** Higher-Order Assessment Design
+
+Rather than testing recall (Level 1) or comprehension (Level 2), Agent Forge evaluates at the higher-order levels: Application, Analysis, and Evaluation. This ensures training transfers to production performance rather than merely testing memorisation of procedures. Most platforms assess at Bloom's Level 1–2 via multiple-choice quizzes; Agent Forge assesses at Levels 3–6 through authentic performance.
+
+---
+
+## 50-Point Competency Rubric
+
+Every simulation session is automatically scored across 6 competency domains by the Evaluation Agent. The rubric satisfies three requirements simultaneously: pedagogical validity (scores reflect genuine competency), production alignment (categories map to enterprise QA frameworks), and predictive power (simulation scores correlate with real-world performance).
+
+> Scoring uses a criterion-referenced approach — scores reflect absolute competency against defined standards, not relative performance against peers. The rubric deliberately targets Bloom's Levels 3–6 (Apply, Analyse, Evaluate, Create).
+
+| Domain | Points | Weight | Bloom's Level | Example Assessment |
+|---|---|---|---|---|
+| Decision Quality | 15 | 30% | Analyse / Evaluate (L4–L5) | Did the agent identify root cause from multiple symptoms? |
+| Process Adherence | 10 | 20% | Apply (L3) | Did the agent apply the correct verification procedure? |
+| Communication | 10 | 20% | Evaluate / Create (L5–L6) | Did the agent synthesise a coherent case summary? |
+| Tool Proficiency | 5 | 10% | Apply (L3) | Did the agent use the CRM tools correctly and efficiently? |
+| Documentation | 5 | 10% | Create (L6) | Did the agent produce accurate, complete case notes? |
+| Time Efficiency | 5 | 10% | Apply (L3) | Did the agent resolve the issue within the target handle time? |
+
+### Kirkpatrick 4-Level Alignment
+
+The evaluation framework maps to all four levels of Kirkpatrick's training evaluation model — a distinction from most platforms that only measure Levels 1 and 2:
+
+- **Level 1 (Reaction):** Post-session satisfaction score
+- **Level 2 (Learning):** 50-point rubric domain breakdown
+- **Level 3 (Behaviour):** Score trajectory and coaching dependency reduction over time
+- **Level 4 (Results):** Predictive Readiness Score estimating time-to-production-threshold
+
+---
+
+## Coaching Agent — 3-Tier Intervention System
+
+The Coaching Agent monitors learner actions in real time and delivers contextual interventions calibrated to avoid disrupting simulation flow. Research shows that forced scaffolding creates dependency — so interventions are severity-tiered and non-intrusive by design.
+
+| Tier | Trigger | UX Pattern |
+|---|---|---|
+| **Hint** | Missed opportunity | Non-blocking notification badge |
+| **Warning** | Procedural error | Slide-in panel, requires acknowledgement |
+| **Critical** | Compliance violation | Full overlay, requires correction before continuing |
+
+---
+
+## Inter-Agent Communication — Cascade Example
+
+The orchestration layer manages a shared state bus where agents publish events and subscribe to relevant signals. A single learner action can trigger a coordinated cascade across all five agents. The example below shows what happens when a critical compliance error is detected:
+
+| Step | Agent | Action |
+|---|---|---|
+| 1 | Learner | Submits response via tRPC `speakText` procedure |
+| 2 | Simulation Agent | Generates customer reply within persona constraints |
+| 3 | Coaching Agent | Evaluates response against compliance rules and best-practice benchmarks |
+| 4 | Coaching Agent | Publishes `CRITICAL_ERROR` event to shared state bus |
+| 5 | Adaptive Difficulty Agent | Subscribes to `CRITICAL_ERROR` — reduces persona complexity by 0.2 to prevent confidence collapse |
+| 6 | Evaluation Agent | Logs error with timestamp for post-session rubric scoring |
+| 7 | Planning Agent | Receives session-end summary and adjusts the learner's personalised learning path |
+
+---
+
 ## Voice Simulation Pipeline
 
 The voice loop is the core UX innovation. The original flow had four manual steps and 6–8 seconds of perceived latency. The redesigned flow has zero manual steps.
@@ -109,6 +185,20 @@ The client decodes the base64 URL into an `Audio` object and plays it. The anima
 | Speech recognition | Web Speech API + Whisper fallback | Zero-latency STT; Whisper for Safari/Firefox |
 | File storage | AWS S3 | Presigned URL access, no local file storage |
 | Hosting | Cloud Run Autoscale | Cost-zero when idle, scales on demand |
+
+---
+
+## Competitive Differentiation
+
+Agent Forge occupies a unique position — combining multi-agent AI simulation with adaptive difficulty, a 50-point automated rubric, and zero licence cost. No existing commercial platform implements all of these capabilities in a single product.
+
+| Platform | Approach | Limitation vs Agent Forge |
+|---|---|---|
+| Second Nature | AI role-play for sales | Single-agent, sales-only, no CRM simulation or multi-agent orchestration |
+| Solidroad | AI conversation practice | No multi-agent orchestration, no adaptive difficulty, no 50-point rubric |
+| Mindtickle | Revenue enablement | Sales-focused, no customer service depth, no real-time coaching tiers |
+| Whatfix / WalkMe | Digital adoption platforms | Guidance overlays only — not simulation-based training |
+| Articulate Rise | eLearning authoring | Static content, no AI, no real-time interaction or adaptive difficulty |
 
 ---
 
