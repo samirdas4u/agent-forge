@@ -666,9 +666,9 @@ export default function Home() {
               </span>
             </a>
 
-            {/* Sam's Digital Academy */}
+            {/* Sam's Digital Consultancy */}
             <a
-              href="https://www.samsdigitalacademy.co.uk"
+              href="https://www.samsdigitalconsultancy.co.uk"
               target="_blank"
               rel="noopener noreferrer"
               className="group bg-white border border-border rounded-2xl p-8 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 hover:border-transparent"
@@ -682,15 +682,15 @@ export default function Home() {
                 </div>
                 <ExternalLink size={14} className="text-muted-foreground group-hover:text-foreground transition-colors mt-1" />
               </div>
-              <h3 className="font-bold text-lg text-foreground mb-2">Sam's Digital Academy</h3>
+              <h3 className="font-bold text-lg text-foreground mb-2">Sam's Digital Consultancy</h3>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                A digital skills and AI literacy academy helping professionals and organisations build the capabilities needed to thrive in an AI-first world.
+                A digital consultancy helping organisations design and implement AI-powered learning strategies, digital transformation, and capability development programmes.
               </p>
               <span
                 className="text-xs font-semibold"
                 style={{ color: "oklch(0.42 0.20 162)" }}
               >
-                samsdigitalacademy.co.uk →
+                samsdigitalconsultancy.co.uk →
               </span>
             </a>
           </div>
@@ -877,7 +877,7 @@ export default function Home() {
               <div className="flex flex-col gap-3">
                 {[
                   { label: "Learning Catalyst", href: "https://www.learningcatalyst.co.uk", desc: "AI-powered eLearning platform" },
-                  { label: "Sam's Digital Academy", href: "https://www.samsdigitalacademy.co.uk", desc: "Digital skills training" },
+                  { label: "Sam's Digital Consultancy", href: "https://www.samsdigitalconsultancy.co.uk", desc: "Digital consultancy" },
                   { label: "Blog & Articles", href: "https://samirdas.co.uk/blog", desc: "L&D thought leadership" },
                   { label: "Speaking Engagements", href: "https://samirdas.co.uk/speaking", desc: "Conference talks & keynotes" },
                   { label: "Books", href: "https://samirdas.co.uk/books", desc: "Published works on L&D" },
