@@ -318,9 +318,19 @@ pnpm test
 
 Built by **Samir Das** — AI Learning & Knowledge Technology Architect with experience designing and deploying AI-powered training systems at scale within large technology organisations.
 
+- Personal site: [samirdas.co.uk](https://samirdas.co.uk)
 - Platform: [agentforge.org.uk](https://www.agentforge.org.uk)
-- Architecture: [agentforge.org.uk/architecture](https://www.agentforge.org.uk/architecture)
+- Architecture deep-dive: [agentforge.org.uk/architecture](https://www.agentforge.org.uk/architecture)
 - GitHub: [github.com/samirdas4u](https://github.com/samirdas4u)
+
+---
+
+## Partner Organisations
+
+| Organisation | Focus | Link |
+|---|---|---|
+| **Learning Catalyst** | AI-powered eLearning platform and instructional design | [learningcatalyst.co.uk](https://www.learningcatalyst.co.uk) |
+| **Sam's Digital Consultancy** | AI-powered learning strategy, digital transformation, and capability development | [samsdigitalconsultancy.co.uk](https://www.samsdigitalconsultancy.co.uk) |
 
 ---
 
