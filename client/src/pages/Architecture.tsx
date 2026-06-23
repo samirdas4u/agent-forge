@@ -168,6 +168,66 @@ const DB_TABLES = [
   { name: "difficulty_adjustments", purpose: "Dynamic difficulty tuning records per session" },
 ];
 
+const LEARNING_SCIENCE = [
+  {
+    number: "01",
+    name: "Ericsson's Deliberate Practice Theory",
+    informs: "Unlimited Repetition with Immediate Feedback",
+    color: "bg-indigo-50 border-indigo-200",
+    numColor: "bg-indigo-600",
+    detail: "Expert-level performance is not the result of innate talent but of sustained, focused practice with immediate feedback. Agent Forge implements this through unlimited repetition of targeted scenarios with real-time coaching interventions — the digital equivalent of Rapid Cycle Deliberate Practice (RCDP) used in medical simulation training.",
+  },
+  {
+    number: "02",
+    name: "Vygotsky's Zone of Proximal Development",
+    informs: "Adaptive Difficulty Calibration",
+    color: "bg-violet-50 border-violet-200",
+    numColor: "bg-violet-600",
+    detail: "Learning occurs most effectively in the zone between what a learner can accomplish independently and what they can achieve with guidance. The Adaptive Difficulty Agent functions as a digital scaffold, continuously calibrating challenge levels to maintain each learner within their personal ZPD — never so easy that learning stalls, never so difficult that confidence collapses.",
+  },
+  {
+    number: "03",
+    name: "Bloom's Revised Taxonomy",
+    informs: "Higher-Order Assessment Design",
+    color: "bg-emerald-50 border-emerald-200",
+    numColor: "bg-emerald-600",
+    detail: "Rather than testing recall (Level 1) or comprehension (Level 2), Agent Forge evaluates at the higher-order levels: Application, Analysis, and Evaluation. This ensures training transfers to production performance rather than merely testing memorisation of procedures. Most platforms assess at Bloom's Level 1–2 via multiple-choice quizzes; Agent Forge assesses at Levels 3–6 through authentic performance.",
+  },
+];
+
+const RUBRIC_DOMAINS = [
+  { domain: "Decision Quality", pts: 15, pct: "30%", bloom: "Analyse / Evaluate (L4–L5)", example: "Did the agent identify root cause from multiple symptoms?" },
+  { domain: "Process Adherence", pts: 10, pct: "20%", bloom: "Apply (L3)", example: "Did the agent apply the correct verification procedure?" },
+  { domain: "Communication", pts: 10, pct: "20%", bloom: "Evaluate / Create (L5–L6)", example: "Did the agent synthesise a coherent case summary?" },
+  { domain: "Tool Proficiency", pts: 5, pct: "10%", bloom: "Apply (L3)", example: "Did the agent use the CRM tools correctly and efficiently?" },
+  { domain: "Documentation", pts: 5, pct: "10%", bloom: "Create (L6)", example: "Did the agent produce accurate, complete case notes?" },
+  { domain: "Time Efficiency", pts: 5, pct: "10%", bloom: "Apply (L3)", example: "Did the agent resolve the issue within the target handle time?" },
+];
+
+const COACHING_TIERS = [
+  { tier: "Hint", trigger: "Missed opportunity", ux: "Non-blocking notification badge", color: "bg-amber-50 border-amber-300", dot: "bg-amber-400" },
+  { tier: "Warning", trigger: "Procedural error", ux: "Slide-in panel, requires acknowledgement", color: "bg-orange-50 border-orange-300", dot: "bg-orange-500" },
+  { tier: "Critical", trigger: "Compliance violation", ux: "Full overlay, requires correction before continuing", color: "bg-rose-50 border-rose-300", dot: "bg-rose-600" },
+];
+
+const AGENT_CASCADE = [
+  { step: "1", agent: "Learner", action: "Submits response", detail: "The learner's message is sent to the tRPC speakText procedure." },
+  { step: "2", agent: "Simulation Agent", action: "Generates customer reply", detail: "Produces the AI customer's next response within persona constraints." },
+  { step: "3", agent: "Coaching Agent", action: "Evaluates for intervention triggers", detail: "Analyses the response against compliance rules and best-practice benchmarks." },
+  { step: "4", agent: "Coaching Agent", action: "Publishes CRITICAL_ERROR event", detail: "If a critical error is detected, broadcasts to the shared state bus." },
+  { step: "5", agent: "Adaptive Difficulty Agent", action: "Reduces persona complexity by 0.2", detail: "Subscribes to CRITICAL_ERROR — softens the customer persona to prevent confidence collapse." },
+  { step: "6", agent: "Evaluation Agent", action: "Logs error with timestamp", detail: "Records the error for post-session 50-point rubric scoring." },
+  { step: "7", agent: "Planning Agent", action: "Updates competency map", detail: "Receives session-end summary and adjusts the learner's personalised learning path." },
+];
+
+const COMPETITORS = [
+  { platform: "Second Nature", approach: "AI role-play for sales", limitation: "Single-agent, sales-only, no CRM simulation or multi-agent orchestration" },
+  { platform: "Solidroad", approach: "AI conversation practice", limitation: "No multi-agent orchestration, no adaptive difficulty, no 50-point rubric" },
+  { platform: "Mindtickle", approach: "Revenue enablement", limitation: "Sales-focused, no customer service depth, no real-time coaching tiers" },
+  { platform: "Whatfix / WalkMe", approach: "Digital adoption platforms", limitation: "Guidance overlays, not simulation-based training" },
+  { platform: "Articulate Rise", approach: "eLearning authoring", limitation: "Static content, no AI, no real-time interaction or adaptive difficulty" },
+];
+
 const MODULES = [
   { name: "Communication Simulation", icon: "🎭", routes: ["/scenarios", "/simulate/:sessionId", "/session/:id/result", "/session/:id/replay"], description: "5 scenario categories, 5 AI personas, real-time scoring across 5 dimensions, session replay." },
   { name: "Video Interview Practice", icon: "🎥", routes: ["/interview", "/interview/session/:id", "/interview/result"], description: "Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share." },
@@ -461,6 +521,146 @@ export default function Architecture() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ── Learning Science Foundations ── */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Learning Science Foundations</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            Agent Forge's architecture is grounded in three evidence-based learning science frameworks. Each framework directly informs a distinct technical component — the connection between pedagogy and engineering is explicit, not incidental.
+          </p>
+          <div className="space-y-4">
+            {LEARNING_SCIENCE.map((ls) => (
+              <div key={ls.number} className={`rounded-2xl border ${ls.color} overflow-hidden`}>
+                <div className="flex items-start gap-4 p-5">
+                  <div className={`${ls.numColor} text-white text-xs font-bold w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0`}>{ls.number}</div>
+                  <div>
+                    <p className="font-bold text-gray-900 text-sm">{ls.name}</p>
+                    <p className="text-xs text-indigo-600 font-semibold mt-0.5 mb-2">Informs: {ls.informs}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed">{ls.detail}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── 50-Point Competency Rubric ── */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">50-Point Competency Rubric</h2>
+          <p className="text-gray-600 mb-4 leading-relaxed">
+            Every simulation session is automatically scored across 6 competency domains by the Evaluation Agent. The rubric satisfies three requirements simultaneously: pedagogical validity (scores reflect genuine competency), production alignment (categories map to enterprise QA frameworks), and predictive power (simulation scores correlate with real-world performance).
+          </p>
+          <p className="text-gray-500 text-sm mb-6 italic">Scoring uses a criterion-referenced approach — scores reflect absolute competency against defined standards, not relative performance against peers. The rubric deliberately targets Bloom's Levels 3–6 (Apply, Analyse, Evaluate, Create) — not recall or comprehension.</p>
+          <div className="overflow-x-auto rounded-2xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-900 text-white">
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Domain</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Points</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Weight</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Bloom's Level</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Example Assessment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {RUBRIC_DOMAINS.map((r, i) => (
+                  <tr key={r.domain} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-5 py-3 font-semibold text-gray-900 text-xs">{r.domain}</td>
+                    <td className="px-5 py-3 text-indigo-700 font-bold text-xs">{r.pts}</td>
+                    <td className="px-5 py-3 text-gray-700 text-xs">{r.pct}</td>
+                    <td className="px-5 py-3 text-violet-700 text-xs">{r.bloom}</td>
+                    <td className="px-5 py-3 text-gray-600 text-xs">{r.example}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+            <p className="text-indigo-800 text-xs font-semibold mb-1">Kirkpatrick 4-Level Alignment</p>
+            <p className="text-indigo-700 text-xs leading-relaxed">The evaluation framework maps to all four levels of Kirkpatrick's training evaluation model — a distinction from most platforms that only measure Levels 1 and 2. Level 1 (Reaction): post-session satisfaction score. Level 2 (Learning): 50-point rubric domain breakdown. Level 3 (Behaviour): score trajectory and coaching dependency reduction over time. Level 4 (Results): Predictive Readiness Score estimating time-to-production-threshold.</p>
+          </div>
+        </section>
+
+        {/* ── Coaching Agent 3-Tier System ── */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Coaching Agent — 3-Tier Intervention System</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            The Coaching Agent monitors learner actions in real time and delivers contextual interventions calibrated to avoid disrupting simulation flow. Research shows that forced scaffolding creates dependency — so interventions are severity-tiered and non-intrusive by design.
+          </p>
+          <div className="space-y-3">
+            {COACHING_TIERS.map((t) => (
+              <div key={t.tier} className={`rounded-xl border ${t.color} p-4 flex items-start gap-4`}>
+                <div className={`w-3 h-3 rounded-full ${t.dot} flex-shrink-0 mt-1`} />
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Tier</p>
+                    <p className="font-bold text-gray-900 text-sm mt-0.5">{t.tier}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Trigger</p>
+                    <p className="text-gray-700 text-sm mt-0.5">{t.trigger}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">UX Pattern</p>
+                    <p className="text-gray-700 text-sm mt-0.5">{t.ux}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Inter-Agent Cascade ── */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Inter-Agent Communication — Cascade Example</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            The orchestration layer manages a shared state bus where agents publish events and subscribe to relevant signals. A single learner action can trigger a coordinated cascade across all five agents simultaneously. The example below shows what happens when a critical compliance error is detected.
+          </p>
+          <div className="space-y-3">
+            {AGENT_CASCADE.map((item) => (
+              <div key={item.step} className="flex gap-4 items-start bg-gray-50 rounded-xl p-4 border border-gray-100">
+                <div className="w-8 h-8 rounded-full bg-violet-600 text-white text-sm font-bold flex items-center justify-center flex-shrink-0">
+                  {item.step}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-gray-900 text-sm">{item.action}</p>
+                    <span className="text-xs bg-violet-100 text-violet-700 font-semibold px-2 py-0.5 rounded-full">{item.agent}</span>
+                  </div>
+                  <p className="text-gray-600 text-sm mt-0.5 leading-relaxed">{item.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Competitive Differentiation ── */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Competitive Differentiation</h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            Agent Forge occupies a unique position — combining multi-agent AI simulation with adaptive difficulty, a 50-point automated rubric, and zero license cost. No existing commercial platform implements all of these capabilities in a single product.
+          </p>
+          <div className="overflow-x-auto rounded-2xl border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-900 text-white">
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Platform</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Approach</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Limitation vs Agent Forge</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPETITORS.map((c, i) => (
+                  <tr key={c.platform} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-5 py-3 font-semibold text-gray-900 text-xs">{c.platform}</td>
+                    <td className="px-5 py-3 text-gray-700 text-xs">{c.approach}</td>
+                    <td className="px-5 py-3 text-gray-600 text-xs">{c.limitation}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
 
