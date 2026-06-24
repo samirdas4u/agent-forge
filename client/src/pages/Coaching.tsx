@@ -100,6 +100,45 @@ const DEPTH_LABELS: Record<string, { label: string; color: string }> = {
   transformative:{ label: "Transformative",   color: "bg-violet-500/20 text-violet-300" },
 };
 
+// ── Session Arc Phases ──────────────────────────────────────────────────────
+
+const SESSION_ARC = [
+  { id: "checkin",     label: "Check-in" },
+  { id: "exploration", label: "Exploration" },
+  { id: "insight",     label: "Insight" },
+  { id: "action",      label: "Action" },
+  { id: "close",       label: "Close" },
+] as const;
+
+function getArcPhase(messageCount: number): number {
+  if (messageCount < 4)  return 0;
+  if (messageCount < 8)  return 1;
+  if (messageCount < 12) return 2;
+  if (messageCount < 16) return 3;
+  return 4;
+}
+
+// ── Waveform Bars ─────────────────────────────────────────────────────────────
+
+function WaveformBars({ active, colorClass }: { active: boolean; colorClass: string }) {
+  const heights = [0.4, 0.7, 1.0, 0.8, 0.5, 0.9, 0.6, 1.0, 0.7, 0.4, 0.8, 0.6];
+  return (
+    <div className="flex items-center gap-[3px] h-8">
+      {heights.map((h, i) => (
+        <div
+          key={i}
+          className={`w-[3px] rounded-full transition-all duration-300 ${colorClass} ${active ? "opacity-90" : "opacity-20"}`}
+          style={{
+            height: active ? `${Math.round(h * 26 + 4)}px` : "4px",
+            animation: active ? `waveBar ${0.55 + (i % 4) * 0.12}s ease-in-out infinite alternate` : "none",
+            animationDelay: `${i * 0.05}s`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function Coaching() {
@@ -251,7 +290,7 @@ export default function Coaching() {
           stopListening();
           sendToCoach(toSend);
         }
-      }, 1500);
+      }, 1000);
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -507,17 +546,27 @@ export default function Coaching() {
     );
   }
 
-  // ── SESSION ─────────────────────────────────────────────────────────────────
+  // -- SESSION --
 
   if (pageState === "session" && selectedCoach) {
     const a = ACCENT_STYLES[selectedCoach.accentColor];
     const isOrbActive = callState === "listening" || callState === "speaking" || callState === "thinking";
+    const arcPhase = getArcPhase(messages.length);
+
+    const waveColorMap: Record<string, string> = {
+      violet:  "bg-violet-400",
+      blue:    "bg-blue-400",
+      emerald: "bg-emerald-400",
+      orange:  "bg-orange-400",
+    };
+    const waveColorClass = waveColorMap[selectedCoach.accentColor] ?? "bg-violet-400";
 
     return (
       <AppLayout fullscreen>
         <div className="min-h-screen bg-[#0d0f14] text-white flex flex-col">
+
           {/* Top bar */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
             <div className="flex items-center gap-3">
               <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${selectedCoach.gradient} flex items-center justify-center text-white font-bold text-sm shadow-md`}>
                 {selectedCoach.avatar}
@@ -540,31 +589,76 @@ export default function Coaching() {
             </div>
           </div>
 
+          {/* Session arc progress */}
+          <div className="px-5 py-2.5 border-b border-white/[0.04] bg-[#0a0c11]">
+            <div className="flex items-start gap-1 max-w-2xl mx-auto">
+              {SESSION_ARC.map((phase, idx) => {
+                const isActive = idx === arcPhase;
+                const isDone   = idx < arcPhase;
+                return (
+                  <div key={phase.id} className="flex-1 flex flex-col items-center gap-1">
+                    <div className={`h-0.5 w-full rounded-full transition-all duration-700 ${
+                      isDone   ? `bg-gradient-to-r ${selectedCoach.gradient}` :
+                      isActive ? `bg-gradient-to-r ${selectedCoach.gradient} opacity-50` :
+                      "bg-white/[0.07]"
+                    }`} />
+                    <span className={`text-[9px] font-semibold uppercase tracking-wider transition-colors ${
+                      isActive ? a.text : isDone ? "text-slate-600" : "text-slate-700"
+                    }`}>{phase.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="flex flex-1 overflow-hidden">
             {/* Conversation panel */}
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto px-5 py-6 space-y-4">
+              <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                     {msg.role === "assistant" && (
-                      <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${selectedCoach.gradient} flex items-center justify-center text-white text-xs font-bold mr-2.5 mt-0.5 flex-shrink-0`}>
+                      <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${selectedCoach.gradient} flex items-center justify-center text-white text-xs font-bold mr-2.5 mt-1 flex-shrink-0`}>
                         {selectedCoach.avatar[0]}
                       </div>
                     )}
-                    <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    <div className={`max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                       msg.role === "user"
-                        ? "bg-white/[0.08] text-white rounded-br-sm"
+                        ? "bg-white/[0.07] text-slate-200 rounded-br-sm border border-white/[0.06]"
                         : `${a.bg} border ${a.ring} text-white rounded-bl-sm`
                     }`}>
+                      {msg.role === "assistant" && (
+                        <p className={`text-[9px] font-bold uppercase tracking-wider ${a.text} mb-1.5 opacity-60`}>
+                          {selectedCoach.name.split(" ")[0]}
+                        </p>
+                      )}
                       {msg.content}
                     </div>
                   </div>
                 ))}
 
+                {/* Thinking indicator */}
+                {(callState === "thinking" || callState === "processing") && (
+                  <div className="flex justify-start">
+                    <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${selectedCoach.gradient} flex items-center justify-center text-white text-xs font-bold mr-2.5 mt-1 flex-shrink-0`}>
+                      {selectedCoach.avatar[0]}
+                    </div>
+                    <div className={`${a.bg} border ${a.ring} rounded-2xl rounded-bl-sm px-4 py-3.5 flex items-center gap-1.5`}>
+                      {[0, 1, 2].map(d => (
+                        <div
+                          key={d}
+                          className={`w-2 h-2 rounded-full ${waveColorClass}`}
+                          style={{ animation: "thinkDot 1.2s ease-in-out infinite", animationDelay: `${d * 0.2}s` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Live transcript */}
                 {liveTranscript && (
                   <div className="flex justify-end">
-                    <div className="max-w-[75%] rounded-2xl px-4 py-3 text-sm bg-white/[0.04] text-slate-400 italic border border-white/[0.06] rounded-br-sm">
+                    <div className="max-w-[78%] rounded-2xl px-4 py-3 text-sm bg-white/[0.03] text-slate-500 italic border border-white/[0.05] rounded-br-sm">
                       {liveTranscript}
                     </div>
                   </div>
@@ -572,55 +666,67 @@ export default function Coaching() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Voice orb area */}
-              <div className="border-t border-white/[0.06] px-5 py-6 flex flex-col items-center gap-4">
-                {/* Orb */}
-                <div className="relative flex items-center justify-center">
-                  {/* Pulse rings */}
-                  {callState === "listening" && (
-                    <>
-                      <div className={`absolute w-28 h-28 rounded-full bg-gradient-to-br ${selectedCoach.gradient} opacity-10 animate-ping`} />
-                      <div className={`absolute w-24 h-24 rounded-full bg-gradient-to-br ${selectedCoach.gradient} opacity-15 animate-pulse`} />
-                    </>
-                  )}
-                  {callState === "speaking" && (
-                    <>
-                      <div className={`absolute w-28 h-28 rounded-full bg-gradient-to-br ${selectedCoach.gradient} opacity-15 animate-pulse`} />
-                    </>
-                  )}
+              {/* Voice orb + waveform */}
+              <div className="border-t border-white/[0.06] px-5 py-5 bg-[#0a0c11]">
+                <div className="flex flex-col items-center gap-3">
 
-                  {/* Main orb */}
-                  <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${selectedCoach.gradient} flex items-center justify-center shadow-2xl transition-all duration-300 ${
-                    isOrbActive ? "scale-110 shadow-violet-500/30" : "scale-100"
-                  }`}>
-                    {callState === "listening" ? (
-                      <Mic className="w-7 h-7 text-white" />
-                    ) : callState === "speaking" ? (
-                      <Volume2 className="w-7 h-7 text-white animate-pulse" />
-                    ) : callState === "thinking" || callState === "processing" ? (
-                      <Sparkles className="w-7 h-7 text-white animate-spin" style={{ animationDuration: "2s" }} />
-                    ) : (
-                      <Mic className="w-7 h-7 text-white opacity-60" />
+                  {/* Waveform */}
+                  <div className="h-8 flex items-center justify-center">
+                    {callState === "speaking" && (
+                      <WaveformBars active={true} colorClass={waveColorClass} />
+                    )}
+                    {callState === "listening" && (
+                      <WaveformBars active={!!liveTranscript} colorClass="bg-slate-400" />
+                    )}
+                    {(callState === "thinking" || callState === "processing") && (
+                      <p className={`text-xs font-medium ${a.text} animate-pulse`}>
+                        {selectedCoach.name.split(" ")[0]} is reflecting…
+                      </p>
+                    )}
+                    {callState === "idle" && (
+                      <p className="text-xs text-slate-600">Tap the orb to begin</p>
                     )}
                   </div>
+
+                  {/* Orb */}
+                  <div className="relative flex items-center justify-center">
+                    {callState === "listening" && (
+                      <>
+                        <div className={`absolute w-28 h-28 rounded-full bg-gradient-to-br ${selectedCoach.gradient} opacity-[0.08] animate-ping`} style={{ animationDuration: "1.8s" }} />
+                        <div className={`absolute w-24 h-24 rounded-full bg-gradient-to-br ${selectedCoach.gradient} opacity-[0.12] animate-pulse`} />
+                      </>
+                    )}
+                    {callState === "speaking" && (
+                      <div className={`absolute w-28 h-28 rounded-full bg-gradient-to-br ${selectedCoach.gradient} opacity-[0.12] animate-pulse`} style={{ animationDuration: "0.8s" }} />
+                    )}
+
+                    <button
+                      onClick={() => { if (callState === "idle") { callActiveRef.current = true; startListening(); } }}
+                      className={`w-20 h-20 rounded-full bg-gradient-to-br ${selectedCoach.gradient} flex items-center justify-center shadow-2xl transition-all duration-300 ${
+                        isOrbActive ? "scale-110" : "scale-100 hover:scale-105"
+                      }`}
+                    >
+                      {callState === "listening" ? (
+                        <Mic className="w-7 h-7 text-white" />
+                      ) : callState === "speaking" ? (
+                        <Volume2 className="w-7 h-7 text-white" />
+                      ) : callState === "thinking" || callState === "processing" ? (
+                        <Sparkles className="w-6 h-6 text-white" style={{ animation: "spin 2.5s linear infinite" }} />
+                      ) : (
+                        <Mic className="w-7 h-7 text-white opacity-70" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* State label */}
+                  <p className="text-xs text-slate-500 font-medium tracking-wide">
+                    {callState === "listening" && liveTranscript ? "Speaking…" :
+                     callState === "listening" ? "Listening — speak naturally" :
+                     callState === "speaking"  ? `${selectedCoach.name.split(" ")[0]} is speaking` :
+                     callState === "thinking" || callState === "processing" ? "" :
+                     "Tap the orb to speak"}
+                  </p>
                 </div>
-
-                {/* State label */}
-                <p className="text-sm text-slate-400 font-medium">
-                  {callState === "thinking" || callState === "speaking"
-                    ? `${selectedCoach.name.split(" ")[0]} is ${callState === "thinking" ? "thinking…" : "speaking…"}`
-                    : CALL_STATE_LABELS[callState]}
-                </p>
-
-                {/* Manual mic toggle for idle state */}
-                {callState === "idle" && (
-                  <button
-                    onClick={() => { callActiveRef.current = true; startListening(); }}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r ${selectedCoach.gradient} text-white hover:opacity-90 transition-opacity`}
-                  >
-                    <Mic className="w-4 h-4" /> Start speaking
-                  </button>
-                )}
               </div>
             </div>
           </div>
