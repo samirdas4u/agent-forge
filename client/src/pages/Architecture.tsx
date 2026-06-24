@@ -236,6 +236,7 @@ const MODULES = [
   { name: "Product Sandbox", icon: "🔬", routes: ["/sandbox", "/sandbox/flags", "/sandbox/ai-tester", "/sandbox/test-runner", "/sandbox/personas", "/sandbox/events"], description: "Engineering control plane — feature flags, AI behaviour tester, synthetic test runner, persona lab, event log." },
   { name: "Agentic Dashboard", icon: "🤖", routes: ["/agentic-dashboard"], description: "5-agent orchestration system — Readiness Predictor, Coaching Nudge, Difficulty Adjuster, Content Curator, Engagement Monitor." },
   { name: "Analytics & Progress", icon: "📊", routes: ["/dashboard", "/analytics", "/leaderboard", "/readiness"], description: "Recharts radar/trend/bar visualisations, streak tracking, leaderboard, readiness predictions." },
+  { name: "AI Coaching", icon: "🧠", routes: ["/coaching"], description: "4 coach personas (Socratic, GROW, Solution-Focused, Directive) — voice-enabled 1:1 sessions, session arc tracking, post-session coaching report. Beta." },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -275,7 +276,7 @@ export default function Architecture() {
               { icon: Code2, label: "21,766 lines of TypeScript" },
               { icon: TestTube2, label: "12 automated tests" },
               { icon: Database, label: "19 database tables" },
-              { icon: Layers, label: "7 product modules" },
+              { icon: Layers, label: "8 product modules" },
               { icon: Globe, label: "17 languages" },
               { icon: Brain, label: "5 AI agents" },
             ].map(({ icon: Icon, label }) => (
@@ -308,7 +309,8 @@ export default function Architecture() {
                                               │   ├── interview.*   (Tavus CVI)
                                               │   ├── courses.*     (AI authoring)
                                               │   ├── sandbox.*     (flags, personas)
-                                              │   └── agentic.*     (5-agent system)
+                                              │   ├── agentic.*     (5-agent system)
+                                              │   └── coaching.*    (personas, chat, TTS, report)
                                               │
                                               ├── LLM (GPT-4 class)
                                               │   └── invokeLLM()
@@ -631,6 +633,83 @@ export default function Architecture() {
                   </div>
                   <p className="text-gray-600 text-sm mt-0.5 leading-relaxed">{item.detail}</p>
                 </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── AI Coaching Module ── */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Coaching Module <span className="text-sm font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full align-middle">Beta</span></h2>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            The AI Coaching module is a distinct pillar from simulation — where simulation trains performance through repetition, coaching develops the person through reflection. The module is built on four coach personas, each grounded in a real coaching framework, with a voice-first session experience and a structured post-session report.
+          </p>
+
+          {/* Coach personas table */}
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 mb-6">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-900 text-white">
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Coach</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Style</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Framework</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">Focus</th>
+                  <th className="text-left px-5 py-3 font-semibold text-xs">ElevenLabs Voice</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { coach: "Maya Chen", style: "Socratic / Reflective", framework: "Clean Language + Appreciative Inquiry", focus: "Leadership identity, self-awareness, values", voice: "Bella (warm female)" },
+                  { coach: "James Whitfield", style: "GROW Model", framework: "Goal → Reality → Options → Will", focus: "Sales performance, career targets, goals", voice: "Adam (deep male)" },
+                  { coach: "Priya Sharma", style: "Solution-Focused", framework: "SFBC + Narrative Coaching", focus: "Career transitions, confidence, imposter syndrome", voice: "Grace (calm female)" },
+                  { coach: "Marcus Reid", style: "Directive / Challenge", framework: "Gestalt + Ontological Coaching", focus: "Executive presence, stakeholder influence", voice: "Arnold (crisp male)" },
+                ].map((row, i) => (
+                  <tr key={row.coach} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                    <td className="px-5 py-3 font-semibold text-gray-900 text-xs">{row.coach}</td>
+                    <td className="px-5 py-3 text-gray-700 text-xs">{row.style}</td>
+                    <td className="px-5 py-3 text-gray-600 text-xs">{row.framework}</td>
+                    <td className="px-5 py-3 text-gray-600 text-xs">{row.focus}</td>
+                    <td className="px-5 py-3 text-gray-500 text-xs font-mono">{row.voice}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Session arc */}
+          <h3 className="text-base font-bold text-gray-900 mb-3">Session Arc</h3>
+          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+            Every coaching session follows a 5-phase arc tracked implicitly through conversation history. The LLM system prompt instructs the coach to move through phases naturally — no explicit state machine required.
+          </p>
+          <div className="flex flex-wrap gap-2 mb-6">
+            {["1 · Check-in", "2 · Exploration", "3 · Insight", "4 · Action", "5 · Close"].map((phase, i) => (
+              <div key={phase} className="flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-lg px-4 py-2">
+                <div className="w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] font-bold flex items-center justify-center">{i + 1}</div>
+                <span className="text-xs font-semibold text-violet-800">{phase.split(" · ")[1]}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Post-session report */}
+          <h3 className="text-base font-bold text-gray-900 mb-3">Post-Session Coaching Report</h3>
+          <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+            At session end, the full conversation transcript is passed to the LLM with a structured JSON schema. The report is personalised — it references specific things the coachee said, not generic feedback.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[
+              { field: "sessionSummary", desc: "2–3 sentence essence of the session" },
+              { field: "keyInsight", desc: "The single most important realisation" },
+              { field: "breakthroughMoment", desc: "The exchange that created most movement" },
+              { field: "commitment", desc: "Specific action with timeframe" },
+              { field: "strengthsObserved", desc: "Array of strengths the coach noticed" },
+              { field: "growthEdge", desc: "One area most ripe for development" },
+              { field: "reflectionQuestions", desc: "3 questions to sit with before next session" },
+              { field: "nextSessionFocus", desc: "Recommended focus for next session" },
+              { field: "coachNote", desc: "Personal note from the coach to the coachee" },
+            ].map(({ field, desc }) => (
+              <div key={field} className="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                <p className="font-mono text-xs text-violet-700 font-semibold mb-1">{field}</p>
+                <p className="text-xs text-gray-600 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>

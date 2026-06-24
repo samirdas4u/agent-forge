@@ -34,6 +34,7 @@ Agent Forge uses a multi-agent AI system to generate scenarios that adapt in rea
 | **Video interview practice** | Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share. |
 | **eLearning course builder** | AI generates structured courses from uploaded documents — lessons, quizzes, flashcards. |
 | **Career prep module** `Beta` | Industry-specific question banks, live AI interviewer, post-session feedback report. Voice experience actively improving — feedback welcome. |
+| **AI Coaching module** `Beta` | 4 coach personas (Maya — Socratic/leadership, James — GROW/sales, Priya — solution-focused/career, Marcus — directive/executive). Voice-enabled 1:1 sessions grounded in Clean Language, GROW, SFBC, and Gestalt frameworks. 5-phase session arc. Post-session report: key insight, breakthrough moment, commitment, strengths, growth edge, reflection questions. |
 | **Agentic dashboard** | Real-time view of the AI agent system — active agents, inter-agent messages, task queue, orchestration events. |
 | **Feature experimentation sandbox** | LaunchDarkly-style feature flags with statistical confidence measurement, built into the platform. |
 | **17-language support** | Full UI and simulation localisation. |
@@ -257,7 +258,7 @@ The first version used a fixed 1.0-second silence threshold. In practice, users 
 ```
 client/
   src/
-    pages/          ← SimulationSession, CareerPrep, AgenticDashboard, Architecture
+    pages/          ← SimulationSession, CareerPrep, Coaching, AgenticDashboard, Architecture
     components/     ← AIChatBox, DashboardLayout, Map, voice orb animations
     hooks/          ← useAuth, custom tRPC hooks
     lib/trpc.ts     ← tRPC client binding
@@ -265,6 +266,8 @@ drizzle/
   schema.ts         ← 19 database tables, all types
 server/
   routers.ts        ← tRPC procedures (simulation, coaching, evaluation, auth)
+  routers/
+    coaching.ts       ← AI Coaching — listCoaches, chat, speak, generateReport
   db.ts             ← Drizzle query helpers
   _core/
     elevenLabsTTS.ts  ← Persona-to-voice-ID mapping, turbo model, fallback logic
