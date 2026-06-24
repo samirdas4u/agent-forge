@@ -364,3 +364,18 @@
 - [x] Architecture link added to footer bottom bar alongside GTV Evidence
 - [x] /architecture route registered in App.tsx
 - [x] TypeScript clean (0 errors), 12/12 tests passing
+
+## AI Coaching Module (Beta)
+- [x] 4 coach personas designed: Maya (Socratic/leadership), James (GROW/sales), Priya (solution-focused/career), Marcus (directive/executive)
+- [x] Coaching tRPC router: listCoaches, chat, speak, generateReport procedures
+- [x] Coach-specific ElevenLabs voice mapping (Bella, Adam, Grace, Arnold)
+- [x] Session arc tracking (Check-in → Exploration → Insight → Action → Close)
+- [x] Post-session coaching report with: key insight, breakthrough moment, commitment, strengths, growth edge, reflection questions, next session focus
+- [x] Coaching page: coach picker UI with cards, style badges, specialisms
+- [x] Goal-setting screen before session starts
+- [x] Voice session UI: animated orb, live transcript, state machine (idle/listening/processing/thinking/speaking)
+- [x] Post-session report UI: depth badge, coach note, all report sections
+- [x] /coaching route added to App.tsx
+- [x] AI Coaching nav item with Beta badge added to sidebar
+- [x] TypeScript: 0 errors
+- [x] Tests: 12/12 passing

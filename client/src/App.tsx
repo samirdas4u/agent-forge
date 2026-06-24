@@ -24,6 +24,7 @@ import ReadinessPredictions from "./pages/ReadinessPredictions";
 import WhyAgentForge from "./pages/WhyAgentForge";
 import Architecture from "./pages/Architecture";
 import CareerPrep from "./pages/CareerPrep";
+import Coaching from "./pages/Coaching";
 import AppLayout from "./components/AppLayout";
 import SandboxHub from "./pages/sandbox/SandboxHub";
 import FeatureFlags from "./pages/sandbox/FeatureFlags";
@@ -79,6 +80,9 @@ function Router() {
       </Route>
       <Route path="/career-prep">
         <CareerPrep />
+      </Route>
+      <Route path="/coaching">
+        <Coaching />
       </Route>
       <Route path="/interview/session/:conversationId">
         {(params) => <InterviewSession />}

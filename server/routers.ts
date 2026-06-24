@@ -7,6 +7,7 @@ import { coursesRouter } from "./routers/courses";
 import { interviewRouter } from "./routers/interview";
 import { sandboxRouter } from "./routers/sandbox";
 import { agenticRouter } from "./routers/agentic";
+import { coachingRouter } from "./routers/coaching";
 import { invokeLLM } from "./_core/llm";
 import {
   addMessage,
@@ -779,6 +780,7 @@ Return JSON with: {
   sandbox: sandboxRouter,
   interview: interviewRouter,
   agentic: agenticRouter,
+  coaching: coachingRouter,
 });
 
 export type AppRouter = typeof appRouter;

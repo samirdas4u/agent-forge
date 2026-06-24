@@ -28,6 +28,7 @@ import {
   Users,
   X,
   Zap,
+  HeartHandshake,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
@@ -48,6 +49,7 @@ const TRAINING_NAV_KEYS = [
   { href: "/leaderboard",  key: "nav_leaderboard",  icon: Trophy },
   { href: "/interview",     key: "nav_interview",    icon: Video },
   { href: "/career-prep",   key: "Career Prep",      icon: GraduationCap, beta: true },
+  { href: "/coaching",      key: "AI Coaching",      icon: HeartHandshake, beta: true },
 ];
 
 const SANDBOX_NAV_KEYS = [
