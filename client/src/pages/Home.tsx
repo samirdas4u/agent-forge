@@ -25,6 +25,7 @@ import {
   X,
   Zap,
   XCircle,
+  HeartHandshake,
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "wouter";
@@ -304,6 +305,21 @@ export default function Home() {
                 <span className="ml-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-1.5 py-0.5 rounded-full">Beta</span>
               </a>
               <span className="text-xs text-muted-foreground">Free · No account needed</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <a
+                href="/coaching"
+                className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-base font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg"
+                style={{
+                  background: "linear-gradient(135deg, oklch(0.45 0.22 272), oklch(0.55 0.20 310))",
+                  boxShadow: "0 8px 32px oklch(0.45 0.22 272 / 0.30)",
+                }}
+              >
+                <HeartHandshake size={18} />
+                AI Coaching
+                <span className="ml-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-1.5 py-0.5 rounded-full">Beta</span>
+              </a>
+              <span className="text-xs text-muted-foreground">1:1 voice coaching · Free</span>
             </div>
             <a
               href="#pilot"
