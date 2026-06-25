@@ -39,7 +39,7 @@ const FEATURES = [
     bg: "oklch(0.52 0.26 272 / 0.08)",
     title: "Conversation Simulation",
     desc: "Practice sales calls, interviews, and customer service with AI personas that adapt in real time — not scripted decision trees.",
-    tag: "Like Solidroad",
+    tag: "AI Simulation",
   },
   {
     icon: BookOpen,
@@ -47,7 +47,7 @@ const FEATURES = [
     bg: "oklch(0.42 0.20 162 / 0.08)",
     title: "Tool Walkthroughs",
     desc: "Step-by-step interactive guides for any software workflow. Spotlight overlays, progress tracking, and completion certificates.",
-    tag: "Like Whatfix",
+    tag: "Guided Walkthroughs",
   },
   {
     icon: Mic,
@@ -559,7 +559,7 @@ export default function Home() {
               One platform. Every skill.
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              Agent Forge combines the best of Solidroad, Whatfix, and coaching analytics into a single, unified experience.
+              Agent Forge combines the best of Tools Simulation, AI Roleplay tools and Coaching analytics into a single, unified experience.
             </p>
           </div>
 
