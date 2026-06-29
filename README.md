@@ -1,15 +1,49 @@
 # Agent Forge — AI-Powered Practice Simulation Platform
 
-![Live Demo](https://img.shields.io/badge/🔴_LIVE_DEMO-agentforge.org.uk-6366f1?style=for-the-badge)
-![Stack](https://img.shields.io/badge/STACK-React_19_+_tRPC_+_Node.js-8b5cf6?style=for-the-badge)
-![Voice](https://img.shields.io/badge/VOICE-ElevenLabs_+_Web_Speech_API-10b981?style=for-the-badge)
-![Languages](https://img.shields.io/badge/LANGUAGES-17_supported-f59e0b?style=for-the-badge)
-![Tests](https://img.shields.io/badge/TESTS-12_passing-22c55e?style=for-the-badge)
+<div align="center">
 
-> Agent Forge replaces static training scripts with dynamic, adaptive AI scenarios that respond to the learner in real time — for enterprise support teams, graduate scheme candidates, sales professionals, and anyone who wants to practise high-stakes conversations before they happen for real.
+[![Live Demo](https://img.shields.io/badge/🔴_LIVE_DEMO-agentforge.org.uk-6366f1?style=for-the-badge)](https://www.agentforge.org.uk)
+[![Stack](https://img.shields.io/badge/STACK-React_19_+_tRPC_+_Node.js-8b5cf6?style=for-the-badge)](#tech-stack)
+[![Voice](https://img.shields.io/badge/VOICE-ElevenLabs_+_Web_Speech_API-10b981?style=for-the-badge)](#voice-simulation-pipeline)
+[![AI](https://img.shields.io/badge/AI-Multi--Agent_Orchestration-f59e0b?style=for-the-badge)](#system-architecture)
+[![Coaching](https://img.shields.io/badge/COACHING-4_AI_Personas-ec4899?style=for-the-badge)](#ai-coaching-module)
+[![Languages](https://img.shields.io/badge/LANGUAGES-17_supported-06b6d4?style=for-the-badge)](#17-language-support)
+[![Tests](https://img.shields.io/badge/TESTS-12_passing-22c55e?style=for-the-badge)](#testing)
+[![Licence](https://img.shields.io/badge/LICENCE-MIT_—_Free_Forever-f97316?style=for-the-badge)](#licence)
+
+</div>
+
+---
+
+> **Agent Forge replaces static training scripts with dynamic, adaptive AI scenarios that respond to the learner in real time** — for enterprise support teams, graduate scheme candidates, sales professionals, and anyone who wants to practise high-stakes conversations before they happen for real.
 
 **Live platform:** [www.agentforge.org.uk](https://www.agentforge.org.uk) — no login required  
-**Architecture deep-dive:** [www.agentforge.org.uk/architecture](https://www.agentforge.org.uk/architecture)
+**Architecture deep-dive:** [www.agentforge.org.uk/architecture](https://www.agentforge.org.uk/architecture)  
+**Author:** [samirdas.co.uk](https://samirdas.co.uk)
+
+---
+
+## Table of Contents
+
+1. [The Problem It Solves](#the-problem-it-solves)
+2. [Key Capabilities](#key-capabilities)
+3. [System Architecture](#system-architecture)
+4. [Learning Science Foundations](#learning-science-foundations)
+5. [50-Point Competency Rubric](#50-point-competency-rubric)
+6. [AI Coaching Module](#ai-coaching-module)
+7. [Coaching Agent — 3-Tier Intervention System](#coaching-agent--3-tier-intervention-system)
+8. [Inter-Agent Communication](#inter-agent-communication--cascade-example)
+9. [Voice Simulation Pipeline](#voice-simulation-pipeline)
+10. [Tech Stack](#tech-stack)
+11. [Competitive Differentiation](#competitive-differentiation)
+12. [Key Engineering Decisions](#key-engineering-decisions)
+13. [Database Schema](#database-schema-19-tables)
+14. [Project Structure](#project-structure)
+15. [Running Locally](#running-locally)
+16. [Testing](#testing)
+17. [About the Author](#about-the-author)
+18. [Partner Organisations](#partner-organisations)
+19. [Licence](#licence)
 
 ---
 
@@ -17,7 +51,7 @@
 
 Traditional training simulations are scripted. They follow a fixed decision tree regardless of what the learner says. A customer who escalates unexpectedly, an interviewer who asks a follow-up, a negotiation that pivots — none of these are handled by a script. Learners memorise paths rather than developing genuine conversational competence.
 
-Agent Forge uses a multi-agent AI system to generate scenarios that adapt in real time — escalating difficulty, shifting persona emotional state, and adjusting coaching feedback based on how the session is actually going. The platform covers five core training domains: customer service, sales, job interviews, negotiation, and presentation skills.
+Agent Forge uses a **multi-agent AI system** to generate scenarios that adapt in real time — escalating difficulty, shifting persona emotional state, and adjusting coaching feedback based on how the session is actually going. The platform covers five core training domains: customer service, sales, job interviews, negotiation, and presentation skills.
 
 ---
 
@@ -25,19 +59,19 @@ Agent Forge uses a multi-agent AI system to generate scenarios that adapt in rea
 
 | Capability | Detail |
 |---|---|
-| **Seamless voice simulation** | Speak naturally — mic listens, silence is detected after 1.5s, transcript sent to AI, ElevenLabs voice responds. Zero buttons between speaking and hearing the reply. |
-| **ElevenLabs persona voices** | Each AI persona has a matched ElevenLabs voice ID. Language switching is automatic — 32 languages handled by `eleven_multilingual_v2`. |
+| **Seamless voice simulation** | Speak naturally — mic listens, silence detected after 1.5s, transcript sent to AI, ElevenLabs voice responds. Zero buttons between speaking and hearing the reply. |
+| **ElevenLabs persona voices** | Each AI persona has a matched ElevenLabs voice ID. Language switching is automatic — 32 languages via `eleven_multilingual_v2`. |
 | **Multi-agent AI orchestration** | Five autonomous agents (Simulation, Coaching, Evaluation, Planning, Orchestrator) operate independently and pass context between each other. |
 | **Adaptive difficulty engine** | Scenario complexity adjusts in real time — modifying persona emotional state, objection intensity, and technical complexity based on learner performance. |
 | **50-point competency rubric** | Every session scored across 6 domains (Decision Quality, Process Adherence, Communication, Tool Proficiency, Documentation, Time Efficiency) by the Evaluation Agent. |
 | **Session analytics** | Scores feed a Predictive Readiness Score (PRS) model that estimates time-to-production-threshold across 5 weighted signals. |
 | **Video interview practice** | Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share. |
 | **eLearning course builder** | AI generates structured courses from uploaded documents — lessons, quizzes, flashcards. |
-| **Career prep module** `Beta` | Industry-specific question banks, live AI interviewer, post-session feedback report. Voice experience actively improving — feedback welcome. |
-| **AI Coaching module** `Beta` | 4 coach personas (Maya — Socratic/leadership, James — GROW/sales, Priya — solution-focused/career, Marcus — directive/executive). Voice-enabled 1:1 sessions grounded in Clean Language, GROW, SFBC, and Gestalt frameworks. 5-phase session arc. Post-session report: key insight, breakthrough moment, commitment, strengths, growth edge, reflection questions. |
+| **Career prep module** `Beta` | Industry-specific question banks, live AI interviewer, post-session feedback report. |
+| **AI Coaching module** `Beta` | 4 coach personas grounded in GROW, Clean Language, SFBC, and Gestalt frameworks. Voice-enabled 1:1 sessions with post-session insight reports. |
 | **Agentic dashboard** | Real-time view of the AI agent system — active agents, inter-agent messages, task queue, orchestration events. |
 | **Feature experimentation sandbox** | LaunchDarkly-style feature flags with statistical confidence measurement, built into the platform. |
-| **17-language support** | Full UI and simulation localisation. |
+| **17-language support** | Full UI and simulation localisation across 17 languages. |
 
 ---
 
@@ -97,9 +131,9 @@ Rather than testing recall (Level 1) or comprehension (Level 2), Agent Forge eva
 
 ## 50-Point Competency Rubric
 
-Every simulation session is automatically scored across 6 competency domains by the Evaluation Agent. The rubric satisfies three requirements simultaneously: pedagogical validity (scores reflect genuine competency), production alignment (categories map to enterprise QA frameworks), and predictive power (simulation scores correlate with real-world performance).
+Every simulation session is automatically scored across 6 competency domains by the Evaluation Agent. The rubric satisfies three requirements simultaneously: pedagogical validity, production alignment, and predictive power.
 
-> Scoring uses a criterion-referenced approach — scores reflect absolute competency against defined standards, not relative performance against peers. The rubric deliberately targets Bloom's Levels 3–6 (Apply, Analyse, Evaluate, Create).
+> Scoring uses a **criterion-referenced approach** — scores reflect absolute competency against defined standards, not relative performance against peers. The rubric deliberately targets Bloom's Levels 3–6 (Apply, Analyse, Evaluate, Create).
 
 | Domain | Points | Weight | Bloom's Level | Example Assessment |
 |---|---|---|---|---|
@@ -112,12 +146,47 @@ Every simulation session is automatically scored across 6 competency domains by 
 
 ### Kirkpatrick 4-Level Alignment
 
-The evaluation framework maps to all four levels of Kirkpatrick's training evaluation model — a distinction from most platforms that only measure Levels 1 and 2:
+| Level | Kirkpatrick | Agent Forge Implementation |
+|---|---|---|
+| 1 | Reaction | Post-session satisfaction score |
+| 2 | Learning | 50-point rubric domain breakdown |
+| 3 | Behaviour | Score trajectory and coaching dependency reduction over time |
+| 4 | Results | Predictive Readiness Score estimating time-to-production-threshold |
 
-- **Level 1 (Reaction):** Post-session satisfaction score
-- **Level 2 (Learning):** 50-point rubric domain breakdown
-- **Level 3 (Behaviour):** Score trajectory and coaching dependency reduction over time
-- **Level 4 (Results):** Predictive Readiness Score estimating time-to-production-threshold
+---
+
+## AI Coaching Module
+
+> `Beta` — Voice-enabled 1:1 coaching with 4 AI personas, each grounded in a distinct evidence-based coaching framework.
+
+The AI Coaching module is a separate experience from simulation — rather than practising against a customer or interviewer, the user has a reflective 1:1 coaching conversation. The coach never tells the user what to do; it asks the question that unlocks the next level of thinking.
+
+### Coach Personas
+
+| Coach | Style | Framework | Focus |
+|---|---|---|---|
+| **Maya Chen** | Socratic / Reflective | Clean Language + Appreciative Inquiry | Leadership identity, self-awareness, values |
+| **James Whitfield** | GROW Model | Goal → Reality → Options → Will | Sales performance, career targets, goal-setting |
+| **Priya Sharma** | Solution-Focused | SFBC + Narrative Coaching | Career transitions, confidence, imposter syndrome |
+| **Marcus Reid** | Directive / Challenge | Gestalt + Ontological Coaching | Executive presence, stakeholder influence |
+
+### Session Arc
+
+```
+Check-in  →  Exploration  →  Insight  →  Action  →  Close
+```
+
+### Post-Session Report Fields
+
+| Field | Description |
+|---|---|
+| Key Insight | The single most important realisation from the session |
+| Breakthrough Moment | The exact exchange where the shift happened |
+| Commitment Made | The specific action the coachee committed to |
+| Strengths Observed | Qualities the coach noticed during the session |
+| Growth Edge | The one area to focus on before the next session |
+| Reflection Questions | 3 questions to sit with before the next session |
+| Coach's Note | A personal closing note from the coach persona |
 
 ---
 
@@ -135,7 +204,7 @@ The Coaching Agent monitors learner actions in real time and delivers contextual
 
 ## Inter-Agent Communication — Cascade Example
 
-The orchestration layer manages a shared state bus where agents publish events and subscribe to relevant signals. A single learner action can trigger a coordinated cascade across all five agents. The example below shows what happens when a critical compliance error is detected:
+The orchestration layer manages a shared state bus where agents publish events and subscribe to relevant signals. A single learner action can trigger a coordinated cascade across all five agents:
 
 | Step | Agent | Action |
 |---|---|---|
@@ -151,30 +220,23 @@ The orchestration layer manages a shared state bus where agents publish events a
 
 ## Voice Simulation Pipeline
 
-The voice loop is the core UX innovation. The original flow had four manual steps and 6–8 seconds of perceived latency. The redesigned flow has zero manual steps.
+The voice loop is the core UX innovation. The original flow had four manual steps and 6–8 seconds of perceived latency. The redesigned flow has **zero manual steps**.
 
-### Phase 1 — Capture (0ms)
-The browser's Web Speech API starts listening immediately when voice mode is entered. Interim results stream into a live transcript bubble in the UI — the user sees their words appearing as they speak, confirming the mic is active.
+| Phase | Duration | What Happens |
+|---|---|---|
+| **1 — Capture** | 0ms | Web Speech API starts listening. Interim results stream into the live transcript bubble in real time. |
+| **2 — Silence Detection** | 0–1500ms | A 1.5s silence timer fires when the user stops speaking. Transcript submitted automatically — no button press. |
+| **3 — AI Generation** | 500–2000ms | `invokeLLM()` called with persona system prompt + conversation history + user message. Scoring agent evaluates in parallel. |
+| **4 — TTS Synthesis** | 200–600ms | `elevenLabsTTS()` called with persona-matched voice ID. `eleven_turbo_v2_5` returns MP3 in ~350–400ms. |
+| **5 — Playback + Auto-restart** | 0ms perceived | Audio plays. On `onended`, Web Speech API restarts automatically. Loop is continuous. |
 
-### Phase 2 — Silence Detection (0–1500ms)
-A 1.5-second silence timer fires when the user stops speaking. This was tuned through testing — 1.0s triggered too early on natural pauses mid-sentence; 2.0s felt sluggish. The final transcript is submitted automatically via `trpc.simulation.speakText.useMutation` — no button press.
-
-### Phase 3 — AI Generation (500–2000ms)
-The server calls `invokeLLM()` with three inputs: the scenario system prompt (persona, emotional state, difficulty level), the full conversation history, and the user's latest message. The LLM returns a text response. Simultaneously, the session's scoring agent evaluates the user's message across five dimensions and appends a score object to the messages array.
-
-### Phase 4 — TTS Synthesis (200–600ms)
-The response text is passed to `elevenLabsTTS()` with the persona-matched voice ID. The `eleven_turbo_v2_5` model is used (not the standard model) — it returns audio in under 400ms at the cost of slightly lower expressiveness. The server returns an MP3 buffer as a base64 data URL.
-
-### Phase 5 — Playback + Auto-restart (0ms perceived)
-The client decodes the base64 URL into an `Audio` object and plays it. The animated orb transitions to 'speaking' state. When audio ends, the `onended` event fires — the orb returns to 'listening' state and the Web Speech API restarts automatically. The loop is continuous.
-
-**Total round-trip latency:** ~1.5s silence detection + ~1.5s AI + ~0.4s TTS = ~3.4s from last word spoken to first word of AI response. Comparable to a natural conversational pause.
+**Total round-trip latency:** ~3.4s from last word spoken to first word of AI response — comparable to a natural conversational pause.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology | Reason for choice |
+| Layer | Technology | Reason for Choice |
 |---|---|---|
 | Frontend | React 19 + TypeScript | Concurrent rendering, strong typing |
 | Styling | Tailwind CSS 4 + shadcn/ui | OKLCH design tokens, accessible components |
@@ -268,6 +330,7 @@ server/
   routers.ts        ← tRPC procedures (simulation, coaching, evaluation, auth)
   routers/
     coaching.ts       ← AI Coaching — listCoaches, chat, speak, generateReport
+    interview.ts      ← Career Prep — question banks, AI interviewer, feedback
   db.ts             ← Drizzle query helpers
   _core/
     elevenLabsTTS.ts  ← Persona-to-voice-ID mapping, turbo model, fallback logic
@@ -321,10 +384,12 @@ pnpm test
 
 Built by **Samir Das** — AI Learning & Knowledge Technology Architect with experience designing and deploying AI-powered training systems at scale within large technology organisations.
 
-- Personal site: [samirdas.co.uk](https://samirdas.co.uk)
-- Platform: [agentforge.org.uk](https://www.agentforge.org.uk)
-- Architecture deep-dive: [agentforge.org.uk/architecture](https://www.agentforge.org.uk/architecture)
-- GitHub: [github.com/samirdas4u](https://github.com/samirdas4u)
+| | |
+|---|---|
+| Personal site | [samirdas.co.uk](https://samirdas.co.uk) |
+| Platform | [agentforge.org.uk](https://www.agentforge.org.uk) |
+| Architecture deep-dive | [agentforge.org.uk/architecture](https://www.agentforge.org.uk/architecture) |
+| GitHub | [github.com/samirdas4u](https://github.com/samirdas4u) |
 
 ---
 
