@@ -50,7 +50,7 @@ const TECH_STACK = [
       { name: "Drizzle ORM", role: "Type-safe SQL queries against TiDB/MySQL" },
       { name: "Superjson", role: "Serialises Date/BigInt across the wire" },
       { name: "Jose (JWT)", role: "Session cookie signing and verification" },
-      { name: "Manus OAuth", role: "Zero-config SSO — no password storage" },
+      { name: "OAuth 2.0 / SSO", role: "Zero-config single sign-on — no password storage" },
       { name: "Vite (SSR bridge)", role: "Dev-server proxy and HMR" },
     ],
   },
@@ -483,7 +483,7 @@ export default function Architecture() {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Security Model</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { title: "No password storage", detail: "Authentication is delegated entirely to Manus OAuth. The platform stores only an openId reference — never a password hash." },
+              { title: "No password storage", detail: "Authentication is delegated entirely to OAuth 2.0 SSO. The platform stores only an openId reference — never a password hash." },
               { title: "Server-side API keys", detail: "ElevenLabs, LLM, Tavus, and S3 credentials are injected as server-side environment variables. No API key is ever sent to the browser." },
               { title: "JWT session cookies", detail: "Sessions are signed with HS256 using a platform-injected JWT_SECRET. Cookies are HttpOnly and SameSite=Lax." },
               { title: "Role-gated procedures", detail: "Every admin operation is wrapped in adminProcedure middleware that throws FORBIDDEN before executing any business logic." },
