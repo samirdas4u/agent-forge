@@ -13,6 +13,7 @@ interface FeatureRow {
   secondNature: FeatureValue;
   solidroad: FeatureValue;
   mindtickle: FeatureValue;
+  walkme: FeatureValue;
 }
 
 interface FeatureGroup {
@@ -24,35 +25,35 @@ const FEATURE_GROUPS: FeatureGroup[] = [
   {
     category: "CORE",
     rows: [
-      { label: "AI Customer Simulation",          agentForge: "yes", secondNature: "yes",     solidroad: "yes",     mindtickle: "partial" },
-      { label: "CRM Replica Environment",          agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no" },
-      { label: "Diagnostic Tool Views (UBD/IDD)",  agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no" },
+      { label: "AI Customer Simulation",          agentForge: "yes", secondNature: "yes",     solidroad: "yes",     mindtickle: "partial", walkme: "no" },
+      { label: "CRM Replica Environment",          agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no",      walkme: "partial" },
+      { label: "Diagnostic Tool Views (UBD/IDD)",  agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no",      walkme: "no" },
     ],
   },
   {
     category: "QUALITY",
     rows: [
-      { label: "Automated QA Scoring (50 criteria)", agentForge: "yes", secondNature: "partial", solidroad: "partial", mindtickle: "yes" },
-      { label: "No-Code Scenario Builder",            agentForge: "yes", secondNature: "partial", solidroad: "yes",     mindtickle: "yes" },
-      { label: "AI Screenshot Anonymization",         agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no" },
+      { label: "Automated QA Scoring (50 criteria)", agentForge: "yes", secondNature: "partial", solidroad: "partial", mindtickle: "yes",     walkme: "no" },
+      { label: "No-Code Scenario Builder",            agentForge: "yes", secondNature: "partial", solidroad: "yes",     mindtickle: "yes",     walkme: "partial" },
+      { label: "AI Screenshot Anonymization",         agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no",      walkme: "no" },
     ],
   },
   {
     category: "SCALE",
     rows: [
-      { label: "Multi-Program Architecture", agentForge: "yes", secondNature: "partial", solidroad: "partial", mindtickle: "yes" },
-      { label: "Role-Based Access Control",  agentForge: "yes", secondNature: "partial", solidroad: "yes",     mindtickle: "yes" },
-      { label: "Unlimited Users",            agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no" },
-      { label: "Unlimited AI Sessions",      agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "partial" },
+      { label: "Multi-Program Architecture", agentForge: "yes", secondNature: "partial", solidroad: "partial", mindtickle: "yes",     walkme: "partial" },
+      { label: "Role-Based Access Control",  agentForge: "yes", secondNature: "partial", solidroad: "yes",     mindtickle: "yes",     walkme: "yes" },
+      { label: "Unlimited Users",            agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "no",      walkme: "no" },
+      { label: "Unlimited AI Sessions",      agentForge: "yes", secondNature: "no",      solidroad: "no",      mindtickle: "partial", walkme: "partial" },
     ],
   },
   {
     category: "SECURITY",
     rows: [
-      { label: "Full Data Ownership",        agentForge: "yes", secondNature: "no",  solidroad: "no",  mindtickle: "no" },
-      { label: "No Vendor Lock-in",          agentForge: "yes", secondNature: "no",  solidroad: "no",  mindtickle: "no" },
-      { label: "Native Meta Workflow Fit",   agentForge: "yes", secondNature: "no",  solidroad: "no",  mindtickle: "no" },
-      { label: "Fully Customizable",         agentForge: "yes", secondNature: "partial", solidroad: "partial", mindtickle: "partial" },
+      { label: "Full Data Ownership",        agentForge: "yes", secondNature: "no",  solidroad: "no",  mindtickle: "no",  walkme: "no" },
+      { label: "No Vendor Lock-in",          agentForge: "yes", secondNature: "no",  solidroad: "no",  mindtickle: "no",  walkme: "no" },
+      { label: "Native Meta Workflow Fit",   agentForge: "yes", secondNature: "no",  solidroad: "no",  mindtickle: "no",  walkme: "no" },
+      { label: "Fully Customizable",         agentForge: "yes", secondNature: "partial", solidroad: "partial", mindtickle: "partial", walkme: "partial" },
     ],
   },
 ];
@@ -62,6 +63,7 @@ const COMPETITORS = [
   { key: "secondNature", name: "Second Nature",  tagline: "AI role-play for sales" },
   { key: "solidroad",    name: "Solidroad",      tagline: "AI training with QA" },
   { key: "mindtickle",   name: "Mindtickle",     tagline: "Sales readiness platform" },
+  { key: "walkme",       name: "WalkMe",         tagline: "Digital adoption platform" },
 ];
 
 function scoreFor(key: string, groups: FeatureGroup[]): string {
@@ -144,7 +146,17 @@ const PRICING_CARDS: PricingCard[] = [
     annualRed: true,
     tcoRed: true,
   },
-
+  {
+    name: "WalkMe",
+    tagline: "Digital adoption platform",
+    perUser: "~$6.5K/mo",
+    annual: "~$79K",
+    tco3yr: "~$237K",
+    note: "Avg annual: ~$79K/yr (Vendr)",
+    source: "Source: userpilot.com, glitter.io",
+    annualRed: true,
+    tcoRed: true,
+  },
 ];
 
 const HIDDEN_COSTS = [
@@ -286,7 +298,7 @@ export default function WhyAgentForge() {
                   <>
                     {/* Category header */}
                     <tr key={group.category}>
-                      <td colSpan={5} className="pt-5 pb-1 px-0">
+                      <td colSpan={6} className="pt-5 pb-1 px-0">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600">
                           {group.category}
                         </span>

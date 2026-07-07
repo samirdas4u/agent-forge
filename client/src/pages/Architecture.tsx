@@ -224,7 +224,7 @@ const COMPETITORS = [
   { platform: "Second Nature", approach: "AI role-play for sales", limitation: "Single-agent, sales-only, no CRM simulation or multi-agent orchestration" },
   { platform: "Solidroad", approach: "AI conversation practice", limitation: "No multi-agent orchestration, no adaptive difficulty, no 50-point rubric" },
   { platform: "Mindtickle", approach: "Revenue enablement", limitation: "Sales-focused, no customer service depth, no real-time coaching tiers" },
-
+  { platform: "WalkMe", approach: "Digital adoption platform", limitation: "Guidance overlays only, not simulation-based training — no AI roleplay or scoring" },
   { platform: "Articulate Rise", approach: "eLearning authoring", limitation: "Static content, no AI, no real-time interaction or adaptive difficulty" },
 ];
 
