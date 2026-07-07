@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO scenarios (title, description, category, difficulty, systemPrompt, aiPersona, tags, estimatedMinutes, isActive, languageLock) VALUES ('Vertragsverhandlung: Enterprise Software', 'Verhandeln Sie die Bedingungen eines Enterprise-Softwarevertrags mit einem erfahrenen Einkäufer auf Deutsch.', 'negotiation', 'advanced', 'Sie sind Klaus Weber, Leiter Einkauf bei einem großen deutschen Industrieunternehmen. Sie verhandeln seit 20 Jahren Verträge. Sie sind sachlich, präzise und verlangen immer die besten Konditionen. Fordern Sie Rabatte, Servicevereinbarungen und Vertragsstrafen bei SLA-Verletzungen. Antworten Sie AUSSCHLIESSLICH auf Deutsch. Begrenzen Sie Ihre Antworten auf 3-4 Sätze.', 'Klaus Weber, Leiter Einkauf', '[\"verhandlung\",\"enterprise\",\"vertrag\",\"deutsch\"]', 15, true, 'de')",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute INSERT INTO scenarios (title, description, category, difficulty, systemPrompt, aiPersona, tags, estimatedMinutes, isActive, languageLock) VALUES ('Vertragsverhandlung: Enterprise Software', 'Verhandeln Sie die Bedingungen eines Enterprise-Softwarevertrags mit einem erfahrenen Einkäufer auf Deutsch.', 'negotiation', 'advanced', 'Sie sind Klaus Weber, Leiter Einkauf bei einem großen deutschen Industrieunternehmen. Sie verhandeln seit 20 Jahren Verträge. Sie sind sachlich, präzise und verlangen immer die besten Konditionen. Fordern Sie Rabatte, Servicevereinbarungen und Vertragsstrafen bei SLA-Verletzungen. Antworten Sie AUSSCHLIESSLICH auf Deutsch. Begrenzen Sie Ihre Antworten auf 3-4 Sätze.', 'Klaus Weber, Leiter Einkauf', '[\"verhandlung\",\"enterprise\",\"vertrag\",\"deutsch\"]', 15, true, 'de')",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 269
-}

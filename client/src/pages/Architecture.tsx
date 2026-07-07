@@ -224,7 +224,7 @@ const COMPETITORS = [
   { platform: "Second Nature", approach: "AI role-play for sales", limitation: "Single-agent, sales-only, no CRM simulation or multi-agent orchestration" },
   { platform: "Solidroad", approach: "AI conversation practice", limitation: "No multi-agent orchestration, no adaptive difficulty, no 50-point rubric" },
   { platform: "Mindtickle", approach: "Revenue enablement", limitation: "Sales-focused, no customer service depth, no real-time coaching tiers" },
-  { platform: "Whatfix / WalkMe", approach: "Digital adoption platforms", limitation: "Guidance overlays, not simulation-based training" },
+
   { platform: "Articulate Rise", approach: "eLearning authoring", limitation: "Static content, no AI, no real-time interaction or adaptive difficulty" },
 ];
 
@@ -232,7 +232,7 @@ const MODULES = [
   { name: "Communication Simulation", icon: "🎭", routes: ["/scenarios", "/simulate/:sessionId", "/session/:id/result", "/session/:id/replay"], description: "5 scenario categories, 5 AI personas, real-time scoring across 5 dimensions, session replay." },
   { name: "Video Interview Practice", icon: "🎥", routes: ["/interview", "/interview/session/:id", "/interview/result"], description: "Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share." },
   { name: "eLearning Course Builder", icon: "📚", routes: ["/courses", "/courses/new", "/courses/:id/edit", "/learn/:slug"], description: "Document upload → AI course generation → block editor → SCORM export → public learner view." },
-  { name: "Tool Walkthrough Player", icon: "🗺️", routes: ["/walkthroughs", "/walkthroughs/:id"], description: "Whatfix-style spotlight walkthrough with step tooltips and completion tracking." },
+  { name: "Tool Walkthrough Player", icon: "🗺️", routes: ["/walkthroughs", "/walkthroughs/:id"], description: "Guided spotlight walkthrough with step tooltips, progress tracking, and completion certificates." },
   { name: "Product Sandbox", icon: "🔬", routes: ["/sandbox", "/sandbox/flags", "/sandbox/ai-tester", "/sandbox/test-runner", "/sandbox/personas", "/sandbox/events"], description: "Engineering control plane — feature flags, AI behaviour tester, synthetic test runner, persona lab, event log." },
   { name: "Agentic Dashboard", icon: "🤖", routes: ["/agentic-dashboard"], description: "5-agent orchestration system — Readiness Predictor, Coaching Nudge, Difficulty Adjuster, Content Curator, Engagement Monitor." },
   { name: "Analytics & Progress", icon: "📊", routes: ["/dashboard", "/analytics", "/leaderboard", "/readiness"], description: "Recharts radar/trend/bar visualisations, streak tracking, leaderboard, readiness predictions." },

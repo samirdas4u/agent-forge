@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO scenarios (title, description, category, difficulty, systemPrompt, aiPersona, tags, estimatedMinutes, isActive, languageLock) VALUES ('Entrevista de Trabajo: Gerente de Ventas', 'Practica una entrevista de trabajo para el puesto de gerente de ventas con un entrevistador experimentado.', 'interview', 'intermediate', 'Eres Carlos García, Director de Recursos Humanos en una empresa tecnológica española. Estás entrevistando a candidatos para un puesto de gerente de ventas. Haz preguntas sobre experiencia previa, técnicas de venta y cómo manejan el rechazo. Evalúa si el candidato es adecuado para el puesto. Responde ÚNICAMENTE en español. Limita tus respuestas a 2-3 oraciones.', 'Carlos García, Director de RRHH', '[\"entrevista\",\"ventas\",\"español\"]', 12, true, 'es')",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute INSERT INTO scenarios (title, description, category, difficulty, systemPrompt, aiPersona, tags, estimatedMinutes, isActive, languageLock) VALUES ('Entrevista de Trabajo: Gerente de Ventas', 'Practica una entrevista de trabajo para el puesto de gerente de ventas con un entrevistador experimentado.', 'interview', 'intermediate', 'Eres Carlos García, Director de Recursos Humanos en una empresa tecnológica española. Estás entrevistando a candidatos para un puesto de gerente de ventas. Haz preguntas sobre experiencia previa, técnicas de venta y cómo manejan el rechazo. Evalúa si el candidato es adecuado para el puesto. Responde ÚNICAMENTE en español. Limita tus respuestas a 2-3 oraciones.', 'Carlos García, Director de RRHH', '[\"entrevista\",\"ventas\",\"español\"]', 12, true, 'es')",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 265
-}

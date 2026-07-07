@@ -1,17 +1,13 @@
 # Agent Forge — AI-Powered Practice Simulation Platform
 
-<div align="center">
-
-[![Live Demo](https://img.shields.io/badge/🔴_LIVE_DEMO-agentforge.org.uk-6366f1?style=for-the-badge)](https://www.agentforge.org.uk)
-[![Stack](https://img.shields.io/badge/STACK-React_19_+_tRPC_+_Node.js-8b5cf6?style=for-the-badge)](#tech-stack)
-[![Voice](https://img.shields.io/badge/VOICE-ElevenLabs_+_Web_Speech_API-10b981?style=for-the-badge)](#voice-simulation-pipeline)
-[![AI](https://img.shields.io/badge/AI-Multi--Agent_Orchestration-f59e0b?style=for-the-badge)](#system-architecture)
-[![Coaching](https://img.shields.io/badge/COACHING-4_AI_Personas-ec4899?style=for-the-badge)](#ai-coaching-module)
-[![Languages](https://img.shields.io/badge/LANGUAGES-17_supported-06b6d4?style=for-the-badge)](#17-language-support)
-[![Tests](https://img.shields.io/badge/TESTS-12_passing-22c55e?style=for-the-badge)](#testing)
-[![Licence](https://img.shields.io/badge/LICENCE-MIT_—_Free_Forever-f97316?style=for-the-badge)](#licence)
-
-</div>
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-agentforge.org.uk-6366f1?style=for-the-badge&logo=vercel)](https://www.agentforge.org.uk)
+[![Stack](https://img.shields.io/badge/Stack-React%2019%20%2B%20tRPC%20%2B%20Node.js-0ea5e9?style=for-the-badge&logo=react)](https://www.agentforge.org.uk)
+[![AI](https://img.shields.io/badge/AI-Multi--Agent%20Orchestration-8b5cf6?style=for-the-badge&logo=openai)](https://www.agentforge.org.uk)
+[![Voice](https://img.shields.io/badge/Voice-ElevenLabs%20%2B%20Web%20Speech%20API-10b981?style=for-the-badge&logo=googlechrome)](https://www.agentforge.org.uk)
+[![Coaching](https://img.shields.io/badge/Coaching-4%20AI%20Personas-ec4899?style=for-the-badge&logo=headspace)](https://www.agentforge.org.uk)
+[![Languages](https://img.shields.io/badge/Languages-17%20Supported-06b6d4?style=for-the-badge&logo=googletranslate)](https://www.agentforge.org.uk)
+[![Tests](https://img.shields.io/badge/Tests-12%20passing-22c55e?style=for-the-badge&logo=vitest)](https://www.agentforge.org.uk)
+[![Licence](https://img.shields.io/badge/Licence-MIT%20%E2%80%94%20Free%20Forever-f59e0b?style=for-the-badge)](https://www.agentforge.org.uk)
 
 ---
 

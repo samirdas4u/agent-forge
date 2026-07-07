@@ -1,9 +1,0 @@
-{
-  "query": "ALTER TABLE `sessions` ADD `language` varchar(10) DEFAULT 'en' NOT NULL;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute ALTER TABLE `sessions` ADD `language` varchar(10) DEFAULT 'en' NOT NULL;",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 4225
-}

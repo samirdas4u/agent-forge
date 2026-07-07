@@ -1,9 +1,0 @@
-{
-  "query": "CREATE TABLE IF NOT EXISTS walkthroughs (id int AUTO_INCREMENT NOT NULL, title varchar(255) NOT NULL, description text, category varchar(100), difficulty enum('beginner','intermediate','advanced') NOT NULL DEFAULT 'beginner', steps json NOT NULL, estimatedMinutes int DEFAULT 5, isActive boolean NOT NULL DEFAULT true, createdAt timestamp NOT NULL DEFAULT (now()), updatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP, CONSTRAINT walkthroughs_id PRIMARY KEY(id))",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2neDqKAVuaKApz5.552174c64abd --database CW2Wbh78D9Ki89R2Q3ujYU --execute CREATE TABLE IF NOT EXISTS walkthroughs (id int AUTO_INCREMENT NOT NULL, title varchar(255) NOT NULL, description text, category varchar(100), difficulty enum('beginner','intermediate','advanced') NOT NULL DEFAULT 'beginner', steps json NOT NULL, estimatedMinutes int DEFAULT 5, isActive boolean NOT NULL DEFAULT true, createdAt timestamp NOT NULL DEFAULT (now()), updatedAt timestamp NOT NULL DEFAULT (now()) ON UPDATE CURRENT_TIMESTAMP, CONSTRAINT walkthroughs_id PRIMARY KEY(id))",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 323
-}
