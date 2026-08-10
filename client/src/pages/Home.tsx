@@ -21,11 +21,11 @@ import {
   TrendingUp,
   Trophy,
   Users,
-  Video,
   X,
   Zap,
   XCircle,
   HeartHandshake,
+  GraduationCap,
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "wouter";
@@ -82,19 +82,11 @@ const FEATURES = [
     tag: "Admin",
   },
   {
-    icon: Video,
-    color: "oklch(0.48 0.22 340)",
-    bg: "oklch(0.48 0.22 340 / 0.08)",
-    title: "AI Video Interview Practice",
-    desc: "Face-to-face video interviews with AI personas powered by Tavus CVI. Practice for graduate schemes, NHS roles, and tech interviews with real-time AI feedback.",
-    tag: "New",
-  },
-  {
     icon: Globe,
     color: "oklch(0.42 0.22 200)",
     bg: "oklch(0.42 0.22 200 / 0.08)",
     title: "35 Languages · 3 Channels",
-    desc: "Chat, Email & Phone: 35 languages including English, French, Spanish, Arabic, Mandarin, Hindi, and 29 more. Video AI Interview: 17 languages (Tavus platform). Practice in your language, get feedback in your language.",
+    desc: "Chat, Email & Phone: 35 languages including English, French, Spanish, Arabic, Mandarin, Hindi, and 29 more. Practice in your language, get feedback in your language.",
     tag: "Global",
   },
 ];
@@ -300,7 +292,7 @@ export default function Home() {
                   boxShadow: "0 8px 32px oklch(0.48 0.22 340 / 0.30)",
                 }}
               >
-                <Video size={18} />
+                <GraduationCap size={18} />
                 Career Prep &amp; Interview Practice
                 <span className="ml-1 text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white px-1.5 py-0.5 rounded-full">Beta</span>
               </a>

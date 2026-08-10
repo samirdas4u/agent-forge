@@ -62,7 +62,6 @@ const TECH_STACK = [
       { name: "LLM (GPT-4 class)", role: "Scenario roleplay, feedback generation, course authoring" },
       { name: "ElevenLabs Turbo v2.5", role: "Persona-matched TTS — 32 languages, <400ms latency" },
       { name: "Whisper API", role: "Fallback STT for browsers without Web Speech API" },
-      { name: "Tavus CVI", role: "Real-time video interview with AI avatar" },
       { name: "D-ID SDK", role: "Talking-head avatar for persona simulation" },
     ],
   },
@@ -230,7 +229,6 @@ const COMPETITORS = [
 
 const MODULES = [
   { name: "Communication Simulation", icon: "🎭", routes: ["/scenarios", "/simulate/:sessionId", "/session/:id/result", "/session/:id/replay"], description: "5 scenario categories, 5 AI personas, real-time scoring across 5 dimensions, session replay." },
-  { name: "Video Interview Practice", icon: "🎥", routes: ["/interview", "/interview/session/:id", "/interview/result"], description: "Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share." },
   { name: "eLearning Course Builder", icon: "📚", routes: ["/courses", "/courses/new", "/courses/:id/edit", "/learn/:slug"], description: "Document upload → AI course generation → block editor → SCORM export → public learner view." },
   { name: "Tool Walkthrough Player", icon: "🗺️", routes: ["/walkthroughs", "/walkthroughs/:id"], description: "Guided spotlight walkthrough with step tooltips, progress tracking, and completion certificates." },
   { name: "Product Sandbox", icon: "🔬", routes: ["/sandbox", "/sandbox/flags", "/sandbox/ai-tester", "/sandbox/test-runner", "/sandbox/personas", "/sandbox/events"], description: "Engineering control plane — feature flags, AI behaviour tester, synthetic test runner, persona lab, event log." },
@@ -306,7 +304,6 @@ export default function Architecture() {
   │                                           ├── tRPC Router
   └── Audio playback (base64 MP3)             │   ├── auth.*        (OAuth, session)
                                               │   ├── simulation.*  (scenarios, sessions)
-                                              │   ├── interview.*   (Tavus CVI)
                                               │   ├── courses.*     (AI authoring)
                                               │   ├── sandbox.*     (flags, personas)
                                               │   ├── agentic.*     (5-agent system)
@@ -484,7 +481,7 @@ export default function Architecture() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
               { title: "No password storage", detail: "Authentication is delegated entirely to OAuth 2.0 SSO. The platform stores only an openId reference — never a password hash." },
-              { title: "Server-side API keys", detail: "ElevenLabs, LLM, Tavus, and S3 credentials are injected as server-side environment variables. No API key is ever sent to the browser." },
+              { title: "Server-side API keys", detail: "ElevenLabs, LLM, and S3 credentials are injected as server-side environment variables. No API key is ever sent to the browser." },
               { title: "JWT session cookies", detail: "Sessions are signed with HS256 using a platform-injected JWT_SECRET. Cookies are HttpOnly and SameSite=Lax." },
               { title: "Role-gated procedures", detail: "Every admin operation is wrapped in adminProcedure middleware that throws FORBIDDEN before executing any business logic." },
               { title: "S3 path randomisation", detail: "File keys include nanoid random suffixes to prevent enumeration attacks on uploaded assets." },

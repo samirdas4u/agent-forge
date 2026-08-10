@@ -6,7 +6,6 @@ import {
   Bot,
   Brain,
   Crown,
-  Video,
   ChevronRight,
   Cpu,
   ExternalLink,
@@ -47,7 +46,6 @@ const TRAINING_NAV_KEYS = [
   { href: "/walkthroughs", key: "nav_walkthroughs", icon: Layers },
   { href: "/analytics",    key: "nav_analytics",    icon: BarChart3 },
   { href: "/leaderboard",  key: "nav_leaderboard",  icon: Trophy },
-  { href: "/interview",     key: "nav_interview",    icon: Video },
   { href: "/career-prep",   key: "Career Prep",      icon: GraduationCap, beta: true },
   { href: "/coaching",      key: "AI Coaching",      icon: HeartHandshake, beta: true },
 ];

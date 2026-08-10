@@ -15,10 +15,7 @@ import Analytics from "./pages/Analytics";
 import SessionReplay from "./pages/SessionReplay";
 import Leaderboard from "./pages/Leaderboard";
 import AdminScenarios from "./pages/AdminScenarios";
-import InterviewPractice from "./pages/InterviewPractice";
 import UserManagement from "./pages/UserManagement";
-import InterviewSession from "./pages/InterviewSession";
-import InterviewResult from "./pages/InterviewResult";
 import AgenticDashboard from "./pages/AgenticDashboard";
 import ReadinessPredictions from "./pages/ReadinessPredictions";
 import WhyAgentForge from "./pages/WhyAgentForge";
@@ -74,21 +71,11 @@ function Router() {
       <Route path="/admin/users">
         <UserManagement />
       </Route>
-      {/* Interview Practice routes */}
-      <Route path="/interview">
-        <InterviewPractice />
-      </Route>
       <Route path="/career-prep">
         <CareerPrep />
       </Route>
       <Route path="/coaching">
         <Coaching />
-      </Route>
-      <Route path="/interview/session/:conversationId">
-        {(params) => <InterviewSession />}
-      </Route>
-      <Route path="/interview/result">
-        <InterviewResult />
       </Route>
       {/* Product Sandbox routes */}
       <Route path="/sandbox">

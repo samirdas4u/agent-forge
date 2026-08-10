@@ -115,3 +115,4 @@ client/public/__manus__/version.json
 todo.md
 patches/
 scripts/
+.project-config.json
