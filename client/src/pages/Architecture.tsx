@@ -274,7 +274,7 @@ export default function Architecture() {
               { icon: Code2, label: "21,766 lines of TypeScript" },
               { icon: TestTube2, label: "12 automated tests" },
               { icon: Database, label: "19 database tables" },
-              { icon: Layers, label: "8 product modules" },
+              { icon: Layers, label: "7 product modules" },
               { icon: Globe, label: "17 languages" },
               { icon: Brain, label: "5 AI agents" },
             ].map(({ icon: Icon, label }) => (

@@ -61,7 +61,7 @@ Agent Forge uses a **multi-agent AI system** to generate scenarios that adapt in
 | **Adaptive difficulty engine** | Scenario complexity adjusts in real time — modifying persona emotional state, objection intensity, and technical complexity based on learner performance. |
 | **50-point competency rubric** | Every session scored across 6 domains (Decision Quality, Process Adherence, Communication, Tool Proficiency, Documentation, Time Efficiency) by the Evaluation Agent. |
 | **Session analytics** | Scores feed a Predictive Readiness Score (PRS) model that estimates time-to-production-threshold across 5 weighted signals. |
-| **Video interview practice** | Tavus CVI real-time video interview with AI avatar, structured feedback report, LinkedIn share. |
+| **Video interview practice** | AI video interview with structured feedback — coming soon. |
 | **eLearning course builder** | AI generates structured courses from uploaded documents — lessons, quizzes, flashcards. |
 | **Career prep module** `Beta` | Industry-specific question banks, live AI interviewer, post-session feedback report. |
 | **AI Coaching module** `Beta` | 4 coach personas grounded in GROW, Clean Language, SFBC, and Gestalt frameworks. Voice-enabled 1:1 sessions with post-session insight reports. |

@@ -26,6 +26,7 @@ import {
   XCircle,
   HeartHandshake,
   GraduationCap,
+  Video,
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "wouter";
@@ -88,6 +89,15 @@ const FEATURES = [
     title: "35 Languages · 3 Channels",
     desc: "Chat, Email & Phone: 35 languages including English, French, Spanish, Arabic, Mandarin, Hindi, and 29 more. Practice in your language, get feedback in your language.",
     tag: "Global",
+  },
+  {
+    icon: Video,
+    color: "oklch(0.55 0.14 220)",
+    bg: "oklch(0.55 0.14 220 / 0.06)",
+    title: "AI Video Interview",
+    desc: "Face-to-face video interviews with AI personas. Practice for graduate schemes, NHS roles, and tech interviews with real-time AI feedback.",
+    tag: "Coming Soon",
+    comingSoon: true,
   },
 ];
 
@@ -559,7 +569,7 @@ export default function Home() {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="group bg-white border border-border rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                className={`group bg-white border rounded-2xl p-6 transition-all duration-200 ${'comingSoon' in f && (f as any).comingSoon ? 'border-dashed border-gray-200 opacity-70' : 'border-border hover:shadow-lg hover:-translate-y-1'}`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: f.bg }}>
